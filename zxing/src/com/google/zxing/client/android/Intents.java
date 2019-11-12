@@ -160,6 +160,16 @@ public final class Intents {
         public static final String CUSTOM_TITLE_TEXT = "CUSTOM_TITLE_TEXT";
         
         /**
+         * 标题背景
+         */
+        public static final String CUSTOM_TITLE_BG = "CUSTOM_TITLE_BG";
+        
+        /**
+         * 标题文字颜色
+         */
+        public static final String CUSTOM_TEXT_COLOR = "CUSTOM_TEXT_COLOR";
+        
+        /**
          * 是否启用相册扫码
          */
         public static final String ALBUM_ENABLE = "ALBUM_ENABLE";

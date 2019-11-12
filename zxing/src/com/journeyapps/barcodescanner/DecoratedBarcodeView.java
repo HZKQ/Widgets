@@ -3,6 +3,7 @@ package com.journeyapps.barcodescanner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
@@ -154,7 +155,15 @@ public class DecoratedBarcodeView extends FrameLayout {
         if (title != null) {
             setTitleText(title);
         }
+    
+        int titleBg = intent.getIntExtra(Intents.Scan.CUSTOM_TITLE_BG, -1);
+        if (titleBg != -1) {
+            setTitleBg(titleBg);
+        }
         
+        int titleTextColor = intent.getIntExtra(Intents.Scan.CUSTOM_TEXT_COLOR, Color.WHITE);
+        setTitleTextColor(titleTextColor);
+    
         boolean enableAlbum = intent.getBooleanExtra(Intents.Scan.ALBUM_ENABLE, true);
         setAlbumEnabled(enableAlbum);
         
@@ -163,6 +172,20 @@ public class DecoratedBarcodeView extends FrameLayout {
         String characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
         barcodeView.setCameraSettings(settings);
         barcodeView.setDecoderFactory(new DefaultDecoderFactory(decodeHints, characterSet, scanType));
+    }
+    
+    private void setTitleBg(int titleBg) {
+        if (mTitleBar != null) {
+            mTitleBar.setBackgroundResource(titleBg);
+        }
+    }
+    
+    private void setTitleTextColor(int titleTextColor) {
+        if (mTitleBar != null) {
+            mTitleBar.getTvLeft().setTextColor(titleTextColor);
+            mTitleBar.getTvTitle().setTextColor(titleTextColor);
+            mTitleBar.getTvRight().setTextColor(titleTextColor);
+        }
     }
     
     private void setAlbumEnabled(boolean enableAlbum) {

@@ -31,7 +31,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntegerRes;
 import androidx.fragment.app.Fragment;
+import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
  * @author Sean Owen
@@ -174,6 +180,28 @@ public class IntentIntegrator {
         if (title != null) {
             addExtra(Intents.Scan.CUSTOM_TITLE_TEXT, title);
         }
+        return this;
+    }
+    
+    /**
+     * 设置标题背景
+     *
+     * @param bgRes 标题背景
+     * @return this
+     */
+    public IntentIntegrator setCustomTitleBg(@DrawableRes @ColorRes int bgRes) {
+        addExtra(Intents.Scan.CUSTOM_TITLE_BG, bgRes);
+        return this;
+    }
+
+    /**
+     * 设置标题文字颜色
+     *
+     * @param textColorRes 标题文字颜色
+     * @return this
+     */
+    public IntentIntegrator setCustomTitleTextColor(@ColorRes int textColorRes) {
+        addExtra(Intents.Scan.CUSTOM_TEXT_COLOR, SimpleUtil.getColor(textColorRes));
         return this;
     }
     

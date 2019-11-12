@@ -9,11 +9,13 @@
 ```java
     new IntentIntegrator(this)
         .setCustomTitle("二维码扫描") //标题栏文字
+        .setCustomTitleBg(R.color.colorPrimary) //标题背景
+        .setCustomTitleTextColor(R.color.colorWhite) //标题文字颜色
         .setPrompt("将扫码框对准二维码开始扫描")  //扫描框底部文字
         .setCameraId(0)  // 后置摄像头
         .setBeepEnabled(true) //是否有提示音
         .setBarcodeImageEnabled(false)
-        .setAlbumScanEnabled(true) //是否启用相册扫码
+        .setAlbumScanEnabled(false) //是否启用相册扫码
         .initiateScan();
 ```
 

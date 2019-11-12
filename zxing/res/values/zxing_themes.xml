@@ -5,9 +5,9 @@
 
   <style name="zxing_CaptureTheme" parent="MagpieTheme.NoActionBar">
     <!-- Customize your theme here. -->
-    <item name="colorPrimary">@color/colorPrimaryZxing</item>
-    <item name="colorPrimaryDark">@color/colorPrimaryDarkZxing</item>
-    <item name="colorAccent">@color/colorAccentZxing</item>
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="colorAccent">@color/colorAccent</item>
   </style>
 
   <style name="transparentDialog" parent="@android:style/Theme.Dialog">
