@@ -13,7 +13,7 @@ import java.util.Map;
  * @see DefaultDecoderFactory
  */
 public interface DecoderFactory {
-
+    
     /**
      * Create a new Decoder.
      *

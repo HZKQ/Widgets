@@ -22,6 +22,8 @@ package com.google.zxing;
  * @author Sean Owen
  */
 public enum BarcodeFormat {
-  /** QR Code 2D barcode format. */
-  QR_CODE,
+    /**
+     * QR Code 2D barcode format.
+     */
+    QR_CODE,
 }

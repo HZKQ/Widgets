@@ -9,7 +9,6 @@ import android.view.KeyEvent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.DecodeHintManager;
@@ -18,7 +17,6 @@ import com.google.zxing.client.android.R;
 import com.journeyapps.barcodescanner.camera.CameraParametersCallback;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -155,7 +153,7 @@ public class DecoratedBarcodeView extends FrameLayout {
         if (title != null) {
             setTitleText(title);
         }
-    
+        
         int titleBg = intent.getIntExtra(Intents.Scan.CUSTOM_TITLE_BG, -1);
         if (titleBg != -1) {
             setTitleBg(titleBg);
@@ -163,7 +161,7 @@ public class DecoratedBarcodeView extends FrameLayout {
         
         int titleTextColor = intent.getIntExtra(Intents.Scan.CUSTOM_TEXT_COLOR, Color.WHITE);
         setTitleTextColor(titleTextColor);
-    
+        
         boolean enableAlbum = intent.getBooleanExtra(Intents.Scan.ALBUM_ENABLE, true);
         setAlbumEnabled(enableAlbum);
         

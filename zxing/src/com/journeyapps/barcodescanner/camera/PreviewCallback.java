@@ -7,5 +7,6 @@ import com.journeyapps.barcodescanner.SourceData;
  */
 public interface PreviewCallback {
     void onPreview(SourceData sourceData);
+    
     void onPreviewError(Exception e);
 }

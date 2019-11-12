@@ -1,17 +1,15 @@
 package com.hzkq.widgets;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
-import me.zhouzhuo810.magpiex.utils.SimpleUtil;
-import me.zhouzhuo810.magpiex.utils.ToastUtil;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import androidx.annotation.Nullable;
+import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
+import me.zhouzhuo810.magpiex.utils.ToastUtil;
 
 public class MainActivity extends BaseActivity {
     

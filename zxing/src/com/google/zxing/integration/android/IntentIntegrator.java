@@ -31,11 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
-import androidx.annotation.IntegerRes;
 import androidx.fragment.app.Fragment;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
@@ -193,7 +190,7 @@ public class IntentIntegrator {
         addExtra(Intents.Scan.CUSTOM_TITLE_BG, bgRes);
         return this;
     }
-
+    
     /**
      * 设置标题文字颜色
      *

@@ -443,11 +443,11 @@ public class BarcodeView extends CameraPreview {
                     focusing = false;
                 }
             });
-        } catch(Exception e) {
-            if(BuildConfig.DEBUG) {
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG) {
                 e.printStackTrace();
             }
-            focusing =  false;
+            focusing = false;
         }
     }
 }

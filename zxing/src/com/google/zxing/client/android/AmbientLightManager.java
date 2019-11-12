@@ -33,25 +33,25 @@ import com.journeyapps.barcodescanner.camera.CameraSettings;
  * @author Nikolaus Huber
  */
 public final class AmbientLightManager implements SensorEventListener {
-
+    
     private static final float TOO_DARK_LUX = 45.0f;
     private static final float BRIGHT_ENOUGH_LUX = 450.0f;
-
+    
     private CameraManager cameraManager;
     private CameraSettings cameraSettings;
     private Sensor lightSensor;
     private Context context;
-
+    
     private Handler handler;
-
+    
     public AmbientLightManager(Context context, CameraManager cameraManager, CameraSettings settings) {
         this.context = context;
         this.cameraManager = cameraManager;
         this.cameraSettings = settings;
-
+        
         this.handler = new Handler();
     }
-
+    
     public void start() {
         if (cameraSettings.isAutoTorchEnabled()) {
             SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -61,7 +61,7 @@ public final class AmbientLightManager implements SensorEventListener {
             }
         }
     }
-
+    
     public void stop() {
         if (lightSensor != null) {
             SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -69,7 +69,7 @@ public final class AmbientLightManager implements SensorEventListener {
             lightSensor = null;
         }
     }
-
+    
     private void setTorch(final boolean on) {
         handler.post(new Runnable() {
             @Override
@@ -78,7 +78,7 @@ public final class AmbientLightManager implements SensorEventListener {
             }
         });
     }
-
+    
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         float ambientLightLux = sensorEvent.values[0];
@@ -90,7 +90,7 @@ public final class AmbientLightManager implements SensorEventListener {
             }
         }
     }
-
+    
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // do nothing

@@ -6,7 +6,7 @@ import android.hardware.Camera;
  * Callback for {@link Camera.Parameters}.
  */
 public interface CameraParametersCallback {
-
+    
     /**
      * Changes the settings for Camera.
      *

@@ -16,19 +16,19 @@ import com.journeyapps.barcodescanner.Util;
  */
 public class CameraInstance {
     private static final String TAG = CameraInstance.class.getSimpleName();
-
+    
     private CameraThread cameraThread;
     private CameraSurface surface;
-
+    
     private CameraManager cameraManager;
     private Handler readyHandler;
     private DisplayConfiguration displayConfiguration;
     private boolean open = false;
     private boolean cameraClosed = true;
     private Handler mainHandler;
-
+    
     private CameraSettings cameraSettings = new CameraSettings();
-
+    
     /**
      * Construct a new CameraInstance.
      *
@@ -38,13 +38,13 @@ public class CameraInstance {
      */
     public CameraInstance(Context context) {
         Util.validateMainThread();
-
+        
         this.cameraThread = CameraThread.getInstance();
         this.cameraManager = new CameraManager(context);
         this.cameraManager.setCameraSettings(cameraSettings);
         this.mainHandler = new Handler();
     }
-
+    
     /**
      * Construct a new CameraInstance with a specific CameraManager.
      *
@@ -52,35 +52,35 @@ public class CameraInstance {
      */
     public CameraInstance(CameraManager cameraManager) {
         Util.validateMainThread();
-
+        
         this.cameraManager = cameraManager;
     }
-
+    
     public void setDisplayConfiguration(DisplayConfiguration configuration) {
         this.displayConfiguration = configuration;
         cameraManager.setDisplayConfiguration(configuration);
     }
-
+    
     public DisplayConfiguration getDisplayConfiguration() {
         return displayConfiguration;
     }
-
+    
     public void setReadyHandler(Handler readyHandler) {
         this.readyHandler = readyHandler;
     }
-
+    
     public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
         setSurface(new CameraSurface(surfaceHolder));
     }
-
+    
     public void setSurface(CameraSurface surface) {
         this.surface = surface;
     }
-
+    
     public CameraSettings getCameraSettings() {
         return cameraSettings;
     }
-
+    
     /**
      * This only has an effect if the camera is not opened yet.
      *
@@ -92,7 +92,7 @@ public class CameraInstance {
             this.cameraManager.setCameraSettings(cameraSettings);
         }
     }
-
+    
     /**
      * Actual preview size in current rotation. null if not determined yet.
      *
@@ -101,42 +101,41 @@ public class CameraInstance {
     private Size getPreviewSize() {
         return cameraManager.getPreviewSize();
     }
-
+    
     /**
-     *
      * @return the camera rotation relative to display rotation, in degrees. Typically 0 if the
-     *    display is in landscape orientation.
+     * display is in landscape orientation.
      */
     public int getCameraRotation() {
         return cameraManager.getCameraRotation();
     }
-
+    
     public void open() {
         Util.validateMainThread();
-
+        
         open = true;
         cameraClosed = false;
-
+        
         cameraThread.incrementAndEnqueue(opener);
     }
-
+    
     public void configureCamera() {
         Util.validateMainThread();
         validateOpen();
-
+        
         cameraThread.enqueue(configure);
     }
-
+    
     public void startPreview() {
         Util.validateMainThread();
         validateOpen();
-
+        
         cameraThread.enqueue(previewStarter);
     }
-
+    
     public void setTorch(final boolean on) {
         Util.validateMainThread();
-
+        
         if (open) {
             cameraThread.enqueue(new Runnable() {
                 @Override
@@ -146,7 +145,7 @@ public class CameraInstance {
             });
         }
     }
-
+    
     /**
      * Changes the settings for Camera.
      *
@@ -154,7 +153,7 @@ public class CameraInstance {
      */
     public void changeCameraParameters(final CameraParametersCallback callback) {
         Util.validateMainThread();
-
+        
         if (open) {
             cameraThread.enqueue(new Runnable() {
                 @Override
@@ -164,36 +163,36 @@ public class CameraInstance {
             });
         }
     }
-
+    
     public void close() {
         Util.validateMainThread();
-
+        
         if (open) {
             cameraThread.enqueue(closer);
         } else {
             cameraClosed = true;
         }
-
+        
         open = false;
     }
-
+    
     public boolean isOpen() {
         return open;
     }
-
+    
     public boolean isCameraClosed() {
         return cameraClosed;
     }
-
+    
     public void requestPreview(final PreviewCallback callback) {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                if(!open) {
+                if (!open) {
                     Log.d(TAG, "Camera is closed, not requesting preview");
                     return;
                 }
-
+                
                 cameraThread.enqueue(new Runnable() {
                     @Override
                     public void run() {
@@ -203,13 +202,13 @@ public class CameraInstance {
             }
         });
     }
-
+    
     private void validateOpen() {
         if (!open) {
             throw new IllegalStateException("CameraInstance is not open");
         }
     }
-
+    
     private Runnable opener = new Runnable() {
         @Override
         public void run() {
@@ -222,7 +221,7 @@ public class CameraInstance {
             }
         }
     };
-
+    
     private Runnable configure = new Runnable() {
         @Override
         public void run() {
@@ -238,7 +237,7 @@ public class CameraInstance {
             }
         }
     };
-
+    
     private Runnable previewStarter = new Runnable() {
         @Override
         public void run() {
@@ -252,7 +251,7 @@ public class CameraInstance {
             }
         }
     };
-
+    
     private Runnable closer = new Runnable() {
         @Override
         public void run() {
@@ -263,21 +262,21 @@ public class CameraInstance {
             } catch (Exception e) {
                 Log.e(TAG, "Failed to close camera", e);
             }
-
+            
             cameraClosed = true;
-
+            
             readyHandler.sendEmptyMessage(R.id.zxing_camera_closed);
-
+            
             cameraThread.decrementInstances();
         }
     };
-
+    
     private void notifyError(Exception error) {
         if (readyHandler != null) {
             readyHandler.obtainMessage(R.id.zxing_camera_error, error).sendToTarget();
         }
     }
-
+    
     /**
      * Returns the CameraManager used to control the camera.
      *
@@ -288,17 +287,15 @@ public class CameraInstance {
     public CameraManager getCameraManager() {
         return cameraManager;
     }
-
+    
     /**
-     *
      * @return the CameraThread used to manage the camera
      */
     public CameraThread getCameraThread() {
         return cameraThread;
     }
-
+    
     /**
-     *
      * @return the surface om which the preview is displayed
      */
     public CameraSurface getSurface() {

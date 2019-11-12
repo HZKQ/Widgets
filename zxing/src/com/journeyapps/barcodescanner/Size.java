@@ -9,12 +9,12 @@ import androidx.annotation.NonNull;
 public class Size implements Comparable<Size> {
     public final int width;
     public final int height;
-
+    
     public Size(int width, int height) {
         this.width = width;
         this.height = height;
     }
-
+    
     /**
      * Swap width and height.
      *
@@ -24,7 +24,7 @@ public class Size implements Comparable<Size> {
         //noinspection SuspiciousNameCombination
         return new Size(height, width);
     }
-
+    
     /**
      * Scale by n / d.
      *
@@ -35,7 +35,7 @@ public class Size implements Comparable<Size> {
     public Size scale(int n, int d) {
         return new Size(width * n / d, height * n / d);
     }
-
+    
     /**
      * Scales the dimensions so that it fits entirely inside the parent.One of width or height will
      * fit exactly. Aspect ratio is preserved.
@@ -44,7 +44,7 @@ public class Size implements Comparable<Size> {
      * @return the scaled size
      */
     public Size scaleFit(Size into) {
-        if(width * into.height >= into.width * height) {
+        if (width * into.height >= into.width * height) {
             // match width
             return new Size(into.width, height * into.width / width);
         } else {
@@ -52,6 +52,7 @@ public class Size implements Comparable<Size> {
             return new Size(width * into.height / height, into.height);
         }
     }
+    
     /**
      * Scales the size so that both dimensions will be greater than or equal to the corresponding
      * dimension of the parent. One of width or height will fit exactly. Aspect ratio is preserved.
@@ -60,7 +61,7 @@ public class Size implements Comparable<Size> {
      * @return the scaled size
      */
     public Size scaleCrop(Size into) {
-        if(width * into.height <= into.width * height) {
+        if (width * into.height <= into.width * height) {
             // match width
             return new Size(into.width, height * into.width / width);
         } else {
@@ -68,7 +69,7 @@ public class Size implements Comparable<Size> {
             return new Size(width * into.height / height, into.height);
         }
     }
-
+    
     /**
      * Checks if both dimensions of the other size are at least as large as this size.
      *
@@ -78,7 +79,7 @@ public class Size implements Comparable<Size> {
     public boolean fitsIn(Size other) {
         return width <= other.width && height <= other.height;
     }
-
+    
     /**
      * Default sort order is ascending by size.
      */
@@ -94,21 +95,23 @@ public class Size implements Comparable<Size> {
         }
         return 0;
     }
-
+    
     public String toString() {
         return width + "x" + height;
     }
-
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        
         Size size = (Size) o;
-
+        
         return width == size.width && height == size.height;
     }
-
+    
     @Override
     public int hashCode() {
         int result = width;

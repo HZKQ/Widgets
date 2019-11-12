@@ -23,7 +23,7 @@ package com.google.zxing;
  * @see DecodeHintType#NEED_RESULT_POINT_CALLBACK
  */
 public interface ResultPointCallback {
-
-  void foundPossibleResultPoint(ResultPoint point);
-
+    
+    void foundPossibleResultPoint(ResultPoint point);
+    
 }

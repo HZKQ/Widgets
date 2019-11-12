@@ -9,7 +9,7 @@ import com.google.zxing.common.HybridBinarizer;
  * Created by leighmd on 11/2/16.
  */
 public class InvertedDecoder extends Decoder {
-
+    
     /**
      * Create a new Decoder with the specified Reader.
      *
@@ -18,7 +18,7 @@ public class InvertedDecoder extends Decoder {
     public InvertedDecoder(Reader reader) {
         super(reader);
     }
-
+    
     /**
      * Given an image source, convert to a binary bitmap.
      *

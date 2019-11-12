@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
     private static final String TAG = LegacyPreviewScalingStrategy.class.getSimpleName();
-
+    
     /**
      * Choose the best preview size, based on our display size.
      *
@@ -29,18 +29,18 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
      * In the future we may consider choosing the biggest possible preview size, to maximize the
      * resolution we have for decoding. We need more testing to see whether or not that is feasible.
      *
-     * @param sizes supported preview sizes, containing at least one size. Sizes are in natural camera orientation.
+     * @param sizes   supported preview sizes, containing at least one size. Sizes are in natural camera orientation.
      * @param desired The desired display size, in the same orientation
      * @return the best preview size, never null
      */
     public Size getBestPreviewSize(List<Size> sizes, final Size desired) {
         // Sample of supported preview sizes:
         // http://www.kirill.org/ar/ar.php
-
+        
         if (desired == null) {
             return sizes.get(0);
         }
-
+        
         Collections.sort(sizes, new Comparator<Size>() {
             @Override
             public int compare(Size a, Size b) {
@@ -48,7 +48,7 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
                 int aScale = ascaled.width - a.width;
                 Size bscaled = scale(b, desired);
                 int bScale = bscaled.width - b.width;
-
+                
                 if (aScale == 0 && bScale == 0) {
                     // Both no scaling, pick the smaller one
                     return a.compareTo(b);
@@ -73,13 +73,13 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
                 }
             }
         });
-
+        
         Log.i(TAG, "Viewfinder size: " + desired);
         Log.i(TAG, "Preview in order of preference: " + sizes);
-
+        
         return sizes.get(0);
     }
-
+    
     /**
      * Scale from so that to.fitsIn(size). Tries to scale by powers of two, or by 3/2. Aspect ratio
      * is preserved.
@@ -94,7 +94,7 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
      */
     public static Size scale(Size from, Size to) {
         Size current = from;
-
+        
         if (!to.fitsIn(current)) {
             // Scale up
             while (true) {
@@ -116,7 +116,7 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
             while (true) {
                 Size scaled66 = current.scale(2, 3);
                 Size scaled50 = current.scale(1, 2);
-
+                
                 if (!to.fitsIn(scaled50)) {
                     if (to.fitsIn(scaled66)) {
                         // Scale by 2/3
@@ -132,13 +132,13 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
             }
         }
     }
-
+    
     /**
      * Scale the preview to cover the viewfinder, then center it.
      *
      * Aspect ratio is preserved.
      *
-     * @param previewSize the size of the preview (camera), in current display orientation
+     * @param previewSize    the size of the preview (camera), in current display orientation
      * @param viewfinderSize the size of the viewfinder (display), in current display orientation
      * @return a rect placing the preview
      */
@@ -146,10 +146,10 @@ public class LegacyPreviewScalingStrategy extends PreviewScalingStrategy {
         // We avoid scaling if feasible.
         Size scaledPreview = scale(previewSize, viewfinderSize);
         Log.i(TAG, "Preview: " + previewSize + "; Scaled: " + scaledPreview + "; Want: " + viewfinderSize);
-
+        
         int dx = (scaledPreview.width - viewfinderSize.width) / 2;
         int dy = (scaledPreview.height - viewfinderSize.height) / 2;
-
+        
         return new Rect(-dx, -dy, scaledPreview.width - dx, scaledPreview.height - dy);
     }
 }

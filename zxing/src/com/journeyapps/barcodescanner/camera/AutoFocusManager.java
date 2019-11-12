@@ -29,27 +29,27 @@ import java.util.Collection;
  * to run all operations on the same thread.
  */
 public final class AutoFocusManager {
-
+    
     private static final String TAG = AutoFocusManager.class.getSimpleName();
-
+    
     private static final long AUTO_FOCUS_INTERVAL_MS = 2000L;
-
+    
     private boolean stopped;
     private boolean focusing;
     private final boolean useAutoFocus;
     private final Camera camera;
     private Handler handler;
-
+    
     private int MESSAGE_FOCUS = 1;
-
+    
     private static final Collection<String> FOCUS_MODES_CALLING_AF;
-
+    
     static {
         FOCUS_MODES_CALLING_AF = new ArrayList<>(2);
         FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_AUTO);
         FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_MACRO);
     }
-
+    
     private final Handler.Callback focusHandlerCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -60,7 +60,7 @@ public final class AutoFocusManager {
             return false;
         }
     };
-
+    
     private final Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
         @Override
         public void onAutoFocus(boolean success, Camera theCamera) {
@@ -73,7 +73,7 @@ public final class AutoFocusManager {
             });
         }
     };
-
+    
     public AutoFocusManager(Camera camera, CameraSettings settings) {
         this.handler = new Handler(focusHandlerCallback);
         this.camera = camera;
@@ -82,13 +82,13 @@ public final class AutoFocusManager {
         Log.i(TAG, "Current focus mode '" + currentFocusMode + "'; use auto focus? " + useAutoFocus);
         start();
     }
-
+    
     private synchronized void autoFocusAgainLater() {
         if (!stopped && !handler.hasMessages(MESSAGE_FOCUS)) {
             handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_FOCUS), AUTO_FOCUS_INTERVAL_MS);
         }
     }
-
+    
     /**
      * Start auto-focus. The first focus will happen now, then repeated every two seconds.
      */
@@ -96,7 +96,7 @@ public final class AutoFocusManager {
         stopped = false;
         focus();
     }
-
+    
     private void focus() {
         if (useAutoFocus) {
             if (!stopped && !focusing) {
@@ -112,11 +112,11 @@ public final class AutoFocusManager {
             }
         }
     }
-
+    
     private void cancelOutstandingTask() {
         handler.removeMessages(MESSAGE_FOCUS);
     }
-
+    
     /**
      * Stop auto-focus.
      */

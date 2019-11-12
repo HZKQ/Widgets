@@ -25,35 +25,34 @@ import android.media.MediaPlayer;
 import android.os.Vibrator;
 import android.util.Log;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * Manages beeps and vibrations.
  */
 public final class BeepManager {
-
+    
     private static final String TAG = BeepManager.class.getSimpleName();
-
+    
     private static final float BEEP_VOLUME = 0.10f;
     private static final long VIBRATE_DURATION = 200L;
-
+    
     private final Context context;
-
+    
     private boolean beepEnabled = true;
     private boolean vibrateEnabled = false;
-
+    
     public BeepManager(Activity activity) {
         activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
+        
         // We do not keep a reference to the Activity itself, to prevent leaks
         this.context = activity.getApplicationContext();
     }
-
+    
     public boolean isBeepEnabled() {
         return beepEnabled;
     }
-
+    
     /**
      * Call updatePrefs() after setting this.
      *
@@ -64,11 +63,11 @@ public final class BeepManager {
     public void setBeepEnabled(boolean beepEnabled) {
         this.beepEnabled = beepEnabled;
     }
-
+    
     public boolean isVibrateEnabled() {
         return vibrateEnabled;
     }
-
+    
     /**
      * Call updatePrefs() after setting this.
      *
@@ -77,7 +76,7 @@ public final class BeepManager {
     public void setVibrateEnabled(boolean vibrateEnabled) {
         this.vibrateEnabled = vibrateEnabled;
     }
-
+    
     @SuppressLint("MissingPermission")
     public synchronized void playBeepSoundAndVibrate() {
         if (beepEnabled) {
@@ -90,8 +89,8 @@ public final class BeepManager {
             }
         }
     }
-
-
+    
+    
     public MediaPlayer playBeepSound() {
         MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);

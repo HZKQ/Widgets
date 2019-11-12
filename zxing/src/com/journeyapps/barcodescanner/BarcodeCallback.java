@@ -14,7 +14,7 @@ public interface BarcodeCallback {
      * @param result the result
      */
     void barcodeResult(BarcodeResult result);
-
+    
     /**
      * ResultPoints are detected. This may be called whether or not the scanning was successful.
      *

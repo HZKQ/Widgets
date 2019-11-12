@@ -79,10 +79,10 @@ public class QRCodeReader implements Reader {
             DetectorResult detectorResult = new Detector(image.getBlackMatrix()).detect(hints);
             try {
                 decoderResult = decoder.decode(detectorResult.getBits(), hints);
-            } catch (FormatException e){
+            } catch (FormatException e) {
                 cameraZoom(cameraManager, framingRect, detectorResult.getPoints());
                 throw e;
-            }catch (ChecksumException e) {
+            } catch (ChecksumException e) {
                 cameraZoom(cameraManager, framingRect, detectorResult.getPoints());
                 throw e;
             }

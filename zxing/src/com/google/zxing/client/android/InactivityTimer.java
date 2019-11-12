@@ -27,26 +27,26 @@ import android.os.Handler;
  * Finishes an context after a period of inactivity if the device is on battery power.
  */
 public final class InactivityTimer {
-
+    
     private static final String TAG = InactivityTimer.class.getSimpleName();
-
+    
     private static final long INACTIVITY_DELAY_MS = 5 * 60 * 1000L;
-
+    
     private final Context context;
     private final BroadcastReceiver powerStatusReceiver;
     private boolean registered = false;
     private Handler handler;
     private Runnable callback;
     private boolean onBattery;
-
+    
     public InactivityTimer(Context context, Runnable callback) {
         this.context = context;
         this.callback = callback;
-
+        
         powerStatusReceiver = new PowerStatusReceiver();
         handler = new Handler();
     }
-
+    
     /**
      * Trigger activity, resetting the timer.
      */
@@ -56,7 +56,7 @@ public final class InactivityTimer {
             handler.postDelayed(callback, INACTIVITY_DELAY_MS);
         }
     }
-
+    
     /**
      * Start the activity timer.
      */
@@ -64,7 +64,7 @@ public final class InactivityTimer {
         registerReceiver();
         activity();
     }
-
+    
     /**
      * Cancel the activity timer.
      */
@@ -72,35 +72,35 @@ public final class InactivityTimer {
         cancelCallback();
         unregisterReceiver();
     }
-
+    
     private void unregisterReceiver() {
         if (registered) {
             context.unregisterReceiver(powerStatusReceiver);
             registered = false;
         }
     }
-
+    
     private void registerReceiver() {
         if (!registered) {
             context.registerReceiver(powerStatusReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             registered = true;
         }
     }
-
+    
     private void cancelCallback() {
         handler.removeCallbacksAndMessages(null);
     }
-
+    
     private void onBattery(boolean onBattery) {
         this.onBattery = onBattery;
-
+        
         // To make sure we're still running
         if (registered) {
             // This will either cancel or reschedule, depending on the battery status.
             activity();
         }
     }
-
+    
     private final class PowerStatusReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

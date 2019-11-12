@@ -10,7 +10,7 @@ import com.google.zxing.common.HybridBinarizer;
  */
 public class MixedDecoder extends Decoder {
     private boolean isInverted = true;
-
+    
     /**
      * Create a new Decoder with the specified Reader.
      *
@@ -19,7 +19,7 @@ public class MixedDecoder extends Decoder {
     public MixedDecoder(Reader reader) {
         super(reader);
     }
-
+    
     /**
      * Given an image source, convert to a binary bitmap.
      *
@@ -37,5 +37,5 @@ public class MixedDecoder extends Decoder {
             return new BinaryBitmap(new HybridBinarizer(source));
         }
     }
-
+    
 }

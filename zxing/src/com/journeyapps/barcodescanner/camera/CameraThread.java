@@ -10,27 +10,27 @@ import android.os.HandlerThread;
  */
 class CameraThread {
     private static final String TAG = CameraThread.class.getSimpleName();
-
+    
     private static CameraThread instance;
-
+    
     public static CameraThread getInstance() {
         if (instance == null) {
             instance = new CameraThread();
         }
         return instance;
     }
-
+    
     private Handler handler;
     private HandlerThread thread;
-
+    
     private int openCount = 0;
-
+    
     private final Object LOCK = new Object();
-
-
+    
+    
     private CameraThread() {
     }
-
+    
     /**
      * Call from main thread or camera thread.
      *
@@ -44,13 +44,13 @@ class CameraThread {
             this.handler.post(runnable);
         }
     }
-
+    
     /**
      * Call from main thread or camera thread.
      *
      * Enqueues a task on the camera thread.
      *
-     * @param runnable the task to enqueue
+     * @param runnable    the task to enqueue
      * @param delayMillis the delay in milliseconds before executing the runnable
      */
     protected void enqueueDelayed(Runnable runnable, long delayMillis) {
@@ -59,7 +59,7 @@ class CameraThread {
             this.handler.postDelayed(runnable, delayMillis);
         }
     }
-
+    
     private void checkRunning() {
         synchronized (LOCK) {
             if (this.handler == null) {
@@ -72,7 +72,7 @@ class CameraThread {
             }
         }
     }
-
+    
     /**
      * Call from camera thread.
      */
@@ -83,7 +83,7 @@ class CameraThread {
             this.handler = null;
         }
     }
-
+    
     /**
      * Call from camera thread
      */
@@ -95,7 +95,7 @@ class CameraThread {
             }
         }
     }
-
+    
     /**
      * Call from main thread.
      *
