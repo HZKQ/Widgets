@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity {
             .setCameraId(0)  // 后置摄像头
             .setBeepEnabled(true) //是否有提示音
             .setBarcodeImageEnabled(false)
-            .setAlbumScanEnabled(true) //是否启用相册扫码
+            .setAlbumScanEnabled(false) //是否启用相册扫码
             .initiateScan();
     }
     
