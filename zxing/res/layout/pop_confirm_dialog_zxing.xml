@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--确认提示框-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="PxUsage">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_rect_white_top_left_and_right_5dp_zxing"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="115px"
+            android:background="@drawable/bg_round_rect_white_top_left_and_right_5dp_zxing"
+            android:gravity="center"
+            android:paddingLeft="20px"
+            android:paddingRight="20px"
+            android:textColor="@color/colorBlack80"
+            android:textSize="42px"
+            tools:text="标题"/>
+
+        <com.journeyapps.barcodescanner.AutoSplitTextView
+            android:id="@+id/tv_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingBottom="60px"
+            android:paddingLeft="40px"
+            android:paddingRight="40px"
+            android:paddingTop="60px"
+            android:textColorHint="@color/colorBlack80"
+            android:textSize="41px"
+            tools:text="提示内容"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#E7EAEE"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120px"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_click_gray_white_lb_5dp_zxing"
+            android:gravity="center"
+            android:text="@string/cancel_text_zxing"
+            android:textColor="#4D000000"
+            android:textSize="42px"/>
+
+        <View
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="#E7EAEE"/>
+
+        <TextView
+            android:id="@+id/tv_ok"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_click_gray_white_rb_5dp_zxing"
+            android:gravity="center"
+            android:text="@string/ok_text_zxing"
+            android:textColor="#3180F6"
+            android:textSize="42px"/>
+    </LinearLayout>
+</LinearLayout>

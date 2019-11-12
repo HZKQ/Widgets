@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!--<style name="zxing_CaptureTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">-->
+  <!--</style>-->
+
+  <style name="zxing_CaptureTheme" parent="MagpieTheme.NoActionBar">
+    <!-- Customize your theme here. -->
+    <item name="colorPrimary">@color/colorPrimaryZxing</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDarkZxing</item>
+    <item name="colorAccent">@color/colorAccentZxing</item>
+  </style>
+
+  <style name="transparentDialog" parent="@android:style/Theme.Dialog">
+    <item name="android:windowBackground">@color/colorTransparent</item>
+    <item name="android:windowAnimationStyle">@style/AnimDialogScaleInAndOut</item>
+  </style>
+  <style name="AnimDialogScaleInAndOut">
+    <item name="android:windowEnterAnimation">@anim/pickerview_dialog_scale_in_zxing</item>
+    <item name="android:windowExitAnimation">@anim/pickerview_dialog_scale_out_zxing</item>
+  </style>
+</resources>

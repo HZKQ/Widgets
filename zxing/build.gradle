@@ -1,0 +1,41 @@
+ apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res-orig', 'res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    // This is bad practice - we should fix the warnings instead.
+    lintOptions {
+        // Android warns about the he and id locale folders. he -> iw is already handled with a
+        // symlink. TODO: what about id?
+        disable 'LocaleFolder'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+
+ dependencies {
+     implementation "com.github.zhouzhuo810:MagpieX:$magpie_version"
+ }
+
