@@ -1,6 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext {
+        android = [
+                compileSdkVersion: 29,
+                buildToolsVersion: "29.0.2",
+                minSdkVersion    : 17,
+                targetSdkVersion : 28
+        ]
+    }
+
     repositories {
         google()
         jcenter()
