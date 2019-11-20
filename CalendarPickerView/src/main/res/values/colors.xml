@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3180F6</color>
+    <color name="colorPrimaryDark">#2B6BCC</color>
+    <color name="colorDisabled">#E7EAEE</color>
+
+    <color name="calendar_active_month_bg">#ffffffff</color>
+    <color name="calendar_bg">#ffffffff</color>
+    <color name="calendar_divider">#ffffffff</color>
+    <color name="calendar_inactive_month_bg">#fff</color>
+    <color name="calendar_selected_day_bg">#ff45c1f9</color>
+    <color name="calendar_highlighted_day_bg">#ccffcc</color>
+    <color name="calendar_selected_range_bg">#ffecf8fe</color>
+    <color name="calendar_text_inactive">#0000</color>
+    <color name="calendar_text_middle_range">#ff4a4a4a</color>
+    <color name="calendar_text_active">#ff4a4a4a</color>
+    <color name="calendar_text_selected">#ffffffff</color>
+    <color name="calendar_text_unselectable">#7f778088</color>
+    <color name="calendar_text_highlighted">#ff778088</color>
+    <color name="calendar_week_text_color">#333</color>
+</resources>

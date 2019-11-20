@@ -37,4 +37,26 @@
 
 #### 用法说明
 
+### 3. 日历选择库
+
+```java
+
+private CalendarPicker mCalendarPicker;
+
+    Calendar c = Calendar.getInstance();
+    c.add(Calendar.YEAR, -1);
+    Date mStartTime = c.getTime();
+    Date mEndTime = new Date();
+    if (mCalendarPicker == null) {
+        mCalendarPicker = new CalendarPicker(this);
+    }
+    mCalendarPicker.showCalendar(mViewMask, mViewAnchor, mStartTime, mEndTime, new CalendarPicker.OnDatePickerListener() {
+        @Override
+        public boolean onDateSelected(List<Date> selectedDates, Date startDate, Date endDate) {
+            ToastUtil.showToast(DateUtil.get_yMd(startDate)+" ~ " + DateUtil.get_yMd(endDate));
+            return false;
+        }
+    });
+```
+
 

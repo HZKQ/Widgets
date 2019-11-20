@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">CalendarPickerView</string>
+    <string name="day_name_format">EEE</string>
+    <string name="invalid_date">日期必须在 %1$s 和 %2$s 之间</string>
+    <string name="month_name_format">MMMM yyyy</string>
+    <string name="month_only_name_format">MMMM</string>
+    <string name="year_only_format">yyyy</string>
+
+    <!--CalendarPickerView组件所需文本-->
+    <string name="calendar_title_sun">日</string>
+    <string name="calendar_title_mon">一</string>
+    <string name="calendar_title_Tue">二</string>
+    <string name="calendar_title_Wed">三</string>
+    <string name="calendar_title_Thu">四</string>
+    <string name="calendar_title_Fri">五</string>
+    <string name="calendar_title_Sat">六</string>
+</resources>

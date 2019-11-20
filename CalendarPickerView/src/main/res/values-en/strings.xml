@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CalendarPickerView</string>
+    <string name="day_name_format">EEE</string>
+    <string name="invalid_date">The Date must be between %1$s and %2$s </string>
+    <string name="month_name_format">MMMM yyyy</string>
+    <string name="month_only_name_format">MMMM</string>
+    <string name="year_only_format">yyyy</string>
+
+    <string name="calendar_title_sun">Sun</string>
+    <string name="calendar_title_mon">Mon</string>
+    <string name="calendar_title_Tue">Tue</string>
+    <string name="calendar_title_Wed">Wed</string>
+    <string name="calendar_title_Thu">Thu</string>
+    <string name="calendar_title_Fri">Fri</string>
+    <string name="calendar_title_Sat">Sat</string>
+</resources>

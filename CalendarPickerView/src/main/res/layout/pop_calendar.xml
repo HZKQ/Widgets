@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?><!--详情-生产-选择机器-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="PxUsage,ContentDescription,RtlHardcoded,RtlSymmetry,
+        UseCompoundDrawables,HardcodedText,UselessParent,KeyboardInaccessibleWidget">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.squareup.timessquare.CalendarRowView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40px"
+                android:layout_marginTop="5px"
+                android:layout_marginRight="40px"
+                android:layout_marginBottom="5px">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_sun"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_mon"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_Tue"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_Wed"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_Thu"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_Fri"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="24px"
+                    android:paddingTop="20px"
+                    android:text="@string/calendar_title_Sat"
+                    android:textColor="@color/calendar_week_text_color"
+                    android:textSize="36px" />
+            </com.squareup.timessquare.CalendarRowView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="#b7e9ff" />
+
+            <com.squareup.timessquare.CalendarPickerView
+                android:id="@+id/calendar_view"
+                android:layout_width="match_parent"
+                android:layout_height="630px"
+                android:layout_marginLeft="40px"
+                android:layout_marginRight="40px"
+                app:tsquare_displayDayNamesHeaderRow="false" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#ededed" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/btn_ok"
+                android:layout_width="208px"
+                android:layout_height="80px"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="30px"
+                android:layout_marginTop="40px"
+                android:layout_marginRight="30px"
+                android:layout_marginBottom="40px"
+                android:background="@drawable/calendar_ok_btn_bg_selector"
+                android:gravity="center"
+                android:text="@string/magpie_ok_text"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/base_title_text_size" />
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

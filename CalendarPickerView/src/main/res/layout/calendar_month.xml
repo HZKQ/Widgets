@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.squareup.timessquare.MonthView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- This is the place where the month functionName is added -->
+
+    <com.squareup.timessquare.CalendarGridView
+        android:id="@+id/calendar_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.squareup.timessquare.CalendarRowView
+            android:id="@+id/day_names_header_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/calendar_day_headers_paddingbottom">
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/CalendarCell.DayHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.squareup.timessquare.CalendarRowView>
+
+        <include layout="@layout/calendar_week" />
+
+        <include layout="@layout/calendar_week" />
+
+        <include layout="@layout/calendar_week" />
+
+        <include layout="@layout/calendar_week" />
+
+        <include layout="@layout/calendar_week" />
+
+        <include layout="@layout/calendar_week" />
+    </com.squareup.timessquare.CalendarGridView>
+</com.squareup.timessquare.MonthView>

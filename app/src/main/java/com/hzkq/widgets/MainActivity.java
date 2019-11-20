@@ -6,12 +6,20 @@ import android.view.View;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.squareup.timessquare.CalendarPicker;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
+import me.zhouzhuo810.magpiex.utils.DateUtil;
 import me.zhouzhuo810.magpiex.utils.ToastUtil;
 
 public class MainActivity extends BaseActivity {
+    
+    private CalendarPicker mCalendarPicker;
     
     @Override
     public int getLayoutId() {
@@ -38,7 +46,10 @@ public class MainActivity extends BaseActivity {
     
     }
     
-    
+    /**
+     * 二维码扫描
+     * @param v
+     */
     public void onZxingClick(View v) {
         new IntentIntegrator(this)
             .setCustomTitle("二维码扫描") //标题栏文字
@@ -50,6 +61,27 @@ public class MainActivity extends BaseActivity {
             .setBarcodeImageEnabled(false)
             .setAlbumScanEnabled(false) //是否启用相册扫码
             .initiateScan();
+    }
+    
+    /**
+     * 日历选择
+     * @param v
+     */
+    public void onCalendarClick(View v) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.YEAR, -1);
+        Date mStartTime = c.getTime();
+        Date mEndTime = new Date();
+        if (mCalendarPicker == null) {
+            mCalendarPicker = new CalendarPicker(this);
+        }
+        mCalendarPicker.showCalendar(null, findViewById(R.id.tv_calendar_picker), mStartTime, mEndTime, new CalendarPicker.OnDatePickerListener() {
+            @Override
+            public boolean onDateSelected(List<Date> selectedDates, Date startDate, Date endDate) {
+                ToastUtil.showToast(DateUtil.get_yMd(startDate)+" ~ " + DateUtil.get_yMd(endDate));
+                return false;
+            }
+        });
     }
     
     @Override
