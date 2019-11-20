@@ -82,6 +82,14 @@ public class CalendarPicker {
         }
     }
     
+    public CalendarPickerView getCalendarPicker() {
+        return mCalendarPicker;
+    }
+    
+    public PopupWindow getCalendarPop() {
+        return mCalendarPop;
+    }
+    
     public void closeCalendar() {
         if (mCalendarPop != null && mCalendarPop.isShowing()) {
             mCalendarPop.dismiss();
