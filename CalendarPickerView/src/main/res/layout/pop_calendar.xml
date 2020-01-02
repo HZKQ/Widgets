@@ -31,8 +31,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_sun"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -40,8 +39,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_mon"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -49,8 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_Tue"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -58,8 +55,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_Wed"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -67,8 +63,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_Thu"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -76,8 +71,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_Fri"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
@@ -85,8 +79,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24px"
-                    android:paddingTop="20px"
+                    android:gravity="center"
                     android:text="@string/calendar_title_Sat"
                     android:textColor="@color/calendar_week_text_color"
                     android:textSize="36px" />
