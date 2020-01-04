@@ -28,5 +28,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.github.zhouzhuo810:MagpieX:$magpie_version"
     implementation project(path: ':zxing')
+    implementation project(path: ':MPChartLib')
     implementation project(path: ':CalendarPickerView')
 }

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.timessquare.CalendarPicker;
@@ -12,7 +14,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.utils.DateUtil;
 import me.zhouzhuo810.magpiex.utils.ToastUtil;
@@ -97,4 +98,7 @@ public class MainActivity extends BaseActivity {
         
     }
     
+    public void onMPChartClick(View view) {
+        startActWithIntent(new Intent(this,MPChartActivity.class));
+    }
 }

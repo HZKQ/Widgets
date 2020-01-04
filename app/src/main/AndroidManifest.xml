@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.hzkq.widgets">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -13,7 +14,8 @@
         android:name=".MyApp"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <!--设计图的宽,单位是像素,推荐用markman测量-->
         <meta-data
@@ -51,6 +53,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MPChartActivity" />
+
+        <activity android:name=".chart.PieChartActivity" />
+
+        <activity android:name=".chart.LineChartActivity" />
+
+        <activity android:name=".chart.BarChartActivity" />
     </application>
 
 </manifest>
