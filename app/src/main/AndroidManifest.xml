@@ -63,6 +63,8 @@
         <activity android:name=".chart.BarChartActivity" />
 
         <activity android:name=".RatioColorBarActivity" />
+
+        <activity android:name=".IndexBarActivity" />
     </application>
 
 </manifest>

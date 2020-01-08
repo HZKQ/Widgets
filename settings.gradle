@@ -1,2 +1,2 @@
-include ':app',':zxing',':MPChartLib',':CalendarPickerView', ':ratiocolorbar'
+include ':app',':zxing',':MPChartLib',':CalendarPickerView', ':ratiocolorbar', ':indexbar'
 rootProject.name='Widgets'

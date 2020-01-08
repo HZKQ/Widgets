@@ -103,4 +103,8 @@ public class MainActivity extends BaseActivity {
     public void onRatioColorBarClick(View view) {
         startActWithIntent(new Intent(this, RatioColorBarActivity.class));
     }
+    
+    public void onIndexBarClick(View view) {
+        startActWithIntent(new Intent(this, IndexBarActivity.class));
+    }
 }
