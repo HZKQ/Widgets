@@ -49,7 +49,6 @@ public class MainActivity extends BaseActivity {
     
     /**
      * 二维码扫描
-     * @param v
      */
     public void onZxingClick(View v) {
         new IntentIntegrator(this)
@@ -66,7 +65,6 @@ public class MainActivity extends BaseActivity {
     
     /**
      * 日历选择
-     * @param v
      */
     public void onCalendarClick(View v) {
         Calendar c = Calendar.getInstance();
@@ -79,7 +77,7 @@ public class MainActivity extends BaseActivity {
         mCalendarPicker.showCalendar(null, findViewById(R.id.tv_calendar_picker), mStartTime, mEndTime, new CalendarPicker.OnDatePickerListener() {
             @Override
             public boolean onDateSelected(List<Date> selectedDates, Date startDate, Date endDate) {
-                ToastUtil.showToast(DateUtil.get_yMd(startDate)+" ~ " + DateUtil.get_yMd(endDate));
+                ToastUtil.showToast(DateUtil.get_yMd(startDate) + " ~ " + DateUtil.get_yMd(endDate));
                 return false;
             }
         });
@@ -99,6 +97,10 @@ public class MainActivity extends BaseActivity {
     }
     
     public void onMPChartClick(View view) {
-        startActWithIntent(new Intent(this,MPChartActivity.class));
+        startActWithIntent(new Intent(this, MPChartActivity.class));
+    }
+    
+    public void onRatioColorBarClick(View view) {
+        startActWithIntent(new Intent(this, RatioColorBarActivity.class));
     }
 }
