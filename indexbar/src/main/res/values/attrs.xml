@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--RatioColorBar-->
+    <declare-styleable name="IndexBar">
+        <attr name="ib_text_size" format="dimension|reference" />
+        <attr name="ib_text_color" format="color|reference" />
+        <attr name="ib_letters" format="string|reference" />
+        <attr name="ib_letter_spacing" format="float" />
+        <attr name="ib_letter_max_height" format="dimension|reference" />
+    </declare-styleable>
+</resources>

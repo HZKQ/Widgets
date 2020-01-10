@@ -2,12 +2,14 @@ package com.keqiang.indexbar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -40,11 +42,12 @@ public class IndexBar extends View {
     /**
      * 每个索引值绘制的最大高度
      */
-    private int mMaxHeight = SimpleUtil.getScaledValue(60);
+    private int mMaxHeight;
     private String[] letters;
     private float mItemHeight = -1;
     private Paint mPaint;
-    private float mTextSize = -1;
+    private float mTextSize;
+    private float mLetterSpacing = 1.5f;
     private OnLetterTouchListener letterTouchListener;
     
     private Bitmap mLetterBitmap;
@@ -57,46 +60,66 @@ public class IndexBar extends View {
     
     public IndexBar(Context context) {
         super(context);
-        
-        init(context);
+        init(context, null);
     }
     
     public IndexBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        
-        init(context);
+        init(context, attrs);
     }
     
     public IndexBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        
-        init(context);
+        init(context, attrs);
     }
     
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public IndexBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
+        init(context, attrs);
     }
     
-    private void init(Context context) {
-        letters = LETTERS;
+    private void init(Context context, AttributeSet attrs) {
         mReDrawLetterBitmap = true;
         mHandler = new Handler();
+        mMaxHeight = 60;
+        mTextSize = 36;
+        int textColor = getResources().getColor(R.color.colorAccent);
+        if (attrs != null) {
+            TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
+            mTextSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 36);
+            textColor = t.getColor(R.styleable.IndexBar_ib_text_color, textColor);
+            String letters = t.getString(R.styleable.IndexBar_ib_letters);
+            mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
+            mMaxHeight = t.getDimensionPixelSize(R.styleable.IndexBar_ib_letter_max_height,60);
+            t.recycle();
+            
+            if (!TextUtils.isEmpty(letters)) {
+                this.letters = new String[letters.length()];
+                for (int i = 0; i < letters.length(); i++) {
+                    this.letters[i] = String.valueOf(letters.charAt(i));
+                }
+            }
+        }
         
-        mTvToast = new TextView(context);
-        mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50));
-        mTvToast.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
-        mTvToast.setBackgroundResource(R.drawable.sort_lv_bg);
-        mTvToast.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        mTvToast.setGravity(Gravity.CENTER);
-        
-        mToastPop = new PopupWindow(mTvToast, SimpleUtil.getScaledValue(160),
-            SimpleUtil.getScaledValue(120));
-        mToastPop.setFocusable(false);
+        if (!isInEditMode()) {
+            mMaxHeight = SimpleUtil.getScaledValue(mMaxHeight);
+            mTextSize = SimpleUtil.getScaledValue((int) mTextSize);
+            
+            mTvToast = new TextView(context);
+            mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50));
+            mTvToast.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+            mTvToast.setBackgroundResource(R.drawable.sort_lv_bg);
+            mTvToast.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            mTvToast.setGravity(Gravity.CENTER);
+            
+            mToastPop = new PopupWindow(mTvToast, SimpleUtil.getScaledValue(160),
+                SimpleUtil.getScaledValue(120));
+            mToastPop.setFocusable(false);
+        }
         
         mPaint = new Paint();
-        mPaint.setColor(getResources().getColor(R.color.colorAccent));
+        mPaint.setColor(textColor);
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
     }
     
@@ -108,50 +131,48 @@ public class IndexBar extends View {
             return;
         }
         
+        int drawW = getWidth() - getPaddingLeft() - getPaddingRight();
+        int drawH = (int) (mItemHeight * letters.length + 0.5f);
+        
         if (mReDrawLetterBitmap) {
             mReDrawLetterBitmap = false;
             
             Canvas mCanvas = new Canvas();
-            int mW = getMeasuredWidth();
-            int mH = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
-            mLetterBitmap = Bitmap.createBitmap(mW, mH, Bitmap.Config.ARGB_8888);
+            mLetterBitmap = Bitmap.createBitmap(drawW, drawH, Bitmap.Config.ARGB_8888);
             if (mLetterBitmap == null) {
                 return;
             }
             
             mCanvas.setBitmap(mLetterBitmap);
-            float widthCenter = mW / 2.0f;
-            if (mTextSize > -1) {
-                mPaint.setTextSize(mTextSize);
-            } else {
-                mPaint.setTextSize(mItemHeight - 4);
-            }
+            float widthCenter = drawW / 2.0f;
+            mPaint.setTextSize(mTextSize);
+            Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+            float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
+            int startY = (int) (measuredHeight + (mItemHeight - measuredHeight) / 2);
             for (int i = 0; i < letters.length; i++) {
-                mCanvas.drawText(letters[i], widthCenter - mPaint.measureText(letters[i]) / 2, mItemHeight * i + mItemHeight, mPaint);
+                mCanvas.drawText(letters[i], widthCenter - mPaint.measureText(letters[i]) / 2, startY + mItemHeight * (i), mPaint);
             }
         }
         
-        if (getPaddingBottom() > 0) {
-            canvas.save();
-            canvas.translate(0, getPaddingBottom());
-            canvas.drawBitmap(mLetterBitmap, 0, 0, mPaint);
-            canvas.restore();
-        } else {
-            canvas.drawBitmap(mLetterBitmap, 0, 0, mPaint);
-        }
+        canvas.save();
+        canvas.translate((getWidth() - drawW) / 2 + getPaddingStart() - getPaddingEnd(),
+            (getHeight() - drawH) / 2 + getPaddingTop() - getPaddingBottom());
+        canvas.drawBitmap(mLetterBitmap, 0, 0, mPaint);
+        canvas.restore();
     }
     
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (letterTouchListener == null || letters == null || letters.length == 0) {
+        if (letterTouchListener == null || letters == null || letters.length == 0 || mLetterBitmap == null) {
             return super.onTouchEvent(event);
         }
         
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 getParent().requestDisallowInterceptTouchEvent(true);
-                int position = (int) (event.getY() / mItemHeight);
+                // 按下的坐标除去偏移值 / 每个字符所占高度，计算字符所在位置
+                int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mLetterBitmap.getHeight()) / 2) / mItemHeight);
                 if (position >= 0 && position < letters.length) {
                     if (mShowToast) {
                         showToast(letters[position]);
@@ -163,7 +184,8 @@ public class IndexBar extends View {
             return true;
             
             case MotionEvent.ACTION_MOVE: {
-                int position = (int) (event.getY() / mItemHeight);
+                // 按下的坐标除去偏移值 / 每个字符所占高度，计算字符所在位置
+                int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mLetterBitmap.getHeight()) / 2) / mItemHeight);
                 if (position >= 0 && position < letters.length) {
                     if (mShowToast) {
                         showToast(letters[position]);
@@ -194,17 +216,56 @@ public class IndexBar extends View {
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = getHeight() - getPaddingTop() - getPaddingBottom();
-        if (letters == null || letters.length == 0 || height <= 0) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) {
+            String oneLetter = null;
+            if (letters != null && letters.length > 0) {
+                for (String letter : letters) {
+                    if (TextUtils.isEmpty(letter)) {
+                        continue;
+                    }
+                    
+                    if (oneLetter == null || oneLetter.length() < letter.length()) {
+                        oneLetter = letter;
+                    }
+                }
+            }
+            
+            if (TextUtils.isEmpty(oneLetter)) {
+                widthMeasureSpec = MeasureSpec.makeMeasureSpec(getPaddingStart() + getPaddingEnd(), MeasureSpec.EXACTLY);
+            } else {
+                mPaint.setTextSize(mTextSize);
+                float measureText = mPaint.measureText(oneLetter);
+                widthSize = Math.min(widthSize, (int) (measureText + 0.5f));
+                widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
+            }
+        }
+        
+        
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        mPaint.setTextSize(mTextSize);
+        Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+        float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
+        mItemHeight = Math.min(measuredHeight * mLetterSpacing, mMaxHeight);
+        if (heightMode == MeasureSpec.EXACTLY) {
+            // xml中指定大小或MATCH_PARENT
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             return;
         }
         
-        mItemHeight = height * 1f / letters.length;
-        mItemHeight = Math.min(mItemHeight, mMaxHeight);
-        
-        height = (int) (mItemHeight * letters.length + getPaddingTop() + getPaddingBottom() + 0.5f);
-        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+        // 未指定大小，需要自己测量高度
+        if (letters == null || letters.length == 0) {
+            super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY));
+        } else {
+            measuredHeight = mItemHeight * letters.length + getPaddingTop() + getPaddingBottom() + 0.5f;
+            if (heightMode == MeasureSpec.UNSPECIFIED || heightSize >= measuredHeight) {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) measuredHeight, MeasureSpec.EXACTLY));
+            } else {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY));
+            }
+        }
     }
     
     @Override

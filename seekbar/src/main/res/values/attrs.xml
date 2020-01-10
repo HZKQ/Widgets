@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--RatioColorBar-->
+    <declare-styleable name="TwoWaySeekBar">
+        <attr name="ts_left_thumb" format="reference" />
+        <attr name="ts_left_thumb_size" format="dimension|reference" />
+        <attr name="ts_right_thumb" format="reference" />
+        <attr name="ts_right_thumb_size" format="dimension|reference" />
+        <attr name="ts_bar_height" format="dimension|reference"/>
+        <attr name="ts_start_bar" format="color|reference"/>
+        <attr name="ts_center_bar" format="color|reference"/>
+        <attr name="ts_end_bar" format="color|reference"/>
+        <!--是否展示进度文本-->
+        <attr name="ts_show_progress" format="boolean"/>
+        <!--进度文本字体大小-->
+        <attr name="ts_show_progress_text_size" format="dimension|reference"/>
+        <!--进度文本字体颜色-->
+        <attr name="ts_show_progress_text_color" format="color|reference"/>
+    </declare-styleable>
+</resources>
