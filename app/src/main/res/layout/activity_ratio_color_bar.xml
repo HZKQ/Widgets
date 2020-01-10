@@ -55,7 +55,6 @@
         android:layout_marginLeft="30px"
         android:layout_marginRight="30px"
         android:background="#E7EAEE"
-        app:rcb_border_color="@color/colorBlack80"
-        app:rcb_border_width="5px"
-        app:rcb_show_border="true" />
+        android:paddingTop="8px"
+        android:paddingBottom="8px"/>
 </LinearLayout>

@@ -43,11 +43,11 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  * @author Created by 汪高皖 on 2020/1/6 14:16
  */
 public class ScaleRatioColorBar extends View {
+    private static final int[] COLORS = new int[]{/*黄颜色*/0xFFFFA60E,/*绿色*/0xFF0DDF66,/*红色*/0xFFFF5252,/*灰色*/0xFFCBCAD1};
+    
     private boolean showBorder;
-    private boolean showPadding;
     private int borderWidth;
     private int borderColor;
-    private int padding;
     
     private Paint borderPaint;
     private Paint barPaint;
@@ -121,31 +121,34 @@ public class ScaleRatioColorBar extends View {
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.ScaleRatioColorBar);
             showBorder = t.getBoolean(R.styleable.ScaleRatioColorBar_srcb_show_border, false);
-            showPadding = t.getBoolean(R.styleable.ScaleRatioColorBar_srcb_show_padding, false);
             borderColor = t.getColor(R.styleable.ScaleRatioColorBar_srcb_border_color, 0xffeeeeee);
             borderWidth = t.getDimensionPixelSize(R.styleable.ScaleRatioColorBar_srcb_border_width, 1);
-            padding = t.getDimensionPixelSize(R.styleable.ScaleRatioColorBar_srcb_padding, 1);
             t.recycle();
         } else {
             showBorder = false;
-            showPadding = false;
             borderColor = 0xffeeeeee;
             borderWidth = 1;
-            padding = 1;
         }
         
         mArrowWidth = 10;
         mArrowHeight = 10;
+        initPaints();
         
         if (!isInEditMode()) {
             borderWidth = SimpleUtil.getScaledValue(borderWidth);
-            padding = SimpleUtil.getScaledValue(padding);
             mArrowWidth = SimpleUtil.getScaledValue(mArrowWidth);
             mArrowHeight = SimpleUtil.getScaledValue(mArrowHeight);
+            initPop();
+        } else {
+            List<RatioBarData> list = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                RatioBarData data = new RatioBarData();
+                data.setColor(COLORS[i % 4]);
+                data.setValue((i + 1) * 8);
+                list.add(data);
+            }
+            setColorBars(0, 50, list);
         }
-        
-        initPaints();
-        initPop();
     }
     
     private void initPaints() {
@@ -192,20 +195,25 @@ public class ScaleRatioColorBar extends View {
         float endY = getHeight();
         
         if (showBorder) {
-            startX += borderWidth;
-            endX -= borderWidth;
-            startY += borderWidth;
-            endY -= borderWidth;
+            startX += borderWidth / 2;
+            endX -= borderWidth / 2;
+            startY += borderWidth / 2;
+            endY -= borderWidth / 2;
+            // 绘制STROKE矩形。左边开始和右边结束位置需要设置StrokeWidth的一半
             canvas.drawRect(startX, startY, endX, endY, borderPaint);
+    
+            // 绘制边框，里面的内容要进行偏移边框宽度
+            startX += borderWidth / 2;
+            endX -= borderWidth / 2;
+            startY += borderWidth / 2;
+            endY -= borderWidth / 2;
         }
         
         if (colorBars != null && mStartValue < mEndValue) {
-            if (showPadding) {
-                startX += padding;
-                endX -= padding;
-                startY += padding;
-                endY -= padding;
-            }
+            startX += getPaddingStart();
+            endX -= getPaddingEnd();
+            startY += getPaddingTop();
+            endY -= getPaddingBottom();
             
             float dx = endX - startX;
             float sum = mEndValue - mStartValue;
