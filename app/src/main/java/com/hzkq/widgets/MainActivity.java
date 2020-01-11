@@ -107,4 +107,8 @@ public class MainActivity extends BaseActivity {
     public void onIndexBarClick(View view) {
         startActWithIntent(new Intent(this, IndexBarActivity.class));
     }
+    
+    public void onSeekBarClick(View view) {
+        startActWithIntent(new Intent(this, SeekBarActivity.class));
+    }
 }

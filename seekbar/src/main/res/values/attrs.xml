@@ -2,19 +2,48 @@
 <resources>
     <!--RatioColorBar-->
     <declare-styleable name="TwoWaySeekBar">
-        <attr name="ts_left_thumb" format="reference" />
-        <attr name="ts_left_thumb_size" format="dimension|reference" />
-        <attr name="ts_right_thumb" format="reference" />
-        <attr name="ts_right_thumb_size" format="dimension|reference" />
-        <attr name="ts_bar_height" format="dimension|reference"/>
-        <attr name="ts_start_bar" format="color|reference"/>
-        <attr name="ts_center_bar" format="color|reference"/>
-        <attr name="ts_end_bar" format="color|reference"/>
+        <attr name="ts_max" format="integer" />
+        <attr name="ts_thumb" format="reference" />
+        <attr name="ts_thumb_size" format="dimension|reference" />
+        <attr name="ts_bar_height" format="dimension|reference" />
+        <attr name="ts_start_bar" format="reference" />
+        <attr name="ts_center_bar" format="reference" />
+        <attr name="ts_end_bar" format="reference" />
         <!--是否展示进度文本-->
-        <attr name="ts_show_progress" format="boolean"/>
+        <attr name="ts_show_progress_text" format="boolean" />
+        <!--是否展示进度文本-->
+        <attr name="ts_progress_text_gravity" format="enum">
+            <enum name="top" value="0" />
+            <enum name="bottom" value="1" />
+        </attr>
         <!--进度文本字体大小-->
-        <attr name="ts_show_progress_text_size" format="dimension|reference"/>
+        <attr name="ts_progress_text_size" format="dimension|reference" />
         <!--进度文本字体颜色-->
-        <attr name="ts_show_progress_text_color" format="color|reference"/>
+        <attr name="ts_progress_text_color" format="color|reference" />
+        <!--进度文本字离顶部/底部位移-->
+        <attr name="ts_progress_text_margin" format="dimension|reference" />
+    </declare-styleable>
+
+    <!--RatioColorBar-->
+    <declare-styleable name="OneWaySeekBar">
+        <attr name="os_max" format="integer" />
+        <attr name="os_thumb" format="reference" />
+        <attr name="os_thumb_size" format="dimension|reference" />
+        <attr name="os_bar_height" format="dimension|reference" />
+        <attr name="os_start_bar" format="reference" />
+        <attr name="os_end_bar" format="reference" />
+        <!--是否展示进度文本-->
+        <attr name="os_show_progress_text" format="boolean" />
+        <!--是否展示进度文本-->
+        <attr name="os_progress_text_gravity" format="enum">
+            <enum name="top" value="0" />
+            <enum name="bottom" value="1" />
+        </attr>
+        <!--进度文本字体大小-->
+        <attr name="os_progress_text_size" format="dimension|reference" />
+        <!--进度文本字体颜色-->
+        <attr name="os_progress_text_color" format="color|reference" />
+        <!--进度文本字离顶部/底部位移-->
+        <attr name="os_progress_text_margin" format="dimension|reference" />
     </declare-styleable>
 </resources>

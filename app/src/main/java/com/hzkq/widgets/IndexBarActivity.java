@@ -114,7 +114,7 @@ public class IndexBarActivity extends BaseActivity {
     public void initEvent() {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
         
-        // mUserAdapter.setIndexDoneListener(indexer -> mIndexBar.setLetters(indexer.getSections()));
+        mUserAdapter.setIndexDoneListener(indexer -> mIndexBar.setLetters(indexer.getSections()));
         
         mIndexBar.setLetterTouchListener(new IndexBar.OnLetterTouchListener() {
             @Override

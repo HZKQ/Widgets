@@ -46,7 +46,6 @@ public class IndexBar extends View {
     private String[] letters;
     private float mItemHeight = -1;
     private Paint mPaint;
-    private float mTextSize;
     private float mLetterSpacing = 1.5f;
     private OnLetterTouchListener letterTouchListener;
     
@@ -83,15 +82,15 @@ public class IndexBar extends View {
         mReDrawLetterBitmap = true;
         mHandler = new Handler();
         mMaxHeight = 60;
-        mTextSize = 36;
+        int textSize = 36;
         int textColor = getResources().getColor(R.color.colorAccent);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
-            mTextSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 36);
+            textSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 36);
             textColor = t.getColor(R.styleable.IndexBar_ib_text_color, textColor);
             String letters = t.getString(R.styleable.IndexBar_ib_letters);
             mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
-            mMaxHeight = t.getDimensionPixelSize(R.styleable.IndexBar_ib_letter_max_height,60);
+            mMaxHeight = t.getDimensionPixelSize(R.styleable.IndexBar_ib_letter_max_height, 60);
             t.recycle();
             
             if (!TextUtils.isEmpty(letters)) {
@@ -104,7 +103,7 @@ public class IndexBar extends View {
         
         if (!isInEditMode()) {
             mMaxHeight = SimpleUtil.getScaledValue(mMaxHeight);
-            mTextSize = SimpleUtil.getScaledValue((int) mTextSize);
+            textSize = SimpleUtil.getScaledValue(textSize);
             
             mTvToast = new TextView(context);
             mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50));
@@ -121,6 +120,7 @@ public class IndexBar extends View {
         mPaint = new Paint();
         mPaint.setColor(textColor);
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setTextSize(textSize);
     }
     
     
@@ -145,7 +145,6 @@ public class IndexBar extends View {
             
             mCanvas.setBitmap(mLetterBitmap);
             float widthCenter = drawW / 2.0f;
-            mPaint.setTextSize(mTextSize);
             Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
             float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
             int startY = (int) (measuredHeight + (mItemHeight - measuredHeight) / 2);
@@ -233,19 +232,25 @@ public class IndexBar extends View {
             }
             
             if (TextUtils.isEmpty(oneLetter)) {
-                widthMeasureSpec = MeasureSpec.makeMeasureSpec(getPaddingStart() + getPaddingEnd(), MeasureSpec.EXACTLY);
+                if (widthMode == MeasureSpec.UNSPECIFIED) {
+                    widthSize = getPaddingStart() + getPaddingEnd();
+                } else {
+                    widthSize = Math.min(widthSize, (int) (getPaddingStart() + getPaddingEnd() + 0.5f));
+                }
             } else {
-                mPaint.setTextSize(mTextSize);
                 float measureText = mPaint.measureText(oneLetter);
-                widthSize = Math.min(widthSize, (int) (measureText + 0.5f));
-                widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
+                if (widthMode == MeasureSpec.UNSPECIFIED) {
+                    widthSize = (int) (measureText + getPaddingStart() + getPaddingEnd() + 0.5f);
+                } else {
+                    widthSize = Math.min(widthSize, (int) (measureText + getPaddingStart() + getPaddingEnd() + 0.5f));
+                }
             }
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
         }
         
         
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        mPaint.setTextSize(mTextSize);
         Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
         float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
         mItemHeight = Math.min(measuredHeight * mLetterSpacing, mMaxHeight);
@@ -307,7 +312,7 @@ public class IndexBar extends View {
     }
     
     public void setTextSize(float textSize) {
-        this.mTextSize = textSize;
+        mPaint.setTextSize(textSize);
         invalidate();
     }
     
