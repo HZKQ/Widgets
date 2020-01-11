@@ -76,11 +76,6 @@ public class TwoWaySeekBar extends View {
     private Drawable mThumbRightBg;
     
     /**
-     * 滑动条宽度
-     */
-    private int mScrollBarWidth;
-    
-    /**
      * 滑动条高度
      */
     private int mScrollBarHeight;
@@ -89,6 +84,11 @@ public class TwoWaySeekBar extends View {
      * 滑动块直径R
      */
     private int mThumbSize;
+    
+    /**
+     * 滑块背景相比滑块缩放比例
+     */
+    private float mThumbBgScale = 1.1f;
     
     /**
      * 用户是否主动设置了滑块size
@@ -165,6 +165,8 @@ public class TwoWaySeekBar extends View {
     private void init(Context context, AttributeSet attrs) {
         int textColor;
         int textSize;
+        mThumbLeftBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
+        mThumbRightBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.TwoWaySeekBar);
             mStartScrollBar = t.getDrawable(R.styleable.TwoWaySeekBar_ts_start_bar);
@@ -180,6 +182,15 @@ public class TwoWaySeekBar extends View {
             textColor = t.getColor(R.styleable.TwoWaySeekBar_ts_progress_text_color, 0xCC000000);
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_progress_text_margin, 10);
             max = t.getInteger(R.styleable.TwoWaySeekBar_ts_max, 100);
+            if (t.hasValue(R.styleable.TwoWaySeekBar_ts_thumb_bg)) {
+                mThumbLeftBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
+            }
+            
+            if (t.hasValue(R.styleable.TwoWaySeekBar_ts_thumb_bg)) {
+                mThumbRightBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
+            }
+            
+            mThumbBgScale = t.getFloat(R.styleable.TwoWaySeekBar_ts_thumb_bg_scale, 1.1f);
             t.recycle();
         } else {
             textSize = 36;
@@ -210,8 +221,6 @@ public class TwoWaySeekBar extends View {
             mEndScrollBar = ContextCompat.getDrawable(context, R.drawable.bg_round_rectangle_260dp_green);
         }
         
-        mThumbLeftBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
-        mThumbRightBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
         if (mThumbLeft == null) {
             mThumbLeft = ContextCompat.getDrawable(context, R.drawable.huadong);
         }
@@ -239,14 +248,12 @@ public class TwoWaySeekBar extends View {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) {
             if (widthMode == MeasureSpec.UNSPECIFIED) {
-                widthSize = mThumbSize + mStartScrollBar.getIntrinsicWidth();
+                widthSize = getPaddingStart() + getPaddingEnd() + mThumbSize + mStartScrollBar.getIntrinsicWidth();
             } else {
-                widthSize = Math.min(widthSize, mThumbSize + mStartScrollBar.getIntrinsicWidth());
+                widthSize = Math.min(widthSize, getPaddingStart() + getPaddingEnd() + mThumbSize + mStartScrollBar.getIntrinsicWidth());
             }
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
         }
-        mScrollBarWidth = widthSize;
-        
         
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
@@ -259,44 +266,68 @@ public class TwoWaySeekBar extends View {
             }
             
             if (heightMode == MeasureSpec.UNSPECIFIED) {
-                heightSize = height;
+                heightSize = height + getPaddingTop() + getPaddingBottom();
             } else {
-                heightSize = Math.min(heightSize, height);
+                heightSize = Math.min(heightSize, height + getPaddingTop() + getPaddingBottom());
             }
             
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
         }
         
-        // 获取view的总宽度
-        mOffsetLeft = mThumbSize / 2f;
-        mOffsetRight = mScrollBarWidth - mThumbSize / 2f;
-        mDistance = mScrollBarWidth - mThumbSize;
+        mOffsetLeft = mThumbSize / 2f + getPaddingStartInner();
+        mOffsetRight = widthSize - getPaddingEndInner() - mThumbSize / 2f;
+        mDistance = widthSize - getPaddingStartInner() - getPaddingEndInner() - mThumbSize;
         if (mDefaultScreenLeft != 0) {
-            mOffsetLeft = formatInt(mDefaultScreenLeft / max * mDistance) + mThumbSize / 2f;
+            mOffsetLeft = formatInt(mDefaultScreenLeft / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
         }
         
         if (mDefaultScreenRight != max) {
-            mOffsetRight = formatInt(mDefaultScreenRight / max * mDistance) + mThumbSize / 2f;
+            mOffsetRight = formatInt(mDefaultScreenRight / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
+    /**
+     * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
+     */
+    public int getPaddingStartInner() {
+        if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
+            return getPaddingStart();
+        }
+        
+        return (int) (getPaddingStart() + mThumbSize * (mThumbBgScale - 1) / 2);
+    }
+    
+    /**
+     * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
+     */
+    public int getPaddingEndInner() {
+        if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
+            return getPaddingStart();
+        }
+        
+        return (int) (getPaddingEnd() + mThumbSize * (mThumbBgScale - 1) / 2);
+    }
+    
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.save();
+        canvas.clipRect(getPaddingStart(), getPaddingTop(), getWidth() - getPaddingEnd(), getHeight() - getPaddingBottom());
+        
         // 滑动条高度绘制起始和结束
         int top = (getHeight() - mScrollBarHeight) / 2;
         int bottom = top + mScrollBarHeight;
         
-        // 左边滑块部分
-        mStartScrollBar.setBounds(mThumbSize / 2, top, (int) mOffsetLeft, bottom);
+        // 左边滑动条部分
+        mStartScrollBar.setBounds(mThumbSize / 2 + getPaddingStartInner(), top, (int) mOffsetLeft, bottom);
         mStartScrollBar.draw(canvas);
         
-        // 两个滑块中间部分
+        // 中间滑动条部分
         mCenterScrollBar.setBounds((int) mOffsetLeft, top, (int) mOffsetRight, bottom);
         mCenterScrollBar.draw(canvas);
         
-        // 右边滑块部分
-        mEndScrollBar.setBounds((int) mOffsetRight, top, mScrollBarWidth - mThumbSize / 2, bottom);
+        // 右边滑动条部分
+        mEndScrollBar.setBounds((int) mOffsetRight, top, getWidth() - getPaddingEndInner() - mThumbSize / 2, bottom);
         mEndScrollBar.draw(canvas);
         
         // 滑块高度绘制起始和结束
@@ -305,7 +336,7 @@ public class TwoWaySeekBar extends View {
         
         // 前滑块
         int[] state = mThumbLeft.getState();
-        if (state == STATE_PRESSED || (mOffsetRight == mOffsetLeft && mThumbRight.getState() == STATE_PRESSED)) {
+        if (isInEditMode() || state == STATE_PRESSED || (mOffsetRight == mOffsetLeft && mThumbRight.getState() == STATE_PRESSED)) {
             drawThumbBg(canvas, mThumbLeftBg, mOffsetLeft);
         }
         mThumbLeft.setBounds((int) (mOffsetLeft - mThumbSize / 2), top, (int) (mOffsetLeft + mThumbSize / 2), bottom);
@@ -314,7 +345,7 @@ public class TwoWaySeekBar extends View {
         if (mOffsetRight != mOffsetLeft) {
             // 后滑块
             state = mThumbRight.getState();
-            if (state == STATE_PRESSED) {
+            if (isInEditMode() || state == STATE_PRESSED) {
                 drawThumbBg(canvas, mThumbRightBg, mOffsetRight);
             }
             mThumbRight.setBounds((int) (mOffsetRight - mThumbSize / 2), top, (int) (mOffsetRight + mThumbSize / 2), bottom);
@@ -322,8 +353,8 @@ public class TwoWaySeekBar extends View {
         }
         
         // 当前滑块刻度
-        int progressLeft = formatInt((mOffsetLeft - mThumbSize / 2f) * max / mDistance);
-        int progressRight = formatInt((mOffsetRight - mThumbSize / 2f) * max / mDistance);
+        int progressLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+        int progressRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
         if (mShowProgressText) {
             int y;
             Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
@@ -349,6 +380,8 @@ public class TwoWaySeekBar extends View {
             }
         }
         
+        canvas.restore();
+        
         if (mBarChangeListener != null) {
             mBarChangeListener.onProgressChanged(this, progressLeft, progressRight);
         }
@@ -358,7 +391,11 @@ public class TwoWaySeekBar extends View {
      * 绘制滑块背景
      */
     private void drawThumbBg(Canvas canvas, Drawable bg, double offset) {
-        int bgSize = (int) (mThumbSize * 1.1f);
+        if (bg == null) {
+            return;
+        }
+        
+        int bgSize = (int) (mThumbSize * mThumbBgScale);
         int bgTop = (getHeight() - bgSize) / 2;
         int bgBottom = bgTop + bgSize;
         int left = (int) (offset - bgSize / 2);
@@ -404,10 +441,11 @@ public class TwoWaySeekBar extends View {
                 mThumbLeft.setState(STATE_PRESSED);
                 mThumbRight.setState(STATE_NORMAL);
                 // 如果点击0-mThumbSize/2坐标
-                if (e.getX() < 0 || e.getX() <= mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f);
-                } else if (e.getX() > mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f + mDistance / 2f);
+                if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                } else if (e.getX() > getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffsetLeft(mThumbSize / 2f + mDistance + getPaddingStartInner());
+                    updateOffsetRight(mOffsetLeft);
                 } else {
                     updateOffsetLeft(formatInt(e.getX()));
                 }
@@ -415,8 +453,11 @@ public class TwoWaySeekBar extends View {
             } else if (mFlag == CLICK_IN_HIGH_AREA) {
                 mThumbRight.setState(STATE_PRESSED);
                 mThumbLeft.setState(STATE_NORMAL);
-                if (e.getX() >= mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffsetRight(mDistance + mThumbSize / 2f);
+                if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetRight(mOffsetLeft);
+                } else if (e.getX() > getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffsetRight(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
                     updateOffsetRight(formatInt(e.getX()));
                 }
@@ -435,29 +476,30 @@ public class TwoWaySeekBar extends View {
             }
             
             if (mFlag == CLICK_ON_LOW) {
-                if (e.getX() < 0 || e.getX() <= mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f);
-                } else if (e.getX() >= mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f + mDistance);
+                if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                } else if (e.getX() >= getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffsetLeft(mThumbSize / 2f + mDistance + getPaddingStartInner());
                     updateOffsetRight(mOffsetLeft);
                 } else {
                     updateOffsetLeft(formatInt(e.getX()));
                     if (mOffsetRight - mOffsetLeft <= 0) {
-                        updateOffsetRight((mOffsetLeft <= mDistance + mThumbSize / 2f) ? (mOffsetLeft) : (mDistance + mThumbSize / 2f));
+                        updateOffsetRight((mOffsetLeft <= mDistance + mThumbSize / 2f + getPaddingStartInner())
+                            ? mOffsetLeft : (mDistance + mThumbSize / 2f + getPaddingStartInner()));
                     }
                 }
                 
                 refresh();
             } else if (mFlag == CLICK_ON_HIGH) {
-                if (e.getX() < mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f);
-                    updateOffsetRight(mThumbSize / 2f);
-                } else if (e.getX() > mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffsetRight(mThumbSize / 2f + mDistance);
+                if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetRight(mOffsetLeft);
+                } else if (e.getX() >= getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffsetRight(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
                     updateOffsetRight(formatInt(e.getX()));
                     if (mOffsetRight - mOffsetLeft <= 0) {
-                        updateOffsetLeft((mOffsetRight >= mThumbSize / 2f) ? (mOffsetRight) : mThumbSize / 2f);
+                        updateOffsetLeft((mOffsetRight >= mThumbSize / 2f + getPaddingStartInner()) ? mOffsetRight : mThumbSize / 2f + getPaddingStartInner());
                     }
                 }
                 
@@ -480,15 +522,15 @@ public class TwoWaySeekBar extends View {
             return CLICK_ON_LOW;
         } else if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetRight - mThumbSize / 2f) && e.getX() <= (mOffsetRight + mThumbSize / 2f)) {
             return CLICK_ON_HIGH;
-        } else if (e.getY() >= top
-            && e.getY() <= bottom
-            && ((e.getX() >= 0 && e.getX() < (mOffsetLeft - mThumbSize / 2f)) || ((e.getX() > (mOffsetLeft + mThumbSize / 2f))
-            && e.getX() <= (mOffsetRight + mOffsetLeft) / 2))) {
+        } else if (e.getY() >= top && e.getY() <= bottom
+            && ((e.getX() >= getPaddingStartInner() && e.getX() < (mOffsetLeft - mThumbSize / 2f))
+            || ((e.getX() > (mOffsetLeft + mThumbSize / 2f)) && e.getX() <= (mOffsetRight + mOffsetLeft) / 2))) {
             return CLICK_IN_LOW_AREA;
-        } else if (e.getY() >= top && e.getY() <= bottom && (((e.getX() > (mOffsetRight + mOffsetLeft) / 2) && e.getX() < (mOffsetRight - mThumbSize / 2f)) || (e
-            .getX() > (mOffsetRight + mThumbSize / 2f) && e.getX() <= mScrollBarWidth))) {
+        } else if (e.getY() >= top && e.getY() <= bottom &&
+            (((e.getX() > (mOffsetRight + mOffsetLeft) / 2) && e.getX() < (mOffsetRight - mThumbSize / 2f))
+                || (e.getX() > (mOffsetRight + mThumbSize / 2f) && e.getX() <= getWidth() - getPaddingEndInner()))) {
             return CLICK_IN_HIGH_AREA;
-        } else if (!(e.getX() >= 0 && e.getX() <= mScrollBarWidth && e.getY() >= top && e.getY() <= bottom)) {
+        } else if (!(e.getX() >= 0 && e.getX() <= getWidth() - getPaddingEndInner() && e.getY() >= top && e.getY() <= bottom)) {
             return CLICK_OUT_AREA;
         } else {
             return CLICK_INVALID;
@@ -534,12 +576,12 @@ public class TwoWaySeekBar extends View {
     
     private void updateOffsetLeft(double offsetLeft) {
         mOffsetLeft = offsetLeft;
-        this.mDefaultScreenLeft = formatInt((mOffsetLeft - mThumbSize / 2f) * max / mDistance);
+        this.mDefaultScreenLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
     }
     
     private void updateOffsetRight(double offsetRight) {
         mOffsetRight = offsetRight;
-        this.mDefaultScreenRight = formatInt((mOffsetRight - mThumbSize / 2f) * max / mDistance);
+        this.mDefaultScreenRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
     }
     
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
@@ -587,6 +629,24 @@ public class TwoWaySeekBar extends View {
     
     public void setThumbSize(int size) {
         mThumbSize = size;
+        invalidate();
+    }
+    
+    public void setThumbLeftBg(Drawable thumbLeftBg) {
+        mThumbLeftBg = thumbLeftBg;
+        invalidate();
+    }
+    
+    public void setThumbRightBg(Drawable thumbRightBg) {
+        mThumbRightBg = thumbRightBg;
+        invalidate();
+    }
+    
+    /**
+     * @param thumbBgScale <=0则不绘制背景
+     */
+    public void setThumbBgScale(float thumbBgScale) {
+        mThumbBgScale = thumbBgScale;
         invalidate();
     }
     

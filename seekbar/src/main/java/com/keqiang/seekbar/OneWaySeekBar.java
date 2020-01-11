@@ -58,11 +58,6 @@ public class OneWaySeekBar extends View {
     private Drawable mThumbBg;
     
     /**
-     * 滑动条宽度
-     */
-    private int mScrollBarWidth;
-    
-    /**
      * 滑动条高度
      */
     private int mScrollBarHeight;
@@ -71,6 +66,11 @@ public class OneWaySeekBar extends View {
      * 滑动块直径R
      */
     private int mThumbSize;
+    
+    /**
+     * 滑块背景相比滑块缩放比例
+     */
+    private float mThumbBgScale = 1.1f;
     
     /**
      * 用户是否主动设置了滑块size
@@ -133,6 +133,7 @@ public class OneWaySeekBar extends View {
     private void init(Context context, AttributeSet attrs) {
         int textColor;
         int textSize;
+        mThumbBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.OneWaySeekBar);
             mStartScrollBar = t.getDrawable(R.styleable.OneWaySeekBar_os_start_bar);
@@ -146,6 +147,10 @@ public class OneWaySeekBar extends View {
             textColor = t.getColor(R.styleable.OneWaySeekBar_os_progress_text_color, 0xCC000000);
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.OneWaySeekBar_os_progress_text_margin, 10);
             max = t.getInteger(R.styleable.OneWaySeekBar_os_max, 100);
+            if (t.hasValue(R.styleable.OneWaySeekBar_os_thumb_bg)) {
+                mThumbBg = t.getDrawable(R.styleable.OneWaySeekBar_os_thumb_bg);
+            }
+            mThumbBgScale = t.getFloat(R.styleable.OneWaySeekBar_os_thumb_bg_scale, 1.1f);
             t.recycle();
         } else {
             textSize = 36;
@@ -171,7 +176,6 @@ public class OneWaySeekBar extends View {
             mEndScrollBar = ContextCompat.getDrawable(context, R.drawable.bg_round_rectangle_260dp_green);
         }
         
-        mThumbBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
         if (mThumb == null) {
             mThumb = ContextCompat.getDrawable(context, R.drawable.huadong);
         }
@@ -194,14 +198,12 @@ public class OneWaySeekBar extends View {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) {
             if (widthMode == MeasureSpec.UNSPECIFIED) {
-                widthSize = mThumbSize + mStartScrollBar.getIntrinsicWidth();
+                widthSize = getPaddingStart() + getPaddingEnd() + mThumbSize + mStartScrollBar.getIntrinsicWidth();
             } else {
-                widthSize = Math.min(widthSize, mThumbSize + mStartScrollBar.getIntrinsicWidth());
+                widthSize = Math.min(widthSize, getPaddingStart() + getPaddingEnd() + mThumbSize + mStartScrollBar.getIntrinsicWidth());
             }
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
         }
-        mScrollBarWidth = widthSize;
-        
         
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
@@ -214,36 +216,58 @@ public class OneWaySeekBar extends View {
             }
             
             if (heightMode == MeasureSpec.UNSPECIFIED) {
-                heightSize = height;
+                heightSize = height + getPaddingTop() + getPaddingBottom();
             } else {
-                heightSize = Math.min(heightSize, height);
+                heightSize = Math.min(heightSize, height + getPaddingTop() + getPaddingBottom());
             }
             
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
         }
         
-        // 获取view的总宽度
-        mOffset = mThumbSize / 2f;
-        mDistance = mScrollBarWidth - mThumbSize;
+        mOffset = mThumbSize / 2f + getPaddingStartInner();
+        mDistance = widthSize - getPaddingStartInner() - getPaddingEndInner() - mThumbSize;
         if (mDefaultScreen != 0) {
-            mOffset = formatInt(mDefaultScreen / max * mDistance) + mThumbSize / 2f;
+            mOffset = formatInt(mDefaultScreen / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
         }
         
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
+    /**
+     * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
+     */
+    public int getPaddingStartInner() {
+        if (mThumbBg == null || mThumbBgScale <= 0) {
+            return getPaddingStart();
+        }
+        return (int) (getPaddingStart() + mThumbSize * (mThumbBgScale - 1) / 2);
+    }
+    
+    /**
+     * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
+     */
+    public int getPaddingEndInner() {
+        if (mThumbBg == null || mThumbBgScale <= 0) {
+            return getPaddingStart();
+        }
+        return (int) (getPaddingEnd() + mThumbSize * (mThumbBgScale - 1) / 2);
+    }
+    
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // 滑动条高度绘制起始和结束
+        canvas.save();
+        canvas.clipRect(getPaddingStart(), getPaddingTop(), getWidth() - getPaddingEnd(), getHeight() - getPaddingBottom());
+        
         int top = (getHeight() - mScrollBarHeight) / 2;
         int bottom = top + mScrollBarHeight;
         
         // 左边滑动条部分
-        mStartScrollBar.setBounds(mThumbSize / 2, top, (int) mOffset, bottom);
+        mStartScrollBar.setBounds(mThumbSize / 2 + getPaddingStartInner(), top, (int) mOffset, bottom);
         mStartScrollBar.draw(canvas);
         
         // 右边滑动条部分
-        mEndScrollBar.setBounds((int) mOffset, top, mScrollBarWidth - mThumbSize / 2, bottom);
+        mEndScrollBar.setBounds((int) mOffset, top, getWidth() - getPaddingEndInner() - mThumbSize / 2, bottom);
         mEndScrollBar.draw(canvas);
         
         // 滑块高度绘制起始和结束
@@ -252,14 +276,14 @@ public class OneWaySeekBar extends View {
         
         // 滑块
         int[] state = mThumb.getState();
-        if (state == STATE_PRESSED) {
+        if (isInEditMode() || state == STATE_PRESSED) {
             drawThumbBg(canvas, mThumbBg, mOffset);
         }
         mThumb.setBounds((int) (mOffset - mThumbSize / 2), top, (int) (mOffset + mThumbSize / 2), bottom);
         mThumb.draw(canvas);
         
         // 当前滑块刻度
-        int progress = formatInt((mOffset - mThumbSize / 2f) * max / mDistance);
+        int progress = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
         if (mShowProgressText) {
             int y;
             Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
@@ -278,6 +302,8 @@ public class OneWaySeekBar extends View {
             }
         }
         
+        canvas.restore();
+        
         if (mBarChangeListener != null) {
             mBarChangeListener.onProgressChanged(this, progress);
         }
@@ -287,7 +313,11 @@ public class OneWaySeekBar extends View {
      * 绘制滑块背景
      */
     private void drawThumbBg(Canvas canvas, Drawable bg, double offset) {
-        int bgSize = (int) (mThumbSize * 1.1f);
+        if (bg == null) {
+            return;
+        }
+        
+        int bgSize = (int) (mThumbSize * mThumbBgScale);
         int bgTop = (getHeight() - bgSize) / 2;
         int bgBottom = bgTop + bgSize;
         int left = (int) (offset - bgSize / 2);
@@ -323,10 +353,10 @@ public class OneWaySeekBar extends View {
             } else if (mFlag == CLICK_IN_THUMB_AREA) {
                 mThumb.setState(STATE_PRESSED);
                 // 如果点击0-mThumbSize/2坐标
-                if (e.getX() < 0 || e.getX() <= mThumbSize / 2f) {
-                    updateOffset(mThumbSize / 2f);
-                } else if (e.getX() > mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffset(mThumbSize / 2f + mDistance / 2f);
+                if (e.getX() < mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffset(mThumbSize / 2f + getPaddingStartInner());
+                } else if (e.getX() > getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffset(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
                     updateOffset(formatInt(e.getX()));
                 }
@@ -335,10 +365,10 @@ public class OneWaySeekBar extends View {
         } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
             // 移动move
             if (mFlag == CLICK_ON_THUMB) {
-                if (e.getX() < 0 || e.getX() <= mThumbSize / 2f) {
-                    updateOffset(mThumbSize / 2f);
-                } else if (e.getX() >= mScrollBarWidth - mThumbSize / 2f) {
-                    updateOffset(mThumbSize / 2f + mDistance);
+                if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
+                    updateOffset(mThumbSize / 2f + getPaddingStartInner());
+                } else if (e.getX() >= getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
+                    updateOffset(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
                     updateOffset(formatInt(e.getX()));
                 }
@@ -361,9 +391,10 @@ public class OneWaySeekBar extends View {
             return CLICK_ON_THUMB;
         } else if (e.getY() >= top
             && e.getY() <= bottom
-            && ((e.getX() >= 0 && e.getX() < (mOffset - mThumbSize / 2f)) || ((e.getX() > (mOffset + mThumbSize / 2f))))) {
+            && ((e.getX() >= getPaddingStartInner() && e.getX() < (mOffset - mThumbSize / 2f))
+            || ((e.getX() > (mOffset + mThumbSize / 2f) && e.getX() <= getWidth() - getPaddingEndInner())))) {
             return CLICK_IN_THUMB_AREA;
-        } else if (!(e.getX() >= 0 && e.getX() <= mScrollBarWidth && e.getY() >= top && e.getY() <= bottom)) {
+        } else if (!(e.getX() >= getPaddingStartInner() && e.getX() <= getWidth() - getPaddingEndInner() && e.getY() >= top && e.getY() <= bottom)) {
             return CLICK_OUT_AREA;
         } else {
             return CLICK_INVALID;
@@ -400,7 +431,7 @@ public class OneWaySeekBar extends View {
     
     private void updateOffset(double offsetLeft) {
         mOffset = offsetLeft;
-        this.mDefaultScreen = formatInt((mOffset - mThumbSize / 2f) * max / mDistance);
+        this.mDefaultScreen = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
     }
     
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
@@ -434,6 +465,19 @@ public class OneWaySeekBar extends View {
     
     public void setThumbSize(int size) {
         mThumbSize = size;
+        invalidate();
+    }
+    
+    public void setThumbBg(Drawable thumbBg) {
+        mThumbBg = thumbBg;
+        invalidate();
+    }
+    
+    /**
+     * @param thumbBgScale <=0则不绘制背景
+     */
+    public void setThumbBgScale(float thumbBgScale) {
+        mThumbBgScale = thumbBgScale;
         invalidate();
     }
     

@@ -5,6 +5,8 @@
         <attr name="ts_max" format="integer" />
         <attr name="ts_thumb" format="reference" />
         <attr name="ts_thumb_size" format="dimension|reference" />
+        <attr name="ts_thumb_bg" format="reference" />
+        <attr name="ts_thumb_bg_scale" format="float" />
         <attr name="ts_bar_height" format="dimension|reference" />
         <attr name="ts_start_bar" format="reference" />
         <attr name="ts_center_bar" format="reference" />
@@ -29,6 +31,8 @@
         <attr name="os_max" format="integer" />
         <attr name="os_thumb" format="reference" />
         <attr name="os_thumb_size" format="dimension|reference" />
+        <attr name="os_thumb_bg" format="reference" />
+        <attr name="os_thumb_bg_scale" format="float" />
         <attr name="os_bar_height" format="dimension|reference" />
         <attr name="os_start_bar" format="reference" />
         <attr name="os_end_bar" format="reference" />
