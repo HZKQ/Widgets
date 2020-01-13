@@ -182,11 +182,8 @@ public class TwoWaySeekBar extends View {
             textColor = t.getColor(R.styleable.TwoWaySeekBar_ts_progress_text_color, 0xCC000000);
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_progress_text_margin, 10);
             max = t.getInteger(R.styleable.TwoWaySeekBar_ts_max, 100);
-            if (t.hasValue(R.styleable.TwoWaySeekBar_ts_thumb_bg)) {
+            if (isAttributeMatch(attrs,"ts_thumb_bg")) {
                 mThumbLeftBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
-            }
-            
-            if (t.hasValue(R.styleable.TwoWaySeekBar_ts_thumb_bg)) {
                 mThumbRightBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
             }
             
@@ -240,6 +237,26 @@ public class TwoWaySeekBar extends View {
         mTextPaint.setColor(textColor);
         mTextPaint.setTextSize(textSize);
         mProgressTextValueFormat = DEFAULT_VALUE_FORMAT;
+    }
+    
+    /**
+     * 判断给定的name属性是否在xml中配置
+     *
+     * @param name 需要判断的属性
+     */
+    private boolean isAttributeMatch(AttributeSet attrs, String name) {
+        if (attrs == null) {
+            return false;
+        }
+        
+        for (int i = 0; i < attrs.getAttributeCount(); i++) {
+            String attributeName = attrs.getAttributeName(i);
+            if (attributeName != null && attributeName.equals(name)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     @Override

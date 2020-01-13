@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -134,6 +135,9 @@ public class OneWaySeekBar extends View {
         int textColor;
         int textSize;
         mThumbBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
+        for (int i = 0; i < attrs.getAttributeCount(); i++) {
+            Log.e("sss", attrs.getAttributeName(i) + "=" + attrs.getAttributeValue(i));
+        }
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.OneWaySeekBar);
             mStartScrollBar = t.getDrawable(R.styleable.OneWaySeekBar_os_start_bar);
@@ -147,7 +151,8 @@ public class OneWaySeekBar extends View {
             textColor = t.getColor(R.styleable.OneWaySeekBar_os_progress_text_color, 0xCC000000);
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.OneWaySeekBar_os_progress_text_margin, 10);
             max = t.getInteger(R.styleable.OneWaySeekBar_os_max, 100);
-            if (t.hasValue(R.styleable.OneWaySeekBar_os_thumb_bg)) {
+            if (isAttributeMatch(attrs, "os_thumb_bg")) {
+                // os_thumb_bg在xml中有配置
                 mThumbBg = t.getDrawable(R.styleable.OneWaySeekBar_os_thumb_bg);
             }
             mThumbBgScale = t.getFloat(R.styleable.OneWaySeekBar_os_thumb_bg_scale, 1.1f);
@@ -190,6 +195,26 @@ public class OneWaySeekBar extends View {
         mTextPaint.setColor(textColor);
         mTextPaint.setTextSize(textSize);
         mProgressTextValueFormat = DEFAULT_VALUE_FORMAT;
+    }
+    
+    /**
+     * 判断给定的name属性是否在xml中配置
+     *
+     * @param name 需要判断的属性
+     */
+    private boolean isAttributeMatch(AttributeSet attrs, String name) {
+        if (attrs == null) {
+            return false;
+        }
+        
+        for (int i = 0; i < attrs.getAttributeCount(); i++) {
+            String attributeName = attrs.getAttributeName(i);
+            if (attributeName != null && attributeName.equals(name)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     @Override

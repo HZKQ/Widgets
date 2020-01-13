@@ -50,5 +50,6 @@
         app:os_progress_text_margin="20px"
         app:os_progress_text_size="26px"
         app:os_show_progress_text="true"
-        app:os_thumb_size="80px" />
+        app:os_thumb_size="80px"
+        app:os_thumb_bg="@null"/>
 </LinearLayout>
