@@ -65,7 +65,10 @@
         <activity android:name=".RatioColorBarActivity" />
 
         <activity android:name=".IndexBarActivity" />
+
         <activity android:name=".SeekBarActivity" />
+
+        <activity android:name=".PickerViewActivity" />
     </application>
 
 </manifest>

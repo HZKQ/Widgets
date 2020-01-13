@@ -111,4 +111,8 @@ public class MainActivity extends BaseActivity {
     public void onSeekBarClick(View view) {
         startActWithIntent(new Intent(this, SeekBarActivity.class));
     }
+    
+    public void onPickerViewClick(View view) {
+        startActWithIntent(new Intent(this, PickerViewActivity.class));
+    }
 }
