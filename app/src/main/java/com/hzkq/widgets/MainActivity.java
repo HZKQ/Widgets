@@ -115,4 +115,8 @@ public class MainActivity extends BaseActivity {
     public void onPickerViewClick(View view) {
         startActWithIntent(new Intent(this, PickerViewActivity.class));
     }
+    
+    public void onCountdownViewClick(View view) {
+        startActWithIntent(new Intent(this, CountdownActivity.class));
+    }
 }

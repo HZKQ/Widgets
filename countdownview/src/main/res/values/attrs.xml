@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CountdownView">
+        <attr name="cdv_text_color" format="color|reference" />
+        <attr name="cdv_text_size" format="dimension|reference" />
+        <attr name="cdv_border_width" format="dimension|reference" />
+        <attr name="cdv_border_color" format="color|reference" />
+    </declare-styleable>
+</resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--RatioColorBar-->
     <declare-styleable name="TwoWaySeekBar">
         <attr name="ts_max" format="integer" />
         <attr name="ts_thumb" format="reference" />
@@ -26,7 +25,6 @@
         <attr name="ts_progress_text_margin" format="dimension|reference" />
     </declare-styleable>
 
-    <!--RatioColorBar-->
     <declare-styleable name="OneWaySeekBar">
         <attr name="os_max" format="integer" />
         <attr name="os_thumb" format="reference" />

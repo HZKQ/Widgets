@@ -69,6 +69,8 @@
         <activity android:name=".SeekBarActivity" />
 
         <activity android:name=".PickerViewActivity" />
+
+        <activity android:name=".CountdownActivity" />
     </application>
 
 </manifest>

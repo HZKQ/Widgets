@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="PickerView" />
+
+    <TextView
+        android:id="@+id/tv_start"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:layout_marginStart="40px"
+        android:layout_marginLeft="40px"
+        android:layout_marginTop="30px"
+        android:layout_marginEnd="40px"
+        android:layout_marginRight="40px"
+        android:background="@drawable/btn_main_selector"
+        android:gravity="center"
+        android:text="开始"
+        android:textColor="@color/colorWhite"
+        android:textSize="40px" />
+
+    <TextView
+        android:id="@+id/tv_end"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:layout_marginStart="40px"
+        android:layout_marginLeft="40px"
+        android:layout_marginTop="30px"
+        android:layout_marginEnd="40px"
+        android:layout_marginRight="40px"
+        android:background="@drawable/btn_main_selector"
+        android:gravity="center"
+        android:text="结束"
+        android:textColor="@color/colorWhite"
+        android:textSize="40px" />
+
+    <TextView
+        android:id="@+id/tv_reverse"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:layout_marginStart="40px"
+        android:layout_marginLeft="40px"
+        android:layout_marginTop="30px"
+        android:layout_marginEnd="40px"
+        android:layout_marginRight="40px"
+        android:background="@drawable/btn_main_selector"
+        android:gravity="center"
+        android:text="反转"
+        android:textColor="@color/colorWhite"
+        android:textSize="40px" />
+
+    <com.keqiang.countdownview.CountdownView
+        android:id="@+id/countdown_view"
+        android:layout_width="200px"
+        android:layout_height="200px"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="200px"
+        app:cdv_border_color="@color/colorPrimary"
+        app:cdv_border_width="5px"
+        app:cdv_text_size="66px" />
+</LinearLayout>
