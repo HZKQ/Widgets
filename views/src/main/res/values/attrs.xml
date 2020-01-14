@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SettingItemView">
+        <attr name="siv_left_image" format="reference" />
+        <attr name="siv_left_image_size" format="dimension|reference" />
+        <attr name="siv_left_image_show" format="boolean" />
+        <attr name="siv_right_image" format="reference" />
+        <attr name="siv_right_image_size" format="dimension|reference" />
+        <attr name="siv_right_image_show" format="boolean" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="siv_text_padding_left" format="dimension|reference" />
+        <attr name="siv_text_padding_right" format="dimension|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="ExtendEditText">
+        <attr name="ee_clearButtonEnabled" format="boolean"/>
+        <attr name="ee_clearButtonIcon" format="reference"/>
+        <attr name="ee_clearButtonSize" format="dimension"/>
+        <attr name="ee_clearButtonWidth" format="dimension"/>
+        <attr name="ee_clearButtonHeight" format="dimension"/>
+        <attr name="ee_hintTextSize" format="dimension"/>
+
+        <!--始终绘制在右侧-->
+        <attr name="ee_clearButtonPaddingLeft" format="dimension"/>
+        <attr name="ee_clearButtonPaddingRight" format="dimension"/>
+        <attr name="ee_clearButtonMarginLeft" format="dimension"/>
+        <attr name="ee_clearButtonMarginRight" format="dimension"/>
+    </declare-styleable>
+</resources>

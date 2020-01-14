@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="简单View集合" />
+
+    <com.keqiang.views.SettingItemView
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:layout_marginTop="30px"
+        android:background="@drawable/item_bg_selector"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="5555"
+        app:siv_left_image="@drawable/up_arrow"
+        app:siv_left_image_size="30px"
+        app:siv_right_image="@drawable/down_arrow"
+        app:siv_right_image_size="30px"
+        app:siv_text_padding_left="20px"
+        app:siv_text_padding_right="20px" />
+
+    <com.keqiang.views.ExtendEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="555" />
+
+    <com.keqiang.views.AutoSplitTextView
+        android:id="@+id/as_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="到京东阿吉豆大奖哦的骄傲的见哦按dadasdasd151514515151dasda你到哪大奖哦的骄傲的" />
+</LinearLayout>

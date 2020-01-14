@@ -71,6 +71,8 @@
         <activity android:name=".PickerViewActivity" />
 
         <activity android:name=".CountdownActivity" />
+
+        <activity android:name=".ViewsActivity" />
     </application>
 
 </manifest>

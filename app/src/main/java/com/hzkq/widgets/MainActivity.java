@@ -119,4 +119,8 @@ public class MainActivity extends BaseActivity {
     public void onCountdownViewClick(View view) {
         startActWithIntent(new Intent(this, CountdownActivity.class));
     }
+    
+    public void onViewsClick(View view) {
+        startActWithIntent(new Intent(this, ViewsActivity.class));
+    }
 }
