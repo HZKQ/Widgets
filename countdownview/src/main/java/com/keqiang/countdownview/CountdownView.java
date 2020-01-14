@@ -23,6 +23,8 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  * @author Created by 汪高皖 on 2018/8/1 0001 08:29
  */
 public class CountdownView extends View {
+    public static final IValueFormat DEFAULT_VALUE_FORMAT = second -> second + "s";
+    
     private int mWidth;
     private int mHeight;
     
@@ -37,6 +39,7 @@ public class CountdownView extends View {
     private float mBorderWidth;
     private ValueAnimator mAnimator;
     private CountdownListener mCountdownListener;
+    private IValueFormat mIValueFormat = DEFAULT_VALUE_FORMAT;
     
     /**
      * 是否反向，如果反向，则从完整的圆到圆消失
@@ -109,7 +112,7 @@ public class CountdownView extends View {
             }
         }
         
-        String ceil = (int) Math.ceil(mCurDuration / 1000d) + "s";
+        String ceil = mIValueFormat.format((int) Math.ceil(mCurDuration / 1000d));
         mPaint.setColor(mTextColor);
         mPaint.setTextSize(mTextSize);
         mPaint.setStyle(Paint.Style.FILL);
@@ -128,7 +131,7 @@ public class CountdownView extends View {
         int min = Math.min(mWidth, mHeight);
         float left = (mWidth - min) / 2f;
         float top = (mHeight - min) / 2f;
-        mRectF = new RectF(left + mBorderWidth, top + mBorderWidth, min + left - mBorderWidth, min + top - mBorderWidth);
+        mRectF.set(left + mBorderWidth, top + mBorderWidth, min + left - mBorderWidth, min + top - mBorderWidth);
     }
     
     @Override
@@ -256,10 +259,8 @@ public class CountdownView extends View {
         return mReverse;
     }
     
-    public interface CountdownListener {
-        /**
-         * 倒计时结束
-         */
-        void onEnd();
+    public void setValueFormat(IValueFormat IValueFormat) {
+        mIValueFormat = IValueFormat;
+        invalidate();
     }
 }

@@ -6,6 +6,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.keqiang.countdownview.CountdownView;
+import com.keqiang.countdownview.SmsCountdownView;
 
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
@@ -20,6 +21,7 @@ public class CountdownActivity extends BaseActivity {
     private TextView mTvEnd;
     private TextView mTvReverse;
     private CountdownView mCountdownView;
+    private SmsCountdownView mSmsCountdownView;
     
     @Override
     public int getLayoutId() {
@@ -38,6 +40,7 @@ public class CountdownActivity extends BaseActivity {
         mTvEnd = findViewById(R.id.tv_end);
         mTvReverse = findViewById(R.id.tv_reverse);
         mCountdownView = findViewById(R.id.countdown_view);
+        mSmsCountdownView = findViewById(R.id.sms_countdown_view);
     }
     
     @Override
@@ -58,5 +61,11 @@ public class CountdownActivity extends BaseActivity {
             mCountdownView.endCountDown();
             mCountdownView.startCountdown(5, () -> ToastUtil.showToast("倒计时结束"));
         });
+        
+        mSmsCountdownView.setOnClickListener(v ->
+            mSmsCountdownView.startCountdown(9, () -> {
+                mSmsCountdownView.setNormalText("重新发送短信");
+                ToastUtil.showToast("倒计时结束");
+            }));
     }
 }
