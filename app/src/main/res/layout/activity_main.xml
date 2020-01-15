@@ -162,6 +162,21 @@
                 android:text="简单View集合"
                 android:textColor="@color/colorWhite"
                 android:textSize="40px" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/base_title_height"
+                android:layout_marginStart="40px"
+                android:layout_marginLeft="40px"
+                android:layout_marginTop="30px"
+                android:layout_marginEnd="40px"
+                android:layout_marginRight="40px"
+                android:background="@drawable/btn_main_selector"
+                android:gravity="center"
+                android:onClick="onBreadcrumbClick"
+                android:text="Breadcrumb"
+                android:textColor="@color/colorWhite"
+                android:textSize="40px" />
         </LinearLayout>
     </ScrollView>
 

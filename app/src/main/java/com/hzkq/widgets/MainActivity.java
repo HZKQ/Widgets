@@ -123,4 +123,8 @@ public class MainActivity extends BaseActivity {
     public void onViewsClick(View view) {
         startActWithIntent(new Intent(this, ViewsActivity.class));
     }
+    
+    public void onBreadcrumbClick(View view) {
+        startActWithIntent(new Intent(this, BreadcrumbActivity.class));
+    }
 }

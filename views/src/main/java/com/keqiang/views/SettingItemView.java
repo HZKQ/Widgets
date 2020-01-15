@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -68,7 +69,7 @@ public class SettingItemView extends RelativeLayout {
             mShowRightImage = t.getBoolean(R.styleable.SettingItemView_siv_right_image_show, true);
             mText = t.getString(R.styleable.SettingItemView_android_text);
             mTextColor = t.getColor(R.styleable.SettingItemView_android_textColor, Color.BLACK);
-            mTextSize = t.getDimensionPixelSize(R.styleable.SettingItemView_android_textSize, 16);
+            mTextSize = t.getDimensionPixelSize(R.styleable.SettingItemView_android_textSize, 32);
             mTextPaddingLeft = t.getDimensionPixelSize(R.styleable.SettingItemView_siv_text_padding_left, 0);
             mTextPaddingRight = t.getDimensionPixelSize(R.styleable.SettingItemView_siv_text_padding_right, 0);
             t.recycle();
@@ -110,7 +111,7 @@ public class SettingItemView extends RelativeLayout {
         }
         
         mTextView = new TextView(context);
-        mTextView.setTextSize(mTextSize);
+        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
         mTextView.setTextColor(mTextColor);
         mTextView.setText(mText);
         mTextView.setPadding(mTextPaddingLeft, 0, mTextPaddingRight, 0);

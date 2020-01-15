@@ -73,6 +73,7 @@
         <activity android:name=".CountdownActivity" />
 
         <activity android:name=".ViewsActivity" />
+        <activity android:name=".BreadcrumbActivity" />
     </application>
 
 </manifest>

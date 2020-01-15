@@ -27,6 +27,7 @@
         android:paddingLeft="30px"
         android:paddingRight="30px"
         android:text="5555"
+        android:textSize="42px"
         app:siv_left_image="@drawable/up_arrow"
         app:siv_left_image_size="30px"
         app:siv_right_image="@drawable/down_arrow"
@@ -48,6 +49,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100px"
         android:paddingLeft="30px"
-        android:paddingRight="30px"
-        android:text="到京东阿吉豆大奖哦的骄傲的见哦按dadasdasd151514515151dasda你到哪大奖哦的骄傲的" />
+        android:paddingRight="30px" />
 </LinearLayout>

@@ -83,7 +83,7 @@
                 android:background="@drawable/btn_main_selector"
                 android:gravity="center"
                 android:onClick="onMoreChartClick"
-                android:text="跟多图像用例"
+                android:text="更多图像用例"
                 android:textColor="@color/colorWhite"
                 android:textSize="40px" />
         </LinearLayout>
