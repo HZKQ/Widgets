@@ -218,27 +218,27 @@ public class IndexBar extends View {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) {
-            String oneLetter = null;
+            float measureText = -1;
             if (letters != null && letters.length > 0) {
                 for (String letter : letters) {
                     if (TextUtils.isEmpty(letter)) {
                         continue;
                     }
                     
-                    if (oneLetter == null || oneLetter.length() < letter.length()) {
-                        oneLetter = letter;
+                    float width = mPaint.measureText(letter);
+                    if (width > measureText) {
+                        measureText = width;
                     }
                 }
             }
             
-            if (TextUtils.isEmpty(oneLetter)) {
+            if (measureText == -1) {
                 if (widthMode == MeasureSpec.UNSPECIFIED) {
                     widthSize = getPaddingStart() + getPaddingEnd();
                 } else {
                     widthSize = Math.min(widthSize, (int) (getPaddingStart() + getPaddingEnd() + 0.5f));
                 }
             } else {
-                float measureText = mPaint.measureText(oneLetter);
                 if (widthMode == MeasureSpec.UNSPECIFIED) {
                     widthSize = (int) (measureText + getPaddingStart() + getPaddingEnd() + 0.5f);
                 } else {
