@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="圆环进度条" />
+
+    <com.keqiang.progressbar.RingProgress
+        android:id="@+id/rb1"
+        android:layout_width="400px"
+        android:layout_height="400px"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100px"
+        app:rp_centerText="50%"
+        app:rp_centerTextColor="@color/text_green"
+        app:rp_centerTextSize="52px"
+        app:rp_drawCenterText="true"
+        app:rp_progress="50"
+        app:rp_ring_background="@color/colorBlack10"
+        app:rp_ring_color="@color/text_green"
+        app:rp_ring_width="20px" />
+
+    <com.keqiang.progressbar.RingProgress
+        android:id="@+id/rb2"
+        android:layout_width="400px"
+        android:layout_height="400px"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100px"
+        app:rp_border_color="@color/colorPrimary"
+        app:rp_border_offset="5px"
+        app:rp_border_width="5px"
+        app:rp_centerText="50%"
+        app:rp_centerTextColor="@color/text_blue"
+        app:rp_centerTextSize="52px"
+        app:rp_drawCenterText="true"
+        app:rp_draw_border="true"
+        app:rp_progress="50"
+        app:rp_ring_background="@color/colorBlack10"
+        app:rp_ring_color="@color/text_blue"
+        app:rp_ring_style="round"
+        app:rp_ring_width="20px" />
+
+    <TextView
+        android:id="@+id/tv_start_anim"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:layout_marginStart="40px"
+        android:layout_marginLeft="40px"
+        android:layout_marginTop="100px"
+        android:layout_marginEnd="40px"
+        android:layout_marginRight="40px"
+        android:background="@drawable/btn_main_selector"
+        android:gravity="center"
+        android:onClick="onBreadcrumbClick"
+        android:text="开始动画"
+        android:textColor="@color/colorWhite"
+        android:textSize="40px" />
+
+    <com.keqiang.progressbar.RingProgress
+        android:id="@+id/rb3"
+        android:layout_width="400px"
+        android:layout_height="400px"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30px"
+        app:rp_centerText="100%"
+        app:rp_centerTextColor="@color/text_yellow"
+        app:rp_centerTextSize="52px"
+        app:rp_drawCenterText="true"
+        app:rp_max_angle="270"
+        app:rp_progress="100"
+        app:rp_ring_background="@color/colorBlack10"
+        app:rp_ring_color="@color/text_yellow"
+        app:rp_ring_style="round"
+        app:rp_ring_width="20px"
+        app:rp_rotate_angle="225" />
+</LinearLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RingProgress">
+        <attr name="rp_max" format="float" />
+        <attr name="rp_progress" format="float" />
+        <attr name="rp_hole_color" format="color|reference" />
+        <attr name="rp_drawHole" format="boolean" />
+        <attr name="rp_ring_background" format="color|reference" />
+        <attr name="rp_ring_color" format="color|reference" />
+        <attr name="rp_ring_width" format="dimension" />
+        <attr name="rp_max_angle" format="float" />
+        <attr name="rp_rotate_angle" format="float" />
+        <attr name="rp_drawCenterText" format="boolean" />
+        <attr name="rp_centerText" format="string|reference" />
+        <attr name="rp_centerTextSize" format="dimension" />
+        <attr name="rp_centerTextColor" format="color|reference" />
+        <!--文本绘制最大宽度占圆环进度条半径百分比-->
+        <attr name="rp_centerText_radius_percent" format="float" />
+        <attr name="rp_draw_border" format="boolean" />
+        <attr name="rp_border_width" format="dimension" />
+        <attr name="rp_border_color" format="color|reference" />
+        <attr name="rp_border_offset" format="dimension" />
+        <attr name="rp_ring_style">
+            <enum name="rect" value="0" />
+            <enum name="round" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

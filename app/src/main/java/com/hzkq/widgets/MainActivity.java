@@ -127,4 +127,8 @@ public class MainActivity extends BaseActivity {
     public void onBreadcrumbClick(View view) {
         startActWithIntent(new Intent(this, BreadcrumbActivity.class));
     }
+    
+    public void onProgressBarClick(View view) {
+        startActWithIntent(new Intent(this, ProgressBarActivity.class));
+    }
 }
