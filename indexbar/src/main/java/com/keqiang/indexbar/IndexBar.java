@@ -133,6 +133,9 @@ public class IndexBar extends View {
         
         int drawW = getWidth() - getPaddingLeft() - getPaddingRight();
         int drawH = (int) (mItemHeight * letters.length + 0.5f);
+        if (drawW <= 0 || drawH <= 0) {
+            return;
+        }
         
         if (mReDrawLetterBitmap) {
             mReDrawLetterBitmap = false;
