@@ -80,13 +80,14 @@ public class IndexBar extends View {
     
     private void init(Context context, AttributeSet attrs) {
         mReDrawLetterBitmap = true;
+        letters = LETTERS;
         mHandler = new Handler();
         mMaxHeight = 60;
-        int textSize = 36;
+        int textSize = 26;
         int textColor = getResources().getColor(R.color.colorAccent);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
-            textSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 36);
+            textSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 26);
             textColor = t.getColor(R.styleable.IndexBar_ib_text_color, textColor);
             String letters = t.getString(R.styleable.IndexBar_ib_letters);
             mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
@@ -122,7 +123,6 @@ public class IndexBar extends View {
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mPaint.setTextSize(textSize);
     }
-    
     
     @Override
     protected void onDraw(Canvas canvas) {
@@ -303,9 +303,9 @@ public class IndexBar extends View {
      */
     public void setLetters(String[] letters) {
         this.letters = letters;
+        mReDrawLetterBitmap = true;
         requestLayout();
     }
-    
     
     public void setLetterTouchListener(OnLetterTouchListener letterTouchListener) {
         this.letterTouchListener = letterTouchListener;
@@ -313,6 +313,16 @@ public class IndexBar extends View {
     
     public void setTextSize(float textSize) {
         mPaint.setTextSize(textSize);
+        mReDrawLetterBitmap = true;
+        invalidate();
+    }
+    
+    /**
+     * 设置每个索引值在界面绘制的最大高度，索引值默认平分当前View的高度
+     */
+    public void setLetterMaxHeight(int maxHeight) {
+        mMaxHeight = maxHeight;
+        mReDrawLetterBitmap = true;
         invalidate();
     }
     
@@ -379,14 +389,6 @@ public class IndexBar extends View {
      */
     public void setToastParentBg(@ColorInt int color) {
         mTvToast.setBackgroundColor(color);
-    }
-    
-    /**
-     * 设置每个索引值在界面绘制的最大高度，索引值默认平分当前View的高度
-     */
-    public void setLetterMaxHeight(int maxHeight) {
-        mMaxHeight = maxHeight;
-        invalidate();
     }
     
     public void setToastHideDelayTime(long delayTime) {
