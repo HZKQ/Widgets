@@ -84,6 +84,11 @@ public class ExtendEditText extends AppCompatEditText {
     private boolean softInputOnFocusShow = true;
     
     /**
+     * 当前内容是否是用户通过软键盘或其它外部输入设备输入，而非通过setText相关方法设置
+     */
+    private long mUserEnterContent = 0;
+    
+    /**
      * 焦点监听
      */
     private View.OnFocusChangeListener mOnFocusChangeListener;
@@ -104,7 +109,6 @@ public class ExtendEditText extends AppCompatEditText {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
-    
     
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         PLACEHOLDER.setBounds(0, 0, 0, 0);
@@ -201,7 +205,7 @@ public class ExtendEditText extends AppCompatEditText {
             }
         }
         
-        if (mHintTextSize != null && TextUtils.isEmpty(getText().toString().trim())) {
+        if (mHintTextSize != null && isTextEmpty()) {
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
         }
     }
@@ -209,7 +213,7 @@ public class ExtendEditText extends AppCompatEditText {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mClearButtonEnabled && !textIsEmpty() && isEnabled()) {
+        if (mClearButtonEnabled && !isTextEmpty() && isEnabled()) {
             drawClearButton(canvas);
             return;
         }
@@ -232,7 +236,7 @@ public class ExtendEditText extends AppCompatEditText {
             if (mClearButtonWidth == WRAP_CONTENT) {
                 width = mClearButton.getIntrinsicWidth();
             } else if (mClearButtonWidth == MATCH_PARENT) {
-                width = originalEditTextWidth > originalEditTextHeight ? originalEditTextHeight : originalEditTextWidth;
+                width = Math.min(originalEditTextWidth, originalEditTextHeight);
             } else {
                 width = mClearButtonWidth;
             }
@@ -240,7 +244,7 @@ public class ExtendEditText extends AppCompatEditText {
             if (mClearButtonHeight == WRAP_CONTENT) {
                 height = mClearButton.getIntrinsicHeight();
             } else if (mClearButtonHeight == MATCH_PARENT) {
-                height = originalEditTextHeight > originalEditTextWidth ? originalEditTextWidth : originalEditTextHeight;
+                height = Math.min(originalEditTextHeight, originalEditTextWidth);
             } else {
                 height = mClearButtonHeight;
             }
@@ -275,7 +279,6 @@ public class ExtendEditText extends AppCompatEditText {
         mClearButtonVisibility = true;
         setCompoundDrawablePadding(mCompoundDrawablePadding);
     }
-    
     
     @Override
     protected void onScrollChanged(int horiz, int vert, int oldHoriz, int oldVert) {
@@ -372,18 +375,12 @@ public class ExtendEditText extends AppCompatEditText {
         }
     }
     
-    
     /**
      * 焦点监听
      */
     private View.OnFocusChangeListener mFocusChangeListener = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            if (hasFocus) {
-                int length = getText().toString().trim().length();
-                setSelection(length);
-            }
-            
             if (!softInputOnFocusShow) {
                 closeInputMethod();
             }
@@ -392,6 +389,17 @@ public class ExtendEditText extends AppCompatEditText {
             }
         }
     };
+    
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        // 在super.setText(text, type)之上的代码会先于TextWatcher相关方法执行
+        super.setText(text, type);
+        // 在super.setText(text, type)之下的代码会后于TextWatcher相关方法执行
+        mUserEnterContent--;
+        if (mUserEnterContent < 0) {
+            mUserEnterContent = 0;
+        }
+    }
     
     private TextWatcher mTextWatcher = new TextWatcher() {
         @Override
@@ -406,9 +414,15 @@ public class ExtendEditText extends AppCompatEditText {
         
         @Override
         public void afterTextChanged(Editable s) {
+            boolean textEmpty = isTextEmpty();
+            if (textEmpty) {
+                mUserEnterContent = 0;
+            } else {
+                mUserEnterContent++;
+            }
+            
             if (mHintTextSize != null) {
-                String string = s.toString();
-                if (TextUtils.isEmpty(string)) {
+                if (textEmpty) {
                     ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
                 } else {
                     ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
@@ -440,7 +454,7 @@ public class ExtendEditText extends AppCompatEditText {
             mTextSize = super.getTextSize();
         }
         
-        if (mHintTextSize != null && TextUtils.isEmpty(getText().toString().trim())) {
+        if (mHintTextSize != null && isTextEmpty()) {
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
         }
     }
@@ -455,7 +469,11 @@ public class ExtendEditText extends AppCompatEditText {
      *
      * @return true：为空
      */
-    public boolean textIsEmpty() {
+    public boolean isTextEmpty() {
+        if (getText() == null) {
+            return true;
+        }
+        
         return "".equals(getText().toString().trim());
     }
     
@@ -476,7 +494,6 @@ public class ExtendEditText extends AppCompatEditText {
             closeInputMethod();
         }
     }
-    
     
     /**
      * 关闭系统软键盘
@@ -557,5 +574,23 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonClickListener(View.OnClickListener clearButtonClickListener) {
         mClearButtonClickListener = clearButtonClickListener;
+    }
+    
+    /**
+     * 判断当前内容是否是用户通过软键盘或其它外部输入设备输入，而非通过setText相关方法设置。如果文本框内容为空，则此值始终返回{@code false}
+     */
+    public boolean isUserEnterContent() {
+        return mUserEnterContent > 0;
+    }
+    
+    /**
+     * 通过此方法可重置是否是用户输入的内容，也可标记通过setText设置的相关内容是用户设置
+     */
+    public void setUserEnterContent(boolean userEnterContent) {
+        if (userEnterContent) {
+            mUserEnterContent = Integer.MAX_VALUE / 10;
+        } else {
+            mUserEnterContent = 0;
+        }
     }
 }

@@ -185,7 +185,6 @@ public class ScaleRatioColorBar extends View {
         });
     }
     
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -195,18 +194,18 @@ public class ScaleRatioColorBar extends View {
         float endY = getHeight();
         
         if (showBorder) {
-            startX += borderWidth / 2;
-            endX -= borderWidth / 2;
-            startY += borderWidth / 2;
-            endY -= borderWidth / 2;
+            startX += borderWidth / 2f;
+            endX -= borderWidth / 2f;
+            startY += borderWidth / 2f;
+            endY -= borderWidth / 2f;
             // 绘制STROKE矩形。左边开始和右边结束位置需要设置StrokeWidth的一半
             canvas.drawRect(startX, startY, endX, endY, borderPaint);
     
             // 绘制边框，里面的内容要进行偏移边框宽度
-            startX += borderWidth / 2;
-            endX -= borderWidth / 2;
-            startY += borderWidth / 2;
-            endY -= borderWidth / 2;
+            startX += borderWidth / 2f;
+            endX -= borderWidth / 2f;
+            startY += borderWidth / 2f;
+            endY -= borderWidth / 2f;
         }
         
         if (colorBars != null && mStartValue < mEndValue) {
@@ -231,7 +230,7 @@ public class ScaleRatioColorBar extends View {
                 float offset = dx * (value - mStartValue) / sum;
                 // 需要绘制的彩虹条宽度
                 float ratioWidth = dx / sum;
-                ratioWidth = ratioWidth < 1f ? 1f : ratioWidth;
+                ratioWidth = Math.max(ratioWidth, 1f);
                 colorBar.endX = offset;
                 if (offset - realStartX >= ratioWidth) {
                     // 相较于前一个需要绘制的彩虹条，有充足的绘制空间
@@ -280,7 +279,7 @@ public class ScaleRatioColorBar extends View {
             if (selection == -1 || mRainbowBarPop.isShowing()) {
                 return;
             }
-        } else if (selection != -1) {
+        } else if (selection != -1 && selection < colorBars.size()) {
             colorBars.get(selection).selected = false;
         }
         
@@ -394,6 +393,8 @@ public class ScaleRatioColorBar extends View {
      * @param colorBars  {@link RatioBarData}集合,设置后已经按升序排列，如果不想改变源数据顺序，请传colorBars副本
      */
     public <T extends RatioBarData> void setColorBars(float startValue, float endValue, List<T> colorBars) {
+        selection = -1;
+        hideRainbowBarPop();
         mStartValue = startValue;
         mEndValue = endValue;
         if (this.colorBars == null) {
@@ -401,7 +402,6 @@ public class ScaleRatioColorBar extends View {
         } else {
             this.colorBars.clear();
         }
-        
         RatioBarDataInner inner;
         if (mStartValue < mEndValue && colorBars != null && colorBars.size() > 0) {
             Collections.sort(colorBars, (o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
@@ -493,7 +493,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     
-    private class RatioBarDataInner {
+    private static class RatioBarDataInner {
         private boolean selected;
         private float startX;
         private float endX;

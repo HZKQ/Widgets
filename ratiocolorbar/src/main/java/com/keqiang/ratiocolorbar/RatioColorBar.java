@@ -198,7 +198,6 @@ public class RatioColorBar extends View {
         });
     }
     
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -208,18 +207,18 @@ public class RatioColorBar extends View {
         float endY = getHeight();
         
         if (showBorder) {
-            startX += borderWidth / 2;
-            endX -= borderWidth / 2;
-            startY += borderWidth / 2;
-            endY -= borderWidth / 2;
+            startX += borderWidth / 2f;
+            endX -= borderWidth / 2f;
+            startY += borderWidth / 2f;
+            endY -= borderWidth / 2f;
             // 绘制STROKE矩形。左边开始和右边结束位置需要设置StrokeWidth的一半
             canvas.drawRect(startX, startY, endX, endY, borderPaint);
             
             // 绘制边框，里面的内容要进行偏移边框宽度
-            startX += borderWidth / 2;
-            endX -= borderWidth / 2;
-            startY += borderWidth / 2;
-            endY -= borderWidth / 2;
+            startX += borderWidth / 2f;
+            endX -= borderWidth / 2f;
+            startY += borderWidth / 2f;
+            endY -= borderWidth / 2f;
         }
         
         if (colorBars != null) {
@@ -241,7 +240,7 @@ public class RatioColorBar extends View {
                     float ratioWidth = dx * colorBar.ratioBarData.getValue() / sum;
                     barPaint.setColor(color);
                     colorBar.startX = realStartX;
-                    colorBar.endX = realStartX + (ratioWidth < 1f ? 1f : ratioWidth);
+                    colorBar.endX = realStartX + (Math.max(ratioWidth, 1f));
                     canvas.drawRect(realStartX, startY, realStartX + ratioWidth, endY, barPaint);
                     realStartX += ratioWidth;
                 }
@@ -282,7 +281,7 @@ public class RatioColorBar extends View {
             if (selection == -1 || mRainbowBarPop.isShowing()) {
                 return;
             }
-        } else if (selection != -1) {
+        } else if (selection != -1 && selection < colorBars.size()) {
             colorBars.get(selection).selected = false;
         }
         
@@ -394,12 +393,13 @@ public class RatioColorBar extends View {
      * @param colorBars {@link RatioBarData}集合
      */
     public <T extends RatioBarData> void setColorBars(List<T> colorBars) {
+        selection = -1;
+        hideRainbowBarPop();
         if (this.colorBars == null) {
             this.colorBars = new ArrayList<>();
         } else {
             this.colorBars.clear();
         }
-        
         RatioBarDataInner inner;
         if (colorBars != null) {
             for (RatioBarData bar : colorBars) {
@@ -490,7 +490,7 @@ public class RatioColorBar extends View {
     }
     
     
-    private class RatioBarDataInner {
+    private static class RatioBarDataInner {
         private boolean selected;
         private float startX;
         private float endX;
