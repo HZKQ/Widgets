@@ -2,21 +2,20 @@ package com.hzkq.widgets;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.hzkq.widgets.adapter.UserAdapter;
 import com.hzkq.widgets.entity.User;
 import com.keqiang.indexbar.IndexBar;
+import com.keqiang.indexbar.IndexUtil;
+import com.keqiang.indexbar.SectionIndexer;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
-import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
  * @author Created by 汪高皖 on 2020/1/8 16:45
@@ -44,8 +43,7 @@ public class IndexBarActivity extends BaseActivity {
         mRv = findViewById(R.id.rv);
         mIndexBar = findViewById(R.id.index_bar);
         mRv.setLayoutManager(new LinearLayoutManager(this));
-        mIndexBar.setTextSize(SimpleUtil.getScaledValue(36));
-        mIndexBar.setTextColor(ContextCompat.getColor(this,R.color.colorPrimary));
+        mIndexBar.setLetters(null);
     }
     
     @Override
@@ -62,7 +60,7 @@ public class IndexBarActivity extends BaseActivity {
         
         user = new User("张淑韵", "17681110001");
         list.add(user);
-    
+        
         for (int i = 0; i < 10; i++) {
             user = new User("@" + i, "1868111001" + i);
             list.add(user);
@@ -96,37 +94,34 @@ public class IndexBarActivity extends BaseActivity {
             user = new User("李" + i, "1358111001" + i);
             list.add(user);
         }
-    
+        
         for (int i = 0; i < 10; i++) {
             user = new User("胡" + i, "1958111001" + i);
             list.add(user);
         }
-    
+        
         for (int i = 0; i < 10; i++) {
             user = new User("刘" + i, "1238111001" + i);
             list.add(user);
         }
-    
-        mUserAdapter.setNewData(list);
+        
+        new Thread(() -> {
+            final SectionIndexer<User> sectionIndexer = IndexUtil.sortData(list, false, true);
+            runOnUiThread(() -> {
+                mIndexBar.setLetters(sectionIndexer.getSections());
+                mUserAdapter.setSectionIndexer(sectionIndexer);
+                mUserAdapter.setNewData(sectionIndexer.getData());
+            });
+        }).start();
     }
     
     @Override
     public void initEvent() {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
         
-        mUserAdapter.setIndexDoneListener(indexer -> mIndexBar.setLetters(indexer.getSections()));
-        
-        mIndexBar.setLetterTouchListener(new IndexBar.OnLetterTouchListener() {
-            @Override
-            public void onLetterTouch(String letter, int position) {
-                int pos = mUserAdapter.getPositionForLetter(letter);
-                ((LinearLayoutManager) mRv.getLayoutManager()).scrollToPositionWithOffset(pos, 0);
-            }
-            
-            @Override
-            public void onActionUp() {
-            
-            }
+        mIndexBar.setOnLetterChosenListener((letter, position) -> {
+            int pos = mUserAdapter.getSectionIndexer().getPositionForIndexLetter(letter);
+            ((LinearLayoutManager) mRv.getLayoutManager()).scrollToPositionWithOffset(pos, 0);
         });
     }
 }

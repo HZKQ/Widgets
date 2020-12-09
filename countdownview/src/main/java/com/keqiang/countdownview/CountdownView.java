@@ -46,6 +46,11 @@ public class CountdownView extends View {
      */
     private boolean mReverse;
     
+    /**
+     * 是否点击跳过
+     */
+    private boolean mClickEnd;
+    
     public CountdownView(Context context) {
         super(context);
         init(context, null);
@@ -179,7 +184,8 @@ public class CountdownView extends View {
         if (second <= 0) {
             return;
         }
-        
+    
+        mClickEnd = false;
         mCountdownListener = countdownListener;
         mDuration = second * 1000;
         mCurDuration = mDuration;
@@ -203,7 +209,12 @@ public class CountdownView extends View {
             mAnimator.cancel();
             mAnimator = null;
         }
-        
+    
+        if (mClickEnd) {
+            return;
+        }
+    
+        mClickEnd = true;
         if (mCountdownListener != null) {
             mCountdownListener.onEnd();
         }

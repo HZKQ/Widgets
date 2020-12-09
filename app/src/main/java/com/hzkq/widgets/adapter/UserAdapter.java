@@ -11,7 +11,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.hzkq.widgets.R;
 import com.hzkq.widgets.entity.User;
-import com.keqiang.indexbar.IndexUtil;
 import com.keqiang.indexbar.SectionIndexer;
 
 import java.util.List;
@@ -23,13 +22,10 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  */
 public class UserAdapter extends BaseQuickAdapter<User, BaseViewHolder> {
     
-    private SectionIndexer mSectionIndexer;
-    private Handler mHandler;
-    private IndexDoneListener mIndexDoneListener;
+    private SectionIndexer<User> mSectionIndexer;
     
     public UserAdapter(@Nullable List<User> data) {
         super(R.layout.rv_item_user, data);
-        mHandler = new Handler();
     }
     
     @NonNull
@@ -46,59 +42,26 @@ public class UserAdapter extends BaseQuickAdapter<User, BaseViewHolder> {
             .setText(R.id.tv_phone, item.phone);
         
         int position = helper.getAdapterPosition() - getHeaderLayoutCount();
-        if (position == mSectionIndexer.getSectionForPosition(position)) {
+        if (position == 0) {
             helper.setGone(R.id.tv_index, true)
                 .setText(R.id.tv_index, item.getSortLetter());
         } else {
-            helper.setGone(R.id.tv_index, false);
-        }
-    }
-    
-    @Override
-    public void setNewData(@Nullable List<User> data) {
-        if (data == null || data.size() < 50) {
-            mSectionIndexer = IndexUtil.sortData(data);
-            super.setNewData(data);
-            if (mIndexDoneListener != null) {
-                mIndexDoneListener.onDone(mSectionIndexer);
+            int sectionForPosition = mSectionIndexer.getSectionForPosition(position);
+            int preSectionForPosition = mSectionIndexer.getSectionForPosition(position - 1);
+            if (sectionForPosition != preSectionForPosition) {
+                helper.setGone(R.id.tv_index, true)
+                    .setText(R.id.tv_index, item.getSortLetter());
+            } else {
+                helper.setGone(R.id.tv_index, false);
             }
-            return;
         }
-        
-        new Thread() {
-            @Override
-            public void run() {
-                // 数据量较大，可放到线程中执行
-                mSectionIndexer = IndexUtil.sortData(data);
-                mHandler.post(() -> {
-                    UserAdapter.super.setNewData(data);
-                    if (mIndexDoneListener != null) {
-                        mIndexDoneListener.onDone(mSectionIndexer);
-                    }
-                });
-            }
-        }.start();
     }
     
-    public void setIndexDoneListener(IndexDoneListener indexDoneListener) {
-        mIndexDoneListener = indexDoneListener;
+    public SectionIndexer<User> getSectionIndexer() {
+        return mSectionIndexer;
     }
     
-    public int getPositionForLetter(String letter) {
-        if (TextUtils.isEmpty(letter) || mSectionIndexer == null) {
-            return -1;
-        }
-        
-        return mSectionIndexer.getPositionForSection(letter.charAt(0));
-    }
-    
-    /**
-     * 索引建立完成监听
-     */
-    public interface IndexDoneListener {
-        /**
-         * 索引建立完成回调
-         */
-        void onDone(@NonNull SectionIndexer indexer);
+    public void setSectionIndexer(SectionIndexer<User> sectionIndexer) {
+        mSectionIndexer = sectionIndexer;
     }
 }

@@ -31,10 +31,10 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 /**
  * 快速索引工具,设置paddingTop或paddingBottom可使整体内容向上或向下偏移
  *
- * Created by zz on 2016/5/12.
+ * @author Created by zz on 2016/5/12.
  */
 public class IndexBar extends View {
-    // 26个字母
+    // 26个字母 + 10 数字 + #
     public static final String[] LETTERS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I",
         "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
         "W", "X", "Y", "Z", "#"};
@@ -46,8 +46,12 @@ public class IndexBar extends View {
     private String[] letters;
     private float mItemHeight = -1;
     private Paint mPaint;
+    /**
+     * 每个字符之间的间隔，mItemHeight = 测量字体高度 * mLetterSpacing，如果超出mMaxHeight，则mItemHeight = mMaxHeight
+     */
     private float mLetterSpacing = 1.5f;
-    private OnLetterTouchListener letterTouchListener;
+    private OnIndexTouchListener mOnIndexTouchListener;
+    private OnLetterChosenListener mOnLetterChosenListener;
     
     private Bitmap mLetterBitmap;
     private boolean mReDrawLetterBitmap;
@@ -89,6 +93,7 @@ public class IndexBar extends View {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
             textSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 26);
             textColor = t.getColor(R.styleable.IndexBar_ib_text_color, textColor);
+            boolean existLettersAttr = t.hasValue(R.styleable.IndexBar_ib_letters);
             String letters = t.getString(R.styleable.IndexBar_ib_letters);
             mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
             mMaxHeight = t.getDimensionPixelSize(R.styleable.IndexBar_ib_letter_max_height, 60);
@@ -99,6 +104,8 @@ public class IndexBar extends View {
                 for (int i = 0; i < letters.length(); i++) {
                     this.letters[i] = String.valueOf(letters.charAt(i));
                 }
+            } else if (!existLettersAttr) {
+                this.letters = null;
             }
         }
         
@@ -157,8 +164,8 @@ public class IndexBar extends View {
         }
         
         canvas.save();
-        canvas.translate((getWidth() - drawW) / 2 + getPaddingStart() - getPaddingEnd(),
-            (getHeight() - drawH) / 2 + getPaddingTop() - getPaddingBottom());
+        canvas.translate((getWidth() - drawW) / 2f + getPaddingStart() - getPaddingEnd(),
+            (getHeight() - drawH) / 2f + getPaddingTop() - getPaddingBottom());
         canvas.drawBitmap(mLetterBitmap, 0, 0, mPaint);
         canvas.restore();
     }
@@ -166,12 +173,14 @@ public class IndexBar extends View {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (letterTouchListener == null || letters == null || letters.length == 0 || mLetterBitmap == null) {
+        if (letters == null || letters.length == 0 || mLetterBitmap == null
+            || (!mShowToast && mOnIndexTouchListener == null && mOnLetterChosenListener == null)) {
             return super.onTouchEvent(event);
         }
         
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE: {
                 getParent().requestDisallowInterceptTouchEvent(true);
                 // 按下的坐标除去偏移值 / 每个字符所占高度，计算字符所在位置
                 int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mLetterBitmap.getHeight()) / 2) / mItemHeight);
@@ -180,31 +189,28 @@ public class IndexBar extends View {
                         showToast(letters[position]);
                     }
                     
-                    letterTouchListener.onLetterTouch(letters[position], position);
-                }
-            }
-            return true;
-            
-            case MotionEvent.ACTION_MOVE: {
-                // 按下的坐标除去偏移值 / 每个字符所占高度，计算字符所在位置
-                int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mLetterBitmap.getHeight()) / 2) / mItemHeight);
-                if (position >= 0 && position < letters.length) {
-                    if (mShowToast) {
-                        showToast(letters[position]);
+                    if (mOnIndexTouchListener != null) {
+                        mOnIndexTouchListener.onTouch(letters[position], position);
                     }
                     
-                    letterTouchListener.onLetterTouch(letters[position], position);
+                    if (mOnLetterChosenListener != null) {
+                        mOnLetterChosenListener.onChosen(letters[position], position);
+                    }
                 }
             }
-            
             return true;
             
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 hideToast();
                 getParent().requestDisallowInterceptTouchEvent(false);
-                letterTouchListener.onActionUp();
+                if (mOnIndexTouchListener != null) {
+                    mOnIndexTouchListener.onActionUp();
+                }
                 return true;
+            
+            default:
+                break;
         }
         
         return super.onTouchEvent(event);
@@ -310,8 +316,18 @@ public class IndexBar extends View {
         requestLayout();
     }
     
-    public void setLetterTouchListener(OnLetterTouchListener letterTouchListener) {
-        this.letterTouchListener = letterTouchListener;
+    /**
+     * 设置索引触摸监听
+     */
+    public void setOnIndexTouchListener(OnIndexTouchListener listener) {
+        this.mOnIndexTouchListener = listener;
+    }
+    
+    /**
+     * 设置索引字符选中监听
+     */
+    public void setOnLetterChosenListener(OnLetterChosenListener listener) {
+        mOnLetterChosenListener = listener;
     }
     
     public void setTextSize(float textSize) {
@@ -398,9 +414,34 @@ public class IndexBar extends View {
         mToastHideDelayTime = delayTime;
     }
     
-    public interface OnLetterTouchListener {
-        void onLetterTouch(String letter, int position);
+    /**
+     * 索引触摸监听
+     */
+    public interface OnIndexTouchListener {
+        /**
+         * 索引被触摸(包括点击和移动)
+         *
+         * @param letter   当前触摸区域的索引值
+         * @param position 当前触摸索引值在索引列表中的位置
+         */
+        void onTouch(String letter, int position);
         
+        /**
+         * 手指抬起
+         */
         void onActionUp();
+    }
+    
+    /**
+     * 索引选中监听
+     */
+    public interface OnLetterChosenListener {
+        /**
+         * 索引字符被选中
+         *
+         * @param letter   当前触摸区域的索引值
+         * @param position 当前触摸索引值在索引列表中的位置
+         */
+        void onChosen(String letter, int position);
     }
 }
