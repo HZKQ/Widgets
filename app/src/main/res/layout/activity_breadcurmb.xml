@@ -17,7 +17,7 @@
         app:ttb_showLeftLayout="false"
         app:ttb_textColorAll="@color/colorWhite"
         app:ttb_textSizeTitle="@dimen/base_title_text_size"
-        app:ttb_titleText="简单View集合" />
+        app:ttb_titleText="面包屑" />
 
     <TextView
         android:id="@+id/tv_add_folder"

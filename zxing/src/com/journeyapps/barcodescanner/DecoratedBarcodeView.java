@@ -188,7 +188,6 @@ public class DecoratedBarcodeView extends FrameLayout {
     
     private void setAlbumEnabled(boolean enableAlbum) {
         if (mTitleBar != null) {
-            mTitleBar.getRlRight().setVisibility(enableAlbum ? VISIBLE : GONE);
             mTitleBar.getLlRight().setVisibility(enableAlbum ? VISIBLE : GONE);
         }
     }

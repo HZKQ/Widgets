@@ -1,0 +1,20 @@
+def buildVersions = [:]
+buildVersions.compileSdkVersion = 29
+buildVersions.minSdkVersion = 17
+buildVersions.targetSdkVersion = 29
+buildVersions.buildToolsVersion = '29.0.2'
+ext.buildVersions = buildVersions
+
+def versions = [:]
+versions.kotlin_version = '1.4.20'
+ext.versions = versions
+
+def deps = [:]
+deps.appcompat = 'androidx.appcompat:appcompat:1.2.0'
+deps.annotation = 'androidx.annotation:annotation:1.1.0'
+deps.junit = 'junit:junit:4.12'
+deps.multidex = 'androidx.multidex:multidex:2.0.1'
+
+deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.5.7'
+
+ext.deps = deps
