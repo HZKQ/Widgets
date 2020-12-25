@@ -15,6 +15,6 @@ deps.annotation = 'androidx.annotation:annotation:1.1.0'
 deps.junit = 'junit:junit:4.12'
 deps.multidex = 'androidx.multidex:multidex:2.0.1'
 
-deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.5.7'
+deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.6.3'
 
 ext.deps = deps

@@ -2,9 +2,9 @@
 <resources>
     <declare-styleable name="IndexBar">
         <attr name="ib_text_size" format="dimension|reference" />
+        <attr name="ib_min_text_size" format="dimension|reference" />
         <attr name="ib_text_color" format="color|reference" />
         <attr name="ib_letters" format="string|reference" />
         <attr name="ib_letter_spacing" format="float" />
-        <attr name="ib_letter_max_height" format="dimension|reference" />
     </declare-styleable>
 </resources>

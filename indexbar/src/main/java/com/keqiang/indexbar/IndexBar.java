@@ -3,7 +3,6 @@ package com.keqiang.indexbar;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -24,7 +23,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 
@@ -40,26 +38,49 @@ public class IndexBar extends View {
         "W", "X", "Y", "Z", "#"};
     
     /**
-     * 每个索引值绘制的最大高度
+     * 文字大小，如果所有索引绘制高度 <= 当前View高度使用此值
      */
-    private int mMaxHeight;
-    private String[] letters;
-    private float mItemHeight = -1;
-    private Paint mPaint;
+    private float mTextSize;
     /**
-     * 每个字符之间的间隔，mItemHeight = 测量字体高度 * mLetterSpacing，如果超出mMaxHeight，则mItemHeight = mMaxHeight
+     * 最新文字大小，如果所有索引绘制高度 > 当前View高度,则文字等比例缩放后不能小于此值
      */
+    private float minTextSize;
+    private String[] letters;
     private float mLetterSpacing = 1.5f;
     private OnIndexTouchListener mOnIndexTouchListener;
     private OnLetterChosenListener mOnLetterChosenListener;
     
-    private Bitmap mLetterBitmap;
-    private boolean mReDrawLetterBitmap;
+    private Paint mPaint;
     private TextView mTvToast;
     private boolean mShowToast = true;
     private PopupWindow mToastPop;
     private Handler mHandler;
     private long mToastHideDelayTime = 500;
+    
+    /**
+     * 索引字符总高度
+     */
+    private float mIndexTotalHeight;
+    
+    /**
+     * 每个索引字符所占高度
+     */
+    private float mIndexHeight = -1;
+    
+    /**
+     * 每一个索引字符的缩放比例
+     */
+    private float mSizeScale = 1;
+    
+    /**
+     * 缩放比例是否需要计算
+     */
+    private boolean mScaleNeedCalculation = true;
+    
+    /**
+     * 最终需要绘制的单个字符高度
+     */
+    private float mLetterHeight;
     
     public IndexBar(Context context) {
         super(context);
@@ -83,20 +104,19 @@ public class IndexBar extends View {
     }
     
     private void init(Context context, AttributeSet attrs) {
-        mReDrawLetterBitmap = true;
         letters = LETTERS;
         mHandler = new Handler();
-        mMaxHeight = 60;
-        int textSize = 26;
+        mTextSize = 26;
+        minTextSize = 16;
         int textColor = getResources().getColor(R.color.colorAccent);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
-            textSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 26);
+            mTextSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 26);
+            minTextSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_min_text_size, 16);
             textColor = t.getColor(R.styleable.IndexBar_ib_text_color, textColor);
             boolean existLettersAttr = t.hasValue(R.styleable.IndexBar_ib_letters);
             String letters = t.getString(R.styleable.IndexBar_ib_letters);
             mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
-            mMaxHeight = t.getDimensionPixelSize(R.styleable.IndexBar_ib_letter_max_height, 60);
             t.recycle();
             
             if (!TextUtils.isEmpty(letters)) {
@@ -110,8 +130,8 @@ public class IndexBar extends View {
         }
         
         if (!isInEditMode()) {
-            mMaxHeight = SimpleUtil.getScaledValue(mMaxHeight);
-            textSize = SimpleUtil.getScaledValue(textSize);
+            mTextSize = SimpleUtil.getScaledValueByHeight(mTextSize);
+            minTextSize = SimpleUtil.getScaledValueByHeight(minTextSize);
             
             mTvToast = new TextView(context);
             mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50));
@@ -128,7 +148,6 @@ public class IndexBar extends View {
         mPaint = new Paint();
         mPaint.setColor(textColor);
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setTextSize(textSize);
     }
     
     @Override
@@ -138,42 +157,34 @@ public class IndexBar extends View {
             return;
         }
         
-        int drawW = getWidth() - getPaddingLeft() - getPaddingRight();
-        int drawH = (int) (mItemHeight * letters.length + 0.5f);
+        float drawW = getWidth() - getPaddingLeft() - getPaddingRight();
+        float drawH = mIndexHeight * letters.length;
         if (drawW <= 0 || drawH <= 0) {
             return;
         }
         
-        if (mReDrawLetterBitmap) {
-            mReDrawLetterBitmap = false;
-            
-            Canvas mCanvas = new Canvas();
-            mLetterBitmap = Bitmap.createBitmap(drawW, drawH, Bitmap.Config.ARGB_8888);
-            if (mLetterBitmap == null) {
-                return;
-            }
-            
-            mCanvas.setBitmap(mLetterBitmap);
-            float widthCenter = drawW / 2.0f;
-            Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
-            float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
-            int startY = (int) (measuredHeight + (mItemHeight - measuredHeight) / 2);
-            for (int i = 0; i < letters.length; i++) {
-                mCanvas.drawText(letters[i], widthCenter - mPaint.measureText(letters[i]) / 2, startY + mItemHeight * (i), mPaint);
-            }
-        }
-        
+        mIndexTotalHeight = drawH;
         canvas.save();
         canvas.translate((getWidth() - drawW) / 2f + getPaddingStart() - getPaddingEnd(),
             (getHeight() - drawH) / 2f + getPaddingTop() - getPaddingBottom());
-        canvas.drawBitmap(mLetterBitmap, 0, 0, mPaint);
+        
+        float widthCenter = drawW / 2.0f;
+        float startY = (mIndexHeight + mLetterHeight) / 2f;
+        for (int i = 0; i < letters.length; i++) {
+            String letter = letters[i];
+            if (TextUtils.isEmpty(letter)) {
+                continue;
+            }
+            
+            canvas.drawText(letter, widthCenter - mPaint.measureText(letter) / 2, startY + mIndexHeight * i, mPaint);
+        }
         canvas.restore();
     }
     
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (letters == null || letters.length == 0 || mLetterBitmap == null
+        if (letters == null || letters.length == 0 || mIndexTotalHeight <= 0
             || (!mShowToast && mOnIndexTouchListener == null && mOnLetterChosenListener == null)) {
             return super.onTouchEvent(event);
         }
@@ -183,7 +194,7 @@ public class IndexBar extends View {
             case MotionEvent.ACTION_MOVE: {
                 getParent().requestDisallowInterceptTouchEvent(true);
                 // 按下的坐标除去偏移值 / 每个字符所占高度，计算字符所在位置
-                int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mLetterBitmap.getHeight()) / 2) / mItemHeight);
+                int position = (int) ((event.getY() - getPaddingTop() + getPaddingBottom() - (getHeight() - mIndexTotalHeight) / 2) / mIndexHeight);
                 if (position >= 0 && position < letters.length) {
                     if (mShowToast) {
                         showToast(letters[position]);
@@ -219,11 +230,13 @@ public class IndexBar extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mReDrawLetterBitmap = true;
     }
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        mSizeScale = calculationItemScale(heightMeasureSpec);
+        mPaint.setTextSize(mTextSize * mSizeScale);
+        
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) {
@@ -261,8 +274,8 @@ public class IndexBar extends View {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
-        float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
-        mItemHeight = Math.min(measuredHeight * mLetterSpacing, mMaxHeight);
+        mLetterHeight = fontMetrics.descent - fontMetrics.ascent;
+        mIndexHeight = mLetterHeight * mLetterSpacing;
         if (heightMode == MeasureSpec.EXACTLY) {
             // xml中指定大小或MATCH_PARENT
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -273,12 +286,50 @@ public class IndexBar extends View {
         if (letters == null || letters.length == 0) {
             super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY));
         } else {
-            measuredHeight = mItemHeight * letters.length + getPaddingTop() + getPaddingBottom() + 0.5f;
-            if (heightMode == MeasureSpec.UNSPECIFIED || heightSize >= measuredHeight) {
-                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) measuredHeight, MeasureSpec.EXACTLY));
+            int totalHeight = (int) (mIndexHeight * letters.length + getPaddingTop() + getPaddingBottom() + 0.5f);
+            if (heightMode == MeasureSpec.UNSPECIFIED || heightSize >= totalHeight) {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) totalHeight, MeasureSpec.EXACTLY));
             } else {
                 super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY));
             }
+        }
+    }
+    
+    /**
+     * 计算索引字符缩放比例
+     */
+    private float calculationItemScale(int heightMeasureSpec) {
+        if (letters == null || letters.length == 0) {
+            return 1;
+        }
+        
+        if (!mScaleNeedCalculation) {
+            return mSizeScale;
+        }
+        
+        mScaleNeedCalculation = false;
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        if (minTextSize < mTextSize && (heightMode == MeasureSpec.EXACTLY || heightMode == MeasureSpec.AT_MOST)) {
+            mPaint.setTextSize(mTextSize);
+            Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+            float measuredHeight = fontMetrics.descent - fontMetrics.ascent;
+            float itemTotalHeight = letters.length * measuredHeight * mLetterSpacing;
+            float padding = getPaddingTop() + getPaddingBottom();
+            if (heightSize >= itemTotalHeight + padding) {
+                return 1;
+            }
+            
+            float scale = (heightSize - padding) / itemTotalHeight;
+            if (minTextSize < mTextSize && mTextSize * scale < minTextSize) {
+                return minTextSize / mTextSize;
+            }
+            
+            return scale;
+        } else if (minTextSize > mTextSize) {
+            return minTextSize / mTextSize;
+        } else {
+            return 1;
         }
     }
     
@@ -290,7 +341,7 @@ public class IndexBar extends View {
             mToastPop = null;
         }
         mTvToast = null;
-        mLetterBitmap = null;
+        mIndexTotalHeight = 0;
         mHandler.removeCallbacksAndMessages(null);
     }
     
@@ -311,9 +362,49 @@ public class IndexBar extends View {
      * 设置显示的快速索引值
      */
     public void setLetters(String[] letters) {
+        if ((letters == null && this.letters != null)
+            || (letters != null && this.letters == null)
+            || (letters != null && this.letters.length != letters.length)) {
+            mScaleNeedCalculation = true;
+        }
         this.letters = letters;
-        mReDrawLetterBitmap = true;
         requestLayout();
+    }
+    
+    public void setTextSize(float textSize) {
+        if (textSize != mTextSize) {
+            mScaleNeedCalculation = true;
+        }
+        mTextSize = textSize;
+        requestLayout();
+    }
+    
+    /**
+     * 设置最小文字大小，如果索引控件指定高度，则在保证索引字符不小于最小文字大小的前提下尽可能将所有索引绘制出来。
+     * 此值设置得越小，越能保证所有机型下绘制最全索引数据
+     */
+    public void setMinTextSize(float minTextSize) {
+        if (minTextSize != minTextSize) {
+            mScaleNeedCalculation = true;
+        }
+        this.minTextSize = minTextSize;
+        requestLayout();
+    }
+    
+    /**
+     * 设置索引字符之间的间距
+     */
+    public void setLetterSpacing(float letterSpacing) {
+        if (letterSpacing != mLetterSpacing) {
+            mScaleNeedCalculation = true;
+        }
+        mLetterSpacing = letterSpacing;
+        requestLayout();
+    }
+    
+    public void setTextColor(@ColorInt int color) {
+        mPaint.setColor(color);
+        invalidate();
     }
     
     /**
@@ -330,25 +421,6 @@ public class IndexBar extends View {
         mOnLetterChosenListener = listener;
     }
     
-    public void setTextSize(float textSize) {
-        mPaint.setTextSize(textSize);
-        mReDrawLetterBitmap = true;
-        invalidate();
-    }
-    
-    /**
-     * 设置每个索引值在界面绘制的最大高度，索引值默认平分当前View的高度
-     */
-    public void setLetterMaxHeight(int maxHeight) {
-        mMaxHeight = maxHeight;
-        mReDrawLetterBitmap = true;
-        invalidate();
-    }
-    
-    public void setTextColor(@ColorInt int color) {
-        mPaint.setColor(color);
-        invalidate();
-    }
     
     /**
      * 设置点击索引后是否在屏幕中间显示索引内容

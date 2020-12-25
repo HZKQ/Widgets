@@ -35,7 +35,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            app:ib_letter_max_height="100px"
             app:ib_letter_spacing="2"
             app:ib_text_color="@color/colorPrimary"
             app:ib_text_size="36px"
