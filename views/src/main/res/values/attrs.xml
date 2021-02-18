@@ -27,5 +27,25 @@
         <attr name="ee_clearButtonPaddingRight" format="dimension"/>
         <attr name="ee_clearButtonMarginLeft" format="dimension"/>
         <attr name="ee_clearButtonMarginRight" format="dimension"/>
+
+        <!--是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
+        <attr name="ee_auto_wrap_by_width" format="boolean" />
+        <!--当文本行数超过1行时是否自动切换靠左排版-->
+        <attr name="ee_auto_gravity_rtl" format="flags">
+            <flag name="none" value="0" />
+            <flag name="end" value="1" />
+            <flag name="center_horizontal" value="2" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="ExtendTextView">
+        <!--是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
+        <attr name="et_auto_wrap_by_width" format="boolean" />
+        <!--当文本行数超过1行时是否自动切换靠左排版-->
+        <attr name="et_auto_gravity_rtl" format="flags">
+            <flag name="none" value="0" />
+            <flag name="end" value="1" />
+            <flag name="center_horizontal" value="2" />
+        </attr>
     </declare-styleable>
 </resources>
