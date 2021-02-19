@@ -296,8 +296,21 @@ public class ExtendEditText extends AppCompatEditText {
     
     @Override
     public boolean onPreDraw() {
+        if (countClearButtonPosition()) {
+            return false;
+        }
+        
+        return super.onPreDraw();
+    }
+    
+    /**
+     * 计算清除按钮位置、大小数据
+     *
+     * @return {@code true}:表示有效计算，取消本次绘制流程
+     */
+    private boolean countClearButtonPosition() {
         if (!mClearButtonEnabled || isTextEmpty() || !isEnabled()) {
-            return super.onPreDraw();
+            return false;
         }
         
         if (!mJustDrawPaddingChange) {
@@ -344,18 +357,18 @@ public class ExtendEditText extends AppCompatEditText {
         }
         
         if (isInEditMode()) {
-            return super.onPreDraw();
+            return false;
         }
         
         int pad = mCompoundDrawablePadding + mClearButtonClickRange.width() + mClearButtonMarginLeft + mClearButtonMarginRight;
         if (pad == super.getCompoundDrawablePadding()) {
             mJustDrawPaddingChange = false;
-            return super.onPreDraw();
+            return false;
         }
         
         mJustDrawPaddingChange = true;
         super.setCompoundDrawablePadding(pad);
-        return false;
+        return true;
     }
     
     @Override
@@ -561,6 +574,9 @@ public class ExtendEditText extends AppCompatEditText {
             if (TextUtils.isEmpty(mDefText)) {
                 setSelection(mDefText.length());
             }
+        } else if (mClearButtonEnabled && !isTextEmpty() && enabled) {
+            // 设置enable为true时，不会触发onPreDraw，因此手动调用
+            countClearButtonPosition();
         }
     }
     
