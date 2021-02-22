@@ -379,9 +379,10 @@ public interface IDataSet<T extends Entry> {
 
     /**
      * Sets the text-size of the value-labels of this DataSet in dp.
-     *
+     * 推荐使用{@link #setValueTextSizeInPx(float)}
      * @param size
      */
+    @Deprecated
     void setValueTextSize(float size);
     
     /**
@@ -389,7 +390,7 @@ public interface IDataSet<T extends Entry> {
      *
      * @param sizePx
      */
-    void setValueTextSizeInPixel(float sizePx);
+    void setValueTextSizeInPx(float sizePx);
 
     /**
      * Returns only the first color of all colors that are set to be used for the values.

@@ -78,7 +78,7 @@ public class PieChartActivity extends BaseActivity {
         // 设置饼状图描述字体颜色
         description.setTextColor(ContextCompat.getColor(this, R.color.colorBlack70));
         // 设置饼状图描述字体大小
-        description.setTextSize(SimpleUtil.getScaledValue(28));
+        description.setTextSizeInPx(SimpleUtil.getScaledValue(28));
         
         // 饼状图的位置偏移
         int offset = SimpleUtil.getScaledValue(30);
@@ -138,7 +138,7 @@ public class PieChartActivity extends BaseActivity {
         legend.setXEntrySpace(7);
         // 设置各描述文本之间的纵向间隔,当描述为纵向排列时
         legend.setYEntrySpace(0f);
-        legend.setYOffset(0f);
+        legend.setYOffsetInPx(0f);
         // 设置各描述之间怎么排列，横向和纵向
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
     
@@ -188,7 +188,7 @@ public class PieChartActivity extends BaseActivity {
         // 是否绘制选中扇形图的y轴值
         dataSet.setDrawHighlightYValue(true);
         // 设置绘制值的字体大小
-        dataSet.setValueTextSizeInPixel(ScreenAdapterUtil.getInstance().getScaledValue(26));
+        dataSet.setValueTextSizeInPx(ScreenAdapterUtil.getInstance().getScaledValue(26));
         // 设置绘制值的颜色值
         dataSet.setValueTextColors(colors);
         // 设置绘制值的位置，顶部，底部或尾部

@@ -5,8 +5,6 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.LineRadarDataSet;
@@ -15,6 +13,8 @@ import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 /**
  * @author Created by 汪高皖 on 2018/4/13 0013 14:35
@@ -157,6 +157,19 @@ public class SmartLineDataSet extends LineRadarDataSet<SmartLineEntry> implement
         }
     }
     
+    /**
+     * 设置外圆的半径，单位px
+     *
+     * @param radius px
+     */
+    public void setCircleRadiusInPx(float radius) {
+        if (radius >= 1f) {
+            mCircleRadius = radius;
+        } else {
+            Log.e("LineDataSet", "Circle radius cannot be < 1");
+        }
+    }
+    
     @Override
     public float getCircleRadius() {
         return mCircleRadius;
@@ -170,6 +183,19 @@ public class SmartLineDataSet extends LineRadarDataSet<SmartLineEntry> implement
         
         if (holeRadius >= 0.5f) {
             mCircleHoleRadius = Utils.convertDpToPixel(holeRadius);
+        } else {
+            Log.e("LineDataSet", "Circle radius cannot be < 0.5");
+        }
+    }
+    
+    /**
+     * 设置内圆的半径，单位px
+     *
+     * @param holeRadius px
+     */
+    public void setCircleHoleRadiusInPx(float holeRadius) {
+        if (holeRadius >= 0.5f) {
+            mCircleHoleRadius = holeRadius;
         } else {
             Log.e("LineDataSet", "Circle radius cannot be < 0.5");
         }

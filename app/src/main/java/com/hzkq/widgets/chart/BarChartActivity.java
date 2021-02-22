@@ -22,6 +22,7 @@ import java.util.List;
 
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
+import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
  * @author Created by 汪高皖 on 2020/1/4 13:03
@@ -109,7 +110,7 @@ public class BarChartActivity extends BaseActivity {
         l.setDrawInside(false);
         l.setForm(Legend.LegendForm.SQUARE);
         l.setFormSize(9f);
-        l.setTextSize(11f);
+        l.setTextSizeInPx(SimpleUtil.getScaledValue(20));
         l.setXEntrySpace(4f);
     }
     
@@ -161,7 +162,7 @@ public class BarChartActivity extends BaseActivity {
             dataSets.add(set1);
             
             BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
+            data.setValueTextSizeInPx(SimpleUtil.getScaledValue(20));
             data.setBarWidth(0.9f);
             mBarChart.setData(data);
         }

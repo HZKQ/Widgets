@@ -79,17 +79,17 @@ public class LineChartActivity extends BaseActivity {
         MyMarkView myMarkView = new MyMarkView(this);
         myMarkView.setChartView(mLineChart1);
         mLineChart1.setMarker(myMarkView);
-        mLineChart1.setExtraBottomOffsetWithPixel(SimpleUtil.getScaledValue(40));
+        mLineChart1.setExtraBottomOffsetInPx(SimpleUtil.getScaledValue(40));
         
         SmartXAxis xAxis = mLineChart1.getXAxis();
         // x轴线条颜色
         xAxis.setAxisLineColor(lineColor);
         // x轴线条宽度
-        xAxis.setAxisLineWidth(1);
+        xAxis.setAxisLineWidthInPx(2);
         // x轴文本颜色
         xAxis.setTextColor(color);
         // x轴字体大小
-        xAxis.setTextSize(12);
+        xAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20));
         // x轴是否绘制纵向指示线
         xAxis.setDrawGridLines(false);
         // x轴最小值
@@ -102,9 +102,9 @@ public class LineChartActivity extends BaseActivity {
         SmartYAxis yAxis = mLineChart1.getAxisLeft();
         yAxis.setDrawGridLines(true);
         yAxis.setTextColor(color);
-        yAxis.setTextSize(12);
+        yAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20));
         yAxis.setAxisLineColor(lineColor);
-        yAxis.setAxisLineWidth(1);
+        yAxis.setAxisLineWidthInPx(2);
         yAxis.setGridColor(lineColor);
         yAxis.setAxisMinimum(0);
         yAxis.setAxisMaximum(100);
@@ -117,7 +117,7 @@ public class LineChartActivity extends BaseActivity {
         
         mLineChart2.setTouchEnabled(false);
         mLineChart2.setDragEnabled(false);
-        mLineChart2.setExtraBottomOffsetWithPixel(SimpleUtil.getScaledValue(40));
+        mLineChart2.setExtraBottomOffsetInPx(SimpleUtil.getScaledValue(40));
         
         SmartXAxis xAxis = mLineChart2.getXAxis();
         xAxis.setAxisLineColor(lineColor);
@@ -178,10 +178,10 @@ public class LineChartActivity extends BaseActivity {
             set.setDrawCircles(true);
             set.setMode(LineDataSet.Mode.LINEAR);
             set.setColor(blue);
-            set.setLineWidth(2f);
-            set.setCircleRadius(3f);
+            set.setLineWidthInPx(SimpleUtil.getScaledValue(6));
+            set.setCircleRadiusInPx(SimpleUtil.getScaledValue(8));
             set.setCircleColor(blue);
-            set.setValueTextSize(9f);
+            set.setValueTextSizeInPx(SimpleUtil.getScaledValue(20));
             set.setDrawFilled(true);
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

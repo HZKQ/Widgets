@@ -13,7 +13,6 @@ import android.graphics.Paint.Align;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
 import androidx.annotation.RequiresApi;
@@ -25,7 +24,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.animation.Easing.EasingFunction;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.IMarker;
@@ -1071,7 +1069,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
         setExtraLeftOffsetWithPixel(left);
         setExtraTopOffsetWithPixel(top);
         setExtraRightOffsetWithPixel(right);
-        setExtraBottomOffsetWithPixel(bottom);
+        setExtraBottomOffsetInPx(bottom);
     }
 
     /**
@@ -1119,6 +1117,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Set an extra offset to be appended to the viewport's bottom
      */
+    @Deprecated
     public void setExtraBottomOffset(float offset) {
         mExtraBottomOffset = Utils.convertDpToPixel(offset);
     }
@@ -1126,7 +1125,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Set an extra offset to be appended to the viewport's bottom
      */
-    public void setExtraBottomOffsetWithPixel(float offset) {
+    public void setExtraBottomOffsetInPx(float offset) {
         mExtraBottomOffset = offset;
     }
 

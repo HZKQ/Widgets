@@ -355,7 +355,7 @@ public abstract class BaseDataSet<T extends Entry> implements IDataSet<T> {
     }
     
     @Override
-    public void setValueTextSizeInPixel(float size) {
+    public void setValueTextSizeInPx(float size) {
         mValueTextSize = size;
     }
 
