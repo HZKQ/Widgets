@@ -6,6 +6,13 @@
 
 #### 用法说明
 
+##### 集成
+
+```
+    implementation 'com.github.HZKQ.Widgets:zxing:1.0.1'
+```
+##### 调用
+
 ```java
     new IntentIntegrator(this)
         .setCustomTitle("二维码扫描") //标题栏文字
@@ -33,11 +40,25 @@
     }
 ```
 
-### 2. 图表库
+### 2. [图表库-MPChartLib](MPChartLib)
 
 #### 用法说明
 
-### 3. 日历选择库
+##### 集成
+
+```
+    implementation 'com.github.HZKQ.Widgets:MPChartLib:1.0.1'
+```
+
+### 3. [日历选择库-CalendarPickerView](CalendarPickerView)
+
+##### 集成
+
+```
+    implementation 'com.github.HZKQ.Widgets:CalendarPickerView:1.0.1'
+```
+
+##### 调用
 
 ```java
 
