@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -16,15 +17,12 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
-import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.QRCodeReader;
+import com.google.zxing.MultiFormatReader;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.Intents;
@@ -34,22 +32,19 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 import com.yanzhenjie.permission.runtime.setting.SettingRequest;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.dialog.TwoBtnTextDialog;
-import me.zhouzhuo810.magpiex.ui.widget.MarkView;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 import me.zhouzhuo810.magpiex.utils.DisplayUtil;
 import me.zhouzhuo810.magpiex.utils.RxHelper;
@@ -76,22 +71,9 @@ public class CaptureActivity extends BaseActivity {
         
         TitleBar ttb = barcodeScannerView.getTitleBar();
         if (ttb != null) {
-            ttb.setOnTitleClickListener(new TitleBar.OnTitleClick() {
-                @Override
-                public void onLeftClick(ImageView imageView, MarkView markView, TextView textView) {
-                    closeAct();
-                }
-                
-                @Override
-                public void onTitleClick(TextView textView) {
-                
-                }
-                
-                @Override
-                public void onRightClick(ImageView imageView, MarkView markView, TextView textView) {
-                    choosePhoto();
-                }
-            });
+            ttb.getLlLeft().setOnClickListener(v -> closeAct());
+            
+            ttb.getLlRight().setOnClickListener(v -> choosePhoto());
         }
         
         capture = new CaptureManager(this, barcodeScannerView);
@@ -100,7 +82,7 @@ public class CaptureActivity extends BaseActivity {
     }
     
     
-    public void choosePhoto() {
+    private void choosePhoto() {
         AndPermission.with(this)
             .runtime()
             .permission(Permission.WRITE_EXTERNAL_STORAGE)
@@ -240,21 +222,18 @@ public class CaptureActivity extends BaseActivity {
         return true;
     }
     
-    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_CHOOSE:
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                    String path = FileUtils.getRealFilePath(CaptureActivity.this, data.getData());
-                    onPhotoChosen(TextUtils.isEmpty(path) ? null : new File(path), path, false);
-                } else if (resultCode == RESULT_OK) {
-                    onPhotoChosen(null, null, false);
+                    onPhotoChosen(data.getData(), false);
                 } else {
-                    onPhotoChosen(null, null, true);
+                    onPhotoChosen(null, resultCode != RESULT_OK);
                 }
                 break;
+            
             case REQUEST_CODE_PERMISSION_SETTING:
                 if (AndPermission.hasPermissions(CaptureActivity.this, Permission.WRITE_EXTERNAL_STORAGE)) {
                     Intent intent = new Intent(Intent.ACTION_PICK, null);
@@ -268,84 +247,96 @@ public class CaptureActivity extends BaseActivity {
     /**
      * 相册选图完成
      *
-     * @param file     图片文件
-     * @param filePath 图片路径
+     * @param uri 图片文件
      */
-    public void onPhotoChosen(@Nullable File file, @Nullable String filePath, boolean isCancel) {
-        if (TextUtils.isEmpty(filePath)) {
+    public void onPhotoChosen(@Nullable Uri uri, boolean isCancel) {
+        if (uri == null) {
             if (!isCancel) {
                 ToastUtil.showToast(getString(R.string.not_found_pic_path));
             }
             return;
         }
-        mSubscribe = Observable.just(filePath)
-            .map(new Function<String, String>() {
-                @Override
-                public String apply(String s) throws Exception {
-                    return scanAlbum(s);
-                }
-            })
-            .compose(RxHelper.<String>io_main())
-            .subscribe(new Consumer<String>() {
-                @Override
-                public void accept(String s) throws Exception {
-                    capture.closeAndFinish();
-                    Intent intent = new Intent(Intents.Scan.ACTION);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                    intent.putExtra(Intents.Scan.RESULT, s);
-                    intent.putExtra(Intents.Scan.RESULT_FORMAT, BarcodeFormat.QR_CODE.toString());
-                    byte[] rawBytes = s.getBytes();
+        
+        showLoadingDialog(getString(R.string.please_wait_label));
+        mSubscribe = Observable.just(uri)
+            .map(this :: scanAlbum)
+            .compose(RxHelper.io_main())
+            .subscribe(result -> {
+                capture.closeAndFinish();
+                hideLoadingDialog();
+                if (result != null) {
+                    Intent intent = new Intent();
+                    String recode = recode(result.toString());
+                    intent.putExtra(Intents.Scan.RESULT, recode);
+                    intent.putExtra(Intents.Scan.RESULT_FORMAT, result.getBarcodeFormat());
+                    byte[] rawBytes = recode.getBytes();
                     if (rawBytes.length > 0) {
                         intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
                     }
-                    //                    intent.putExtra(Intents.Scan.RESULT_BARCODE_IMAGE_PATH, filePath);
+                    // intent.putExtra(Intents.Scan.RESULT_BARCODE_IMAGE_PATH, filePath);
                     setResult(Activity.RESULT_OK, intent);
-                    closeActWithOutAnim();
                 }
-            }, new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable throwable) throws Exception {
-                    throwable.printStackTrace();
-                }
+                closeActWithOutAnim();
+            }, throwable -> {
+                capture.closeAndFinish();
+                hideLoadingDialog();
+                closeActWithOutAnim();
             });
     }
     
-    
-    private String scanAlbum(String path) {
-        if (TextUtils.isEmpty(path)) {
-            return "";
+    private Result scanAlbum(Uri uri) throws Exception {
+        if (uri == null) {
+            return null;
         }
+        
         // DecodeHintType 和EncodeHintType
-        Hashtable<DecodeHintType, String> hints = new Hashtable<>();
+        Hashtable<DecodeHintType, Object> hints = new Hashtable<>();
         hints.put(DecodeHintType.CHARACTER_SET, "utf-8"); // 设置二维码内容的编码
+        
+        @SuppressWarnings("unchecked")
+        List<BarcodeFormat> formats = (List<BarcodeFormat>) getIntent().getSerializableExtra(Intents.Scan.FORMATS);
+        if (formats == null || formats.size() == 0) {
+            String mode = getIntent().getStringExtra(Intents.Scan.MODE);
+            if (!TextUtils.isEmpty(mode)) {
+                formats = new ArrayList<>();
+                if (Intents.Scan.QR_CODE_MODE.equals(mode)) {
+                    formats.add(BarcodeFormat.QR_CODE);
+                } else if (Intents.Scan.BAR_CODE_MODE.equals(mode)) {
+                    formats.add(BarcodeFormat.CODE_128);
+                }
+                if (formats.size() > 0) {
+                    hints.put(DecodeHintType.POSSIBLE_FORMATS, formats);
+                }
+            }
+        }
+        
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = false; // 获取新的大小
         int sampleSize = (int) (options.outHeight / (float) 200);
         if (sampleSize <= 0)
             sampleSize = 1;
         options.inSampleSize = sampleSize;
-        Bitmap scanBitmap = BitmapFactory.decodeFile(path, options);
+        
+        Bitmap scanBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options);
+        if (scanBitmap == null) {
+            return null;
+        }
+        
         int[] intArray = new int[scanBitmap.getWidth() * scanBitmap.getHeight()];
         scanBitmap.getPixels(intArray, 0, scanBitmap.getWidth(), 0, 0, scanBitmap.getWidth(), scanBitmap.getHeight());
         RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap.getWidth(), scanBitmap.getHeight(), intArray);
         BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
-        QRCodeReader reader = new QRCodeReader();
-        try {
-            Result decode = reader.decode(bitmap1, hints);
-            return recode(decode.toString());
-        } catch (NotFoundException | com.google.zxing.FormatException | ChecksumException e) {
-            e.printStackTrace();
-        }
-        return "";
+        return new MultiFormatReader().decode(bitmap1, hints);
     }
-    
     
     private String recode(String str) {
         String formart = "";
         try {
-            boolean ISO = Charset.forName("ISO-8859-1").newEncoder().canEncode(str);
+            @SuppressWarnings("CharsetObjectCanBeUsed")
+            Charset charset = Charset.forName("ISO-8859-1");
+            boolean ISO = charset.newEncoder().canEncode(str);
             if (ISO) {
-                formart = new String(str.getBytes(StandardCharsets.ISO_8859_1), "GB2312");
+                formart = new String(str.getBytes(charset), "GB2312");
             } else {
                 formart = str;
             }
@@ -353,28 +344,6 @@ public class CaptureActivity extends BaseActivity {
             e.printStackTrace();
         }
         return formart;
-    }
-    
-    
-    /**
-     * 显示确认对话框,当显示一行时居中显示，当显示多行时，居左和垂直居中
-     */
-    public void showConfirmDialog(String msg, TwoBtnTextDialog.OnTwoBtnTextClick onTwoBtnTextClick) {
-        showConfirmDialog(null, msg, onTwoBtnTextClick);
-    }
-    
-    /**
-     * 显示确认对话框，当显示一行时居中显示，当显示多行时，居左和垂直居中
-     */
-    public void showConfirmDialog(String title, String msg, TwoBtnTextDialog.OnTwoBtnTextClick onTwoBtnTextClick) {
-        showConfirmDialog(title, msg, null, null, onTwoBtnTextClick);
-    }
-    
-    /**
-     * 显示确认对话框，当显示一行时居中显示，当显示多行时，居左和垂直居中
-     */
-    public void showConfirmDialog(String title, String msg, String leftText, String rightText, TwoBtnTextDialog.OnTwoBtnTextClick onTwoBtnTextClick) {
-        showConfirmDialog(title, msg, leftText, rightText, true, onTwoBtnTextClick);
     }
     
     /**
@@ -444,6 +413,4 @@ public class CaptureActivity extends BaseActivity {
             mConfirmDialog.dismiss();
         }
     }
-    
-    
 }

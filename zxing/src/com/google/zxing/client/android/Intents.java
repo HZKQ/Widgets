@@ -47,6 +47,11 @@ public final class Intents {
          * Decode only QR codes.
          */
         public static final String QR_CODE_MODE = "QR_CODE_MODE";
+    
+        /**
+         * Decode only Bar codes.
+         */
+        public static final String BAR_CODE_MODE = "BAR_CODE_MODE";
         
         /**
          * Comma-separated list of formats to scan for. The values must match the names of

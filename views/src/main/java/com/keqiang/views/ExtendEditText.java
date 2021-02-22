@@ -738,6 +738,16 @@ public class ExtendEditText extends AppCompatEditText {
     }
     
     /**
+     * 设置清除按钮大小
+     */
+    public void setClearButtonSize(int clearButtonSize) {
+        mClearButtonWidth = clearButtonSize;
+        mClearButtonHeight = clearButtonSize;
+        needMeasureClearButtonSizeAgain = true;
+        invalidate();
+    }
+    
+    /**
      * 设置清除文本按钮宽度
      *
      * @param clearButtonWidth 指定大小或使用{@link #WRAP_CONTENT}、{@link #MATCH_PARENT}

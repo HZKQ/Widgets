@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.timessquare.CalendarPicker;
@@ -14,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.utils.DateUtil;
 import me.zhouzhuo810.magpiex.utils.ToastUtil;
@@ -59,7 +58,7 @@ public class MainActivity extends BaseActivity {
             .setCameraId(0)  // 后置摄像头
             .setBeepEnabled(true) //是否有提示音
             .setBarcodeImageEnabled(false)
-            .setAlbumScanEnabled(false) //是否启用相册扫码
+            .setAlbumScanEnabled(true) //是否启用相册扫码
             .initiateScan();
     }
     
@@ -89,6 +88,7 @@ public class MainActivity extends BaseActivity {
         
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result == null || result.getContents() == null) {
+            ToastUtil.showToast("未识别到内容");
             return;
         }
         String contents = result.getContents();

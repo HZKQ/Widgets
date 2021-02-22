@@ -26,4 +26,9 @@ public enum BarcodeFormat {
      * QR Code 2D barcode format.
      */
     QR_CODE,
+    
+    /**
+     * Code 128 1D format.
+     */
+    CODE_128,
 }

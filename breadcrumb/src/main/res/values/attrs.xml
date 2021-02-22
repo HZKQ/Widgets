@@ -3,6 +3,7 @@
     <declare-styleable name="Breadcrumb">
         <attr name="android:textSize" />
         <attr name="android:textColor" />
-        <attr name="bc_clickable_textColor" format="color|reference"/>
+        <attr name="bc_clickable_textColor" format="color|reference" />
+        <attr name="bc_fix_first_folder" format="boolean" />
     </declare-styleable>
 </resources>

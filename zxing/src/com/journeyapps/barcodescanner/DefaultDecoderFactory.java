@@ -3,7 +3,7 @@ package com.journeyapps.barcodescanner;
 import android.graphics.Rect;
 
 import com.google.zxing.DecodeHintType;
-import com.google.zxing.QRCodeReader;
+import com.google.zxing.MultiFormatReader;
 import com.journeyapps.barcodescanner.camera.CameraManager;
 
 import java.util.EnumMap;
@@ -40,10 +40,8 @@ public class DefaultDecoderFactory implements DecoderFactory {
             hints.put(DecodeHintType.CHARACTER_SET, characterSet);
         }
         
-        QRCodeReader reader = new QRCodeReader();
-        reader.setHints(hints);
-        reader.setCameraManager(cameraManager);
-        reader.setFramingRect(framingRectSize);
+        MultiFormatReader reader = new MultiFormatReader();
+        reader.setHints(hints, cameraManager, framingRectSize);
         switch (scanType) {
             case 0:
                 return new Decoder(reader);

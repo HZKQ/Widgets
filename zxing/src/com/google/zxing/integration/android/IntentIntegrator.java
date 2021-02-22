@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -43,7 +44,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  * @author Brad Drehmer
  * @author gcstang
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "RedundantSuppression"})
 public class IntentIntegrator {
     private static final String TAG = IntentIntegrator.class.getSimpleName();
     
@@ -221,6 +222,26 @@ public class IntentIntegrator {
      */
     public IntentIntegrator setBarcodeImageEnabled(boolean enabled) {
         addExtra(Intents.Scan.BARCODE_IMAGE_ENABLED, enabled);
+        return this;
+    }
+    
+    /**
+     * 设置扫码模式
+     *
+     * @param mode {@link Intents.Scan#QR_CODE_MODE}、{@link Intents.Scan#BAR_CODE_MODE}
+     */
+    public IntentIntegrator setMode(String mode) {
+        addExtra(Intents.Scan.MODE, mode);
+        return this;
+    }
+    
+    /**
+     * 设置扫码需要支持的模式，如果设置了此值，则覆盖{@link #setMode(String)}
+     *
+     * @param formats 参考{@link BarcodeFormat}
+     */
+    public IntentIntegrator setFormat(List<BarcodeFormat> formats) {
+        addExtra(Intents.Scan.FORMATS, formats);
         return this;
     }
     

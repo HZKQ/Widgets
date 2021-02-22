@@ -18,14 +18,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
@@ -98,11 +97,13 @@ public class Breadcrumb extends LinearLayout {
             mTextColor = t.getColor(R.styleable.Breadcrumb_android_textColor, Color.BLACK);
             mTextSize = t.getDimensionPixelSize(R.styleable.Breadcrumb_android_textSize, 16);
             mClickableTextColor = t.getColor(R.styleable.Breadcrumb_bc_clickable_textColor, Color.BLUE);
+            mFixFirstFolder = t.getBoolean(R.styleable.Breadcrumb_bc_fix_first_folder, true);
             t.recycle();
         } else {
             mTextColor = Color.BLACK;
             mClickableTextColor = Color.BLUE;
             mTextSize = 16;
+            mFixFirstFolder = true;
         }
         
         if (!isInEditMode()) {
@@ -134,7 +135,7 @@ public class Breadcrumb extends LinearLayout {
         mTvFolders.setLayoutParams(params);
         mScrollView.addView(mTvFolders);
         
-        setFixFirstFolder(true);
+        setFixFirstFolder(mFixFirstFolder);
         mFolders = "";
         mFolderSpans = new ArrayList<>();
         mCurFolderPosition = -2;

@@ -19,12 +19,16 @@ package com.google.zxing.client.android;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -204,7 +208,25 @@ public final class DecodeHintManager {
         if (extras == null || extras.isEmpty()) {
             return null;
         }
+        
         Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
+        @SuppressWarnings("unchecked")
+        List<BarcodeFormat> formats = (List<BarcodeFormat>) intent.getSerializableExtra(Intents.Scan.FORMATS);
+        if (formats == null || formats.size() == 0) {
+            String mode = intent.getStringExtra(Intents.Scan.MODE);
+            if (!TextUtils.isEmpty(mode)) {
+                formats = new ArrayList<>();
+                if (Intents.Scan.QR_CODE_MODE.equals(mode)) {
+                    formats.add(BarcodeFormat.QR_CODE);
+                } else if (Intents.Scan.BAR_CODE_MODE.equals(mode)) {
+                    formats.add(BarcodeFormat.CODE_128);
+                }
+            }
+        }
+    
+        if (formats != null && formats.size() > 0) {
+            hints.put(DecodeHintType.POSSIBLE_FORMATS,formats);
+        }
         
         for (DecodeHintType hintType : DecodeHintType.values()) {
             

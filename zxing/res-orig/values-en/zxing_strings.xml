@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
  Copyright (C) 2014 ZXing authors
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +31,7 @@
     <string name="set_write_external_storage_and_camera_zxing">The mobile phone storage permission and the camera function is not turned on,the camera function cannot be used,are you go to the interface of Settings to open the permission?</string>
     <string name="storage_not_enough_could_not_open_camera_zxing">The memory may be insufficient to open the camera.</string>
     <string name="not_found_pic_path">Can\'t find the image path, please choose another one.</string>
+    <string name="please_wait_label">Please waiting...</string>
 </resources>
 
 

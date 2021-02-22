@@ -663,7 +663,10 @@ public class CalendarPickerView extends ListView {
      * @return - whether we were able to set the date
      */
     public boolean selectDate(Date date, boolean smoothScroll) {
-        validateDate(date);
+        Date validDate = validateDate(date);
+        if (validDate == null) {
+            return false;
+        }
         
         MonthCellWithMonthIndex monthCellWithMonthIndex = getMonthCellWithIndexByDate(date);
         if (monthCellWithMonthIndex == null || !isDateSelectable(date)) {
@@ -722,16 +725,26 @@ public class CalendarPickerView extends ListView {
         return new SimpleDateFormat("yyyy-MM", Locale.CHINA).format(date);
     }
     
-    private void validateDate(Date date) {
+    private Date validateDate(Date date) {
         if (date == null) {
-            throw new IllegalArgumentException("Selected date must be non-null.");
+            return null;
         }
-        if (date.before(minCal.getTime()) || date.after(maxCal.getTime())) {
-            throw new IllegalArgumentException(String.format(
-                "SelectedDate must be between minDate and maxDate."
-                    + "%nminDate: %s%nmaxDate: %s%nselectedDate: %s", minCal.getTime(), maxCal.getTime(),
-                date));
+        
+        // 当前项目难以避免日期在规定范围之内，因此只能做最大最小范围限制验证重新赋值
+        // if (date.before(minCal.getTime()) || date.after(maxCal.getTime())) {
+        //     throw new IllegalArgumentException(String.format(
+        //         "SelectedDate must be between minDate and maxDate."
+        //             + "%nminDate: %s%nmaxDate: %s%nselectedDate: %s", minCal.getTime(), maxCal.getTime(),
+        //         date));
+        // }
+        
+        if (date.before(minCal.getTime())) {
+            return minCal.getTime();
+        } else if (date.after(maxCal.getTime())) {
+            return maxCal.getTime();
         }
+        
+        return date;
     }
     
     private boolean doSelectDate(Date date, MonthCellDescriptor cell) {
@@ -857,7 +870,10 @@ public class CalendarPickerView extends ListView {
     
     public void highlightDates(Collection<Date> dates) {
         for (Date date : dates) {
-            validateDate(date);
+            Date validDate = validateDate(date);
+            if (validDate == null) {
+                continue;
+            }
             
             MonthCellWithMonthIndex monthCellWithMonthIndex = getMonthCellWithIndexByDate(date);
             if (monthCellWithMonthIndex != null) {
