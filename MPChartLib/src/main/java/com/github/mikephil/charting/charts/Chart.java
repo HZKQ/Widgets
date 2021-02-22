@@ -1065,10 +1065,10 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * @param right
      * @param bottom
      */
-    public void setExtraOffsetsWithPixel(float left, float top, float right, float bottom) {
-        setExtraLeftOffsetWithPixel(left);
-        setExtraTopOffsetWithPixel(top);
-        setExtraRightOffsetWithPixel(right);
+    public void setExtraOffsetsInPx(float left, float top, float right, float bottom) {
+        setExtraLeftOffsetInPx(left);
+        setExtraTopOffsetInPx(top);
+        setExtraRightOffsetInPx(right);
         setExtraBottomOffsetInPx(bottom);
     }
 
@@ -1082,7 +1082,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Set an extra offset to be appended to the viewport's top
      */
-    public void setExtraTopOffsetWithPixel(float offset) {
+    public void setExtraTopOffsetInPx(float offset) {
         mExtraTopOffset = offset;
     }
 
@@ -1103,7 +1103,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Set an extra offset to be appended to the viewport's right
      */
-    public void setExtraRightOffsetWithPixel(float offset) {
+    public void setExtraRightOffsetInPx(float offset) {
         mExtraRightOffset = offset;
     }
 
@@ -1146,7 +1146,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Set an extra offset to be appended to the viewport's left
      */
-    public void setExtraLeftOffsetWithPixel(float offset) {
+    public void setExtraLeftOffsetInPx(float offset) {
         mExtraLeftOffset = offset;
     }
 

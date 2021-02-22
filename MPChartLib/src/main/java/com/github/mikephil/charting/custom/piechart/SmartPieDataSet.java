@@ -131,7 +131,7 @@ public class SmartPieDataSet extends DataSet<SmartPieEntry> implements ISmartPie
      * sets the distance the highlighted piechart-slice of this DataSet is
      * "shifted" away from the center of the chart, default 12f
      */
-    public void setSelectionShiftWithPixcel(float shift) {
+    public void setSelectionShiftInPx(float shift) {
         mShift = shift;
     }
     

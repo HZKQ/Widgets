@@ -82,7 +82,7 @@ public class PieChartActivity extends BaseActivity {
         
         // 饼状图的位置偏移
         int offset = SimpleUtil.getScaledValue(30);
-        mPieChart.setExtraOffsetsWithPixel(offset, offset, offset, offset);
+        mPieChart.setExtraOffsetsInPx(offset, offset, offset, offset);
         // 是否画中间的文字
         mPieChart.setDrawCenterText(true);
         // 是否画中间的洞
@@ -162,7 +162,7 @@ public class PieChartActivity extends BaseActivity {
         // 每个扇形图像之间的间隔
         dataSet.setSliceSpace(SimpleUtil.getScaledValue(5));
         // 设置扇形图点击选中后放大比原来扇形图宽度增加值
-        dataSet.setSelectionShiftWithPixcel(SimpleUtil.getScaledValue(5));
+        dataSet.setSelectionShiftInPx(SimpleUtil.getScaledValue(5));
         
         ArrayList<Integer> colors = new ArrayList<>();
         for (int c : ColorTemplate.VORDIPLOM_COLORS)
