@@ -20,6 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import com.keqiang.ratiocolorbar.entity.RainbowBarData;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
@@ -27,20 +32,14 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-
-import com.keqiang.ratiocolorbar.entity.RatioBarData;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
- * 彩虹条，该彩虹条数据都是连续的，会将{@link #setColorBars(List)}列表按顺序连续绘制，{@link RatioBarData#getValue()}代表彩虹条占比，数值越大，绘制宽度越宽
+ * 彩虹条，该彩虹条数据都是连续的，会将{@link #setColorBars(List)}列表按顺序连续绘制，{@link RainbowBarData#getValue()}代表彩虹条占比，数值越大，绘制宽度越宽
  *
  * @author Created by zhouzhuo810 on 2017/12/28.
  */
-public class RatioColorBar extends View {
+public class RainbowBar extends View {
     private static final int[] COLORS = new int[]{/*黄颜色*/0xFFFFA60E,/*绿色*/0xFF0DDF66,/*红色*/0xFFFF5252,/*灰色*/0xFFCBCAD1};
     
     private boolean showBorder;
@@ -55,7 +54,7 @@ public class RatioColorBar extends View {
     private List<RatioBarDataInner> colorBars;
     private OnBarSelectedChangeListener mOnBarSelectedChangeListener;
     
-    //彩虹条bar弹窗相关组件
+    // 彩虹条bar弹窗相关组件
     private PopupWindow mRainbowBarPop;
     private View mContentView;
     private RelativeLayout mDecorView;
@@ -69,56 +68,42 @@ public class RatioColorBar extends View {
     private View mUserContentView;
     
     /**
-     * 用于指示popwindow位置的箭头宽度
+     * 用于指示popWindow位置的箭头宽度
      */
     private int mArrowWidth;
     
     /**
-     * 用于指示popwindow位置的箭头高度
+     * 用于指示popWindow位置的箭头高度
      */
     private int mArrowHeight;
     
-    public interface OnBarSelectedChangeListener {
-        /**
-         * @param contentView  用户设置的用于弹窗弹出时展示需要显示的内容
-         * @param position     当前选择的Item的下标
-         * @param selected     当前选择的Item是否被选中
-         * @param ratioBarData 当前选择的Item的关联数据
-         */
-        void onSelectedChange(@Nullable View contentView, int position, boolean selected, RatioBarData ratioBarData);
-    }
-    
-    public void setOnBarSelectedChangeListener(OnBarSelectedChangeListener onBarSelectedChangeListener) {
-        this.mOnBarSelectedChangeListener = onBarSelectedChangeListener;
-    }
-    
-    public RatioColorBar(Context context) {
+    public RainbowBar(Context context) {
         super(context);
         init(context, null);
     }
     
-    public RatioColorBar(Context context, @Nullable AttributeSet attrs) {
+    public RainbowBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
     
-    public RatioColorBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public RainbowBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
     
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public RatioColorBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public RainbowBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
     
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.RatioColorBar);
-            showBorder = t.getBoolean(R.styleable.RatioColorBar_rcb_show_border, false);
-            borderColor = t.getColor(R.styleable.RatioColorBar_rcb_border_color, 0xffeeeeee);
-            borderWidth = t.getDimensionPixelSize(R.styleable.RatioColorBar_rcb_border_width, 0);
+            TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.RainbowBar);
+            showBorder = t.getBoolean(R.styleable.RainbowBar_rb_show_border, false);
+            borderColor = t.getColor(R.styleable.RainbowBar_rb_border_color, 0xffeeeeee);
+            borderWidth = t.getDimensionPixelSize(R.styleable.RainbowBar_rb_border_width, 0);
             t.recycle();
         } else {
             showBorder = false;
@@ -137,9 +122,9 @@ public class RatioColorBar extends View {
             initPop();
         } else {
             // 为了实时预览测试用
-            List<RatioBarData> list = new ArrayList<>();
+            List<RainbowBarData> list = new ArrayList<>();
             for (int i = 0; i < 4; i++) {
-                RatioBarData data = new RatioBarData();
+                RainbowBarData data = new RainbowBarData();
                 data.setColor(COLORS[i]);
                 switch (i) {
                     case 0:
@@ -230,14 +215,14 @@ public class RatioColorBar extends View {
             float dx = endX - startX;
             float sum = 0;
             for (RatioBarDataInner colorBar : colorBars) {
-                sum += colorBar.ratioBarData.getValue();
+                sum += colorBar.mRainbowBarData.getValue();
             }
             
             if (sum != 0) {
                 float realStartX = startX;
                 for (RatioBarDataInner colorBar : colorBars) {
-                    int color = colorBar.ratioBarData.getColor();
-                    float ratioWidth = dx * colorBar.ratioBarData.getValue() / sum;
+                    int color = colorBar.mRainbowBarData.getColor();
+                    float ratioWidth = dx * colorBar.mRainbowBarData.getValue() / sum;
                     barPaint.setColor(color);
                     colorBar.startX = realStartX;
                     colorBar.endX = realStartX + (Math.max(ratioWidth, 1f));
@@ -291,7 +276,7 @@ public class RatioColorBar extends View {
             int[] positions = new int[2];
             getLocationOnScreen(positions);
             if (selection != curSelect && mOnBarSelectedChangeListener != null) {
-                mOnBarSelectedChangeListener.onSelectedChange(mUserContentView, curSelect, data.selected, data.ratioBarData);
+                mOnBarSelectedChangeListener.onSelectedChange(mUserContentView, curSelect, data.selected, data.mRainbowBarData);
             }
             showItemInfoPop(data.startX + positions[0], (data.endX - data.startX) / 2, positions[1]);
         }
@@ -390,9 +375,9 @@ public class RatioColorBar extends View {
     /**
      * 设置彩虹条数据
      *
-     * @param colorBars {@link RatioBarData}集合
+     * @param colorBars {@link RainbowBarData}集合
      */
-    public <T extends RatioBarData> void setColorBars(List<T> colorBars) {
+    public <T extends RainbowBarData> void setColorBars(List<T> colorBars) {
         selection = -1;
         hideRainbowBarPop();
         if (this.colorBars == null) {
@@ -402,14 +387,21 @@ public class RatioColorBar extends View {
         }
         RatioBarDataInner inner;
         if (colorBars != null) {
-            for (RatioBarData bar : colorBars) {
+            for (RainbowBarData bar : colorBars) {
                 inner = new RatioBarDataInner();
-                inner.ratioBarData = bar;
+                inner.mRainbowBarData = bar;
                 this.colorBars.add(inner);
             }
         }
         
         invalidate();
+    }
+    
+    /**
+     * 设置彩虹条选中监听
+     */
+    public void setOnBarSelectedChangeListener(OnBarSelectedChangeListener onBarSelectedChangeListener) {
+        this.mOnBarSelectedChangeListener = onBarSelectedChangeListener;
     }
     
     /**
@@ -479,21 +471,39 @@ public class RatioColorBar extends View {
         mContentView.setBackgroundColor(color);
     }
     
+    /**
+     * 设置展示彩虹条详情的弹窗关闭监听
+     */
     public void setPopOnDismissListener(PopupWindow.OnDismissListener dismissListener) {
         mRainbowBarPop.setOnDismissListener(dismissListener);
     }
     
+    /**
+     * 隐藏彩虹条详情弹窗
+     */
     public void hideRainbowBarPop() {
-        if (mRainbowBarPop.isShowing()) {
+        if (mRainbowBarPop != null && mRainbowBarPop.isShowing()) {
             mRainbowBarPop.dismiss();
         }
     }
     
+    /**
+     * 彩虹条选中监听
+     */
+    public interface OnBarSelectedChangeListener {
+        /**
+         * @param contentView    用户设置的用于弹窗弹出时展示需要显示的内容
+         * @param position       当前选择的Item的下标
+         * @param selected       当前选择的Item是否被选中
+         * @param rainbowBarData 当前选择的Item的关联数据
+         */
+        void onSelectedChange(@Nullable View contentView, int position, boolean selected, RainbowBarData rainbowBarData);
+    }
     
     private static class RatioBarDataInner {
         private boolean selected;
         private float startX;
         private float endX;
-        private RatioBarData ratioBarData;
+        private RainbowBarData mRainbowBarData;
     }
 }

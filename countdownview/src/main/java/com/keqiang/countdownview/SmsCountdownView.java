@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
 /**
+ * 短信倒计时
+ *
  * @author Created by 汪高皖 on 2020/1/14 10:05
  */
 public class SmsCountdownView extends AppCompatTextView {
@@ -111,5 +113,13 @@ public class SmsCountdownView extends AppCompatTextView {
      */
     public boolean isStartCountdown() {
         return mStartCountdown;
+    }
+    
+    /**
+     * 设置值格式化类
+     */
+    public void setValueFormat(IValueFormat IValueFormat) {
+        mIValueFormat = IValueFormat;
+        invalidate();
     }
 }

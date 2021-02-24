@@ -5,7 +5,7 @@ package com.keqiang.ratiocolorbar.entity;
  *
  * @author Created by 汪高皖 on 2020/1/8 15:05
  */
-public class RatioBarData {
+public class RainbowBarData {
     /**
      * 彩虹条值,如果是连续的数据，此值表示某一段的值。如果是非连续的数据，此值表示彩虹条上距离开始某一点的值
      */

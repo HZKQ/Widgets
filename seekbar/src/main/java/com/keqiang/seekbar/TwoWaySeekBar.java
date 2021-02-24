@@ -12,12 +12,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.math.BigDecimal;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
@@ -26,6 +30,11 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 public class TwoWaySeekBar extends View {
     public static final int PROGRESS_TEXT_GRAVITY_TOP = 0;
     public static final int PROGRESS_TEXT_GRAVITY_BOTTOM = 1;
+    
+    @IntDef({PROGRESS_TEXT_GRAVITY_TOP, PROGRESS_TEXT_GRAVITY_BOTTOM})
+    @Target({ElementType.PARAMETER})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ProgressTextGravity {}
     
     private static final int CLICK_ON_LOW = 1;        //手指在前滑块上滑动
     private static final int CLICK_ON_HIGH = 2;       //手指在后滑块上滑动
@@ -182,7 +191,7 @@ public class TwoWaySeekBar extends View {
             textColor = t.getColor(R.styleable.TwoWaySeekBar_ts_progress_text_color, 0xCC000000);
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_progress_text_margin, 10);
             max = t.getInteger(R.styleable.TwoWaySeekBar_ts_max, 100);
-            if (isAttributeMatch(attrs,"ts_thumb_bg")) {
+            if (isAttributeMatch(attrs, "ts_thumb_bg")) {
                 mThumbLeftBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
                 mThumbRightBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
             }
@@ -307,7 +316,7 @@ public class TwoWaySeekBar extends View {
     /**
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
-    public int getPaddingStartInner() {
+    private int getPaddingStartInner() {
         if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
             return getPaddingStart();
         }
@@ -318,7 +327,7 @@ public class TwoWaySeekBar extends View {
     /**
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
-    public int getPaddingEndInner() {
+    private int getPaddingEndInner() {
         if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
             return getPaddingStart();
         }
@@ -532,7 +541,7 @@ public class TwoWaySeekBar extends View {
     }
     
     // 获取当前手指位置
-    public int getAreaFlag(MotionEvent e) {
+    private int getAreaFlag(MotionEvent e) {
         int top = (getHeight() - mThumbSize) / 2;
         int bottom = mThumbSize + top;
         if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetLeft - mThumbSize / 2f) && e.getX() <= mOffsetLeft + mThumbSize / 2f) {
@@ -557,6 +566,23 @@ public class TwoWaySeekBar extends View {
     //更新滑块
     private void refresh() {
         invalidate();
+    }
+    
+    private void updateOffsetLeft(double offsetLeft) {
+        mOffsetLeft = offsetLeft;
+        this.mDefaultScreenLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+    }
+    
+    private void updateOffsetRight(double offsetRight) {
+        mOffsetRight = offsetRight;
+        this.mDefaultScreenRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+    }
+    
+    // 设置滑动结果为整数
+    private int formatInt(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        BigDecimal bd1 = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
+        return bd1.intValue();
     }
     
     /**
@@ -591,42 +617,40 @@ public class TwoWaySeekBar extends View {
         refresh();
     }
     
-    private void updateOffsetLeft(double offsetLeft) {
-        mOffsetLeft = offsetLeft;
-        this.mDefaultScreenLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
-    }
-    
-    private void updateOffsetRight(double offsetRight) {
-        mOffsetRight = offsetRight;
-        this.mDefaultScreenRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
-    }
-    
+    /**
+     * 设置滑块值改变监听
+     */
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
         this.mBarChangeListener = mListener;
     }
     
-    //设置滑动结果为整数
-    private int formatInt(double value) {
-        BigDecimal bd = new BigDecimal(value);
-        BigDecimal bd1 = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
-        return bd1.intValue();
-    }
-    
+    /**
+     * 设置左滑块左边滑动条
+     */
     public void setStartScrollBar(@NonNull Drawable startScrollBar) {
         this.mStartScrollBar = startScrollBar;
         invalidate();
     }
     
+    /**
+     * 设置左滑块与右滑块中间滑动条
+     */
     public void setCenterScrollBar(@NonNull Drawable centerScrollBar) {
         this.mCenterScrollBar = centerScrollBar;
         invalidate();
     }
     
+    /**
+     * 设置右滑块右边滑动条
+     */
     public void setEndScrollBar(@NonNull Drawable endScrollBar) {
         this.mEndScrollBar = endScrollBar;
         invalidate();
     }
     
+    /**
+     * 设置左滑块样式
+     */
     public void setThumbLeft(@NonNull Drawable thumbLeft) {
         mThumbLeft = thumbLeft;
         if (!mUserSetThumbSize) {
@@ -635,6 +659,9 @@ public class TwoWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置右滑块样式
+     */
     public void setThumbRight(@NonNull Drawable thumbRight) {
         mThumbRight = thumbRight;
         if (!mUserSetThumbSize) {
@@ -644,22 +671,33 @@ public class TwoWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置滑块大小
+     */
     public void setThumbSize(int size) {
         mThumbSize = size;
         invalidate();
     }
     
+    /**
+     * 设置左滑块背景
+     */
     public void setThumbLeftBg(Drawable thumbLeftBg) {
         mThumbLeftBg = thumbLeftBg;
         invalidate();
     }
     
+    /**
+     * 设置右滑块背景
+     */
     public void setThumbRightBg(Drawable thumbRightBg) {
         mThumbRightBg = thumbRightBg;
         invalidate();
     }
     
     /**
+     * 设置滑块背景相比于滑块大小缩放比例
+     *
      * @param thumbBgScale <=0则不绘制背景
      */
     public void setThumbBgScale(float thumbBgScale) {
@@ -667,11 +705,17 @@ public class TwoWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置滑动条高度
+     */
     public void setScrollBarHeight(int scrollBarHeight) {
         mScrollBarHeight = scrollBarHeight;
         invalidate();
     }
     
+    /**
+     * 设置是否在滑块下面/上面展示滑动条当前滑动数值
+     */
     public void setShowProgressText(boolean showProgressText) {
         mShowProgressText = showProgressText;
         invalidate();
@@ -685,11 +729,17 @@ public class TwoWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置进度文本字体大小
+     */
     public void setTextSize(float textSize) {
         mTextPaint.setTextSize(textSize);
         invalidate();
     }
     
+    /**
+     * 设置进度文本字体颜色
+     */
     public void setTextColor(@ColorInt int color) {
         mTextPaint.setColor(color);
         invalidate();
@@ -700,11 +750,14 @@ public class TwoWaySeekBar extends View {
      *
      * @param progressTextGravity {@link #PROGRESS_TEXT_GRAVITY_TOP}、{@link #PROGRESS_TEXT_GRAVITY_BOTTOM}
      */
-    public void setProgressTextGravity(int progressTextGravity) {
+    public void setProgressTextGravity(@ProgressTextGravity int progressTextGravity) {
         mProgressTextGravity = progressTextGravity;
         invalidate();
     }
     
+    /**
+     * 设置进度文本格式化类
+     */
     public void setProgressTextValueFormat(ProgressTextValueFormat progressTextValueFormat) {
         if (progressTextValueFormat == null) {
             mProgressTextValueFormat = DEFAULT_VALUE_FORMAT;

@@ -148,20 +148,17 @@ public class ExtendEditText extends AppCompatEditText {
     private String mAutoWrapText;
     
     public ExtendEditText(Context context) {
-        super(context);
-        init(context, null, 0);
+        this(context, null);
     }
     
     public ExtendEditText(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs, 0);
+        this(context, attrs, R.attr.editTextStyle);
     }
     
     public ExtendEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
-    
     
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         PLACEHOLDER.setBounds(0, 0, 0, 0);

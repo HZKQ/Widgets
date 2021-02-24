@@ -3,16 +3,15 @@ package com.hzkq.widgets;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-
-import com.keqiang.ratiocolorbar.RatioColorBar;
-import com.keqiang.ratiocolorbar.ScaleRatioColorBar;
-import com.keqiang.ratiocolorbar.entity.RatioBarData;
+import com.keqiang.ratiocolorbar.RainbowBar;
+import com.keqiang.ratiocolorbar.ScaleRainbowBar;
+import com.keqiang.ratiocolorbar.entity.RainbowBarData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 
@@ -23,8 +22,8 @@ public class RatioColorBarActivity extends BaseActivity {
     private static final int[] COLORS = new int[]{/*黄颜色*/0xFFFFA60E,/*绿色*/0xFF0DDF66,/*红色*/0xFFFF5252,/*灰色*/0xFFCBCAD1};
     
     private TitleBar mTitleBar;
-    private RatioColorBar mColorBar;
-    private ScaleRatioColorBar mScaleColorBar;
+    private RainbowBar mColorBar;
+    private ScaleRainbowBar mScaleColorBar;
     
     @Override
     public int getLayoutId() {
@@ -49,19 +48,19 @@ public class RatioColorBarActivity extends BaseActivity {
         
         mScaleColorBar.setContentView(R.layout.view_color_bar_content);
         
-        List<RatioBarData> list = new ArrayList<>();
+        List<RainbowBarData> list = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 10; i++) {
-            RatioBarData data = new RatioBarData();
+            RainbowBarData data = new RainbowBarData();
             data.setColor(COLORS[Math.abs(random.nextInt()) % 4]);
             data.setValue(random.nextFloat() * 100);
             list.add(data);
         }
         mColorBar.setColorBars(list);
         
-        List<RatioBarData> list2 = new ArrayList<>();
+        List<RainbowBarData> list2 = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            RatioBarData data = new RatioBarData();
+            RainbowBarData data = new RainbowBarData();
             data.setColor(COLORS[Math.abs(random.nextInt()) % 4]);
             data.setValue(random.nextFloat() * 50);
             list2.add(data);
@@ -73,7 +72,7 @@ public class RatioColorBarActivity extends BaseActivity {
     public void initEvent() {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
         
-        mColorBar.setOnBarSelectedChangeListener((contentView, position, selected, ratioBarData) -> {
+        mColorBar.setOnBarSelectedChangeListener((contentView, position, selected, rainbowBarData) -> {
             if (contentView == null) {
                 return;
             }
@@ -82,7 +81,7 @@ public class RatioColorBarActivity extends BaseActivity {
             ((TextView) contentView.findViewById(R.id.tv_title)).setText("位置" + position);
         });
     
-        mScaleColorBar.setOnBarSelectedChangeListener((contentView, position, selected, ratioBarData) -> {
+        mScaleColorBar.setOnBarSelectedChangeListener((contentView, position, selected, rainbowBarData) -> {
             if (contentView == null) {
                 return;
             }

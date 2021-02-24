@@ -184,7 +184,7 @@ public class CountdownView extends View {
         if (second <= 0) {
             return;
         }
-    
+        
         mClickEnd = false;
         mCountdownListener = countdownListener;
         mDuration = second * 1000;
@@ -209,11 +209,11 @@ public class CountdownView extends View {
             mAnimator.cancel();
             mAnimator = null;
         }
-    
+        
         if (mClickEnd) {
             return;
         }
-    
+        
         mClickEnd = true;
         if (mCountdownListener != null) {
             mCountdownListener.onEnd();
@@ -257,7 +257,7 @@ public class CountdownView extends View {
     }
     
     /**
-     * 倒计时圆圈是否反转绘制
+     * 设置倒计时圆圈是否反转绘制
      *
      * @param reverse {@code true}：圆圈从有到无，{@code false}：圆圈从无到有
      */
@@ -266,10 +266,16 @@ public class CountdownView extends View {
         invalidate();
     }
     
+    /**
+     * 倒计时圆圈是否反转绘制
+     */
     public boolean isReverse() {
         return mReverse;
     }
     
+    /**
+     * 设置值格式化类
+     */
     public void setValueFormat(IValueFormat IValueFormat) {
         mIValueFormat = IValueFormat;
         invalidate();

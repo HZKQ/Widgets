@@ -12,12 +12,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.math.BigDecimal;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
@@ -26,6 +30,11 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 public class OneWaySeekBar extends View {
     public static final int PROGRESS_TEXT_GRAVITY_TOP = 0;
     public static final int PROGRESS_TEXT_GRAVITY_BOTTOM = 1;
+    
+    @IntDef({PROGRESS_TEXT_GRAVITY_TOP, PROGRESS_TEXT_GRAVITY_BOTTOM})
+    @Target({ElementType.PARAMETER})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ProgressTextGravity {}
     
     private static final int CLICK_ON_THUMB = 1;        // 手指在滑块上滑动
     private static final int CLICK_IN_THUMB_AREA = 3;   // 手指点击滑块附近
@@ -409,7 +418,7 @@ public class OneWaySeekBar extends View {
     }
     
     // 获取当前手指位置
-    public int getAreaFlag(MotionEvent e) {
+    private int getAreaFlag(MotionEvent e) {
         int top = (getHeight() - mThumbSize) / 2;
         int bottom = mThumbSize + top;
         if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffset - mThumbSize / 2f) && e.getX() <= mOffset + mThumbSize / 2f) {
@@ -426,9 +435,24 @@ public class OneWaySeekBar extends View {
         }
     }
     
-    //更新滑块
+    // 更新滑块
     private void refresh() {
         invalidate();
+    }
+    
+    /**
+     * 更新滑块偏移值
+     */
+    private void updateOffset(double offset) {
+        mOffset = offset;
+        this.mDefaultScreen = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+    }
+    
+    // 设置滑动结果为整数
+    private int formatInt(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        BigDecimal bd1 = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
+        return bd1.intValue();
     }
     
     /**
@@ -454,32 +478,32 @@ public class OneWaySeekBar extends View {
         refresh();
     }
     
-    private void updateOffset(double offsetLeft) {
-        mOffset = offsetLeft;
-        this.mDefaultScreen = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
-    }
-    
+    /**
+     * 设置滑块改变监听
+     */
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
         this.mBarChangeListener = mListener;
     }
     
-    //设置滑动结果为整数
-    private int formatInt(double value) {
-        BigDecimal bd = new BigDecimal(value);
-        BigDecimal bd1 = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
-        return bd1.intValue();
-    }
-    
+    /**
+     * 设置滑块左边滑动条
+     */
     public void setStartScrollBar(@NonNull Drawable startScrollBar) {
         this.mStartScrollBar = startScrollBar;
         invalidate();
     }
     
+    /**
+     * 设置滑块右边的滑动条
+     */
     public void setEndScrollBar(@NonNull Drawable endScrollBar) {
         this.mEndScrollBar = endScrollBar;
         invalidate();
     }
     
+    /**
+     * 设置滑块样式
+     */
     public void setThumb(@NonNull Drawable thumb) {
         mThumb = thumb;
         if (!mUserSetThumbSize) {
@@ -488,17 +512,25 @@ public class OneWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置滑块大小
+     */
     public void setThumbSize(int size) {
         mThumbSize = size;
         invalidate();
     }
     
+    /**
+     * 设置滑块背景
+     */
     public void setThumbBg(Drawable thumbBg) {
         mThumbBg = thumbBg;
         invalidate();
     }
     
     /**
+     * 设置滑块背景相比于滑块大小缩放比例
+     *
      * @param thumbBgScale <=0则不绘制背景
      */
     public void setThumbBgScale(float thumbBgScale) {
@@ -506,11 +538,17 @@ public class OneWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置滑动条高度
+     */
     public void setScrollBarHeight(int scrollBarHeight) {
         mScrollBarHeight = scrollBarHeight;
         invalidate();
     }
     
+    /**
+     * 设置是否在滑块下面/上面展示滑动条当前滑动数值
+     */
     public void setShowProgressText(boolean showProgressText) {
         mShowProgressText = showProgressText;
         invalidate();
@@ -524,26 +562,35 @@ public class OneWaySeekBar extends View {
         invalidate();
     }
     
+    /**
+     * 设置进度文本字体大小
+     */
     public void setTextSize(float textSize) {
         mTextPaint.setTextSize(textSize);
         invalidate();
     }
     
+    /**
+     * 设置进度文本字体颜色
+     */
     public void setTextColor(@ColorInt int color) {
         mTextPaint.setColor(color);
         invalidate();
     }
     
     /**
-     * 设置进度文本绘制绘制
+     * 设置进度文本绘制绘制位置
      *
      * @param progressTextGravity {@link #PROGRESS_TEXT_GRAVITY_TOP}、{@link #PROGRESS_TEXT_GRAVITY_BOTTOM}
      */
-    public void setProgressTextGravity(int progressTextGravity) {
+    public void setProgressTextGravity(@ProgressTextGravity int progressTextGravity) {
         mProgressTextGravity = progressTextGravity;
         invalidate();
     }
     
+    /**
+     * 设置进度文本格式化类
+     */
     public void setProgressTextValueFormat(ProgressTextValueFormat progressTextValueFormat) {
         if (progressTextValueFormat == null) {
             mProgressTextValueFormat = DEFAULT_VALUE_FORMAT;

@@ -309,10 +309,16 @@ public class Breadcrumb extends LinearLayout {
         setFixFirstFolder(fixFirstFolder);
     }
     
+    /**
+     * 设置目录点检监听
+     */
     public void setOnClickListener(com.keqiang.breadcrumb.OnClickListener onClickListener) {
         mOnClickListener = onClickListener;
     }
     
+    /**
+     * 设置目录改变监听
+     */
     public void setFolderChangeListener(FolderChangeListener folderChangeListener) {
         mFolderChangeListener = folderChangeListener;
     }
@@ -326,6 +332,9 @@ public class Breadcrumb extends LinearLayout {
         }
     }
     
+    /**
+     * 设置可点击目录字体颜色
+     */
     public void setClickableTextColor(int clickableTextColor) {
         mClickableTextColor = clickableTextColor;
         
@@ -345,6 +354,9 @@ public class Breadcrumb extends LinearLayout {
         }
     }
     
+    /**
+     * 设置普通目录字体颜色
+     */
     public void setTextColor(int textColor) {
         mTextColor = textColor;
         
@@ -364,6 +376,9 @@ public class Breadcrumb extends LinearLayout {
         }
     }
     
+    /**
+     * 设置目录字体大小
+     */
     public void setTextSize(int textSize) {
         mTextSize = textSize;
         mTvRootFolder.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);

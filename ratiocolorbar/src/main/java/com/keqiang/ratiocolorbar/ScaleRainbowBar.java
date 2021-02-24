@@ -20,6 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import com.keqiang.ratiocolorbar.entity.RainbowBarData;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
@@ -27,22 +33,15 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-
-import com.keqiang.ratiocolorbar.entity.RatioBarData;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
  * 刻度值彩虹条，该彩虹条数值不连续，通过{@link #setColorBars(float, float, List)}设置开始位置，结束位置以及开始和结束位置之间需要绘制的点的位置。
- * 开始和结束位置差距越小，那每一个刻度下绘制的彩虹块越宽，反之越细，最低一个1px。{@link RatioBarData#getValue()}代表彩虹条开始和结束位置某一个刻度的值，值代表一个点，不代表段。
+ * 开始和结束位置差距越小，那每一个刻度下绘制的彩虹块越宽，反之越细，最低一个1px。{@link RainbowBarData#getValue()}代表彩虹条开始和结束位置某一个刻度的值，值代表一个点，不代表段。
  *
  * @author Created by 汪高皖 on 2020/1/6 14:16
  */
-public class ScaleRatioColorBar extends View {
+public class ScaleRainbowBar extends View {
     private static final int[] COLORS = new int[]{/*黄颜色*/0xFFFFA60E,/*绿色*/0xFF0DDF66,/*红色*/0xFFFF5252,/*灰色*/0xFFCBCAD1};
     
     private boolean showBorder;
@@ -56,10 +55,10 @@ public class ScaleRatioColorBar extends View {
     
     private float mStartValue;
     private float mEndValue;
-    private List<RatioBarDataInner> colorBars;
+    private List<RainbowBarDataInner> colorBars;
     private OnBarSelectedChangeListener mOnBarSelectedChangeListener;
     
-    //彩虹条bar弹窗相关组件
+    // 彩虹条bar弹窗相关组件
     private PopupWindow mRainbowBarPop;
     private View mContentView;
     private RelativeLayout mDecorView;
@@ -73,56 +72,43 @@ public class ScaleRatioColorBar extends View {
     private View mUserContentView;
     
     /**
-     * 用于指示popwindow位置的箭头宽度
+     * 用于指示popWindow位置的箭头宽度
      */
     private int mArrowWidth;
     
     /**
-     * 用于指示popwindow位置的箭头高度
+     * 用于指示popWindow位置的箭头高度
      */
     private int mArrowHeight;
     
-    public interface OnBarSelectedChangeListener {
-        /**
-         * @param contentView  用户设置的用于弹窗弹出时展示需要显示的内容
-         * @param position     当前选择的Item的下标
-         * @param selected     当前选择的Item是否被选中
-         * @param ratioBarData 当前选择的Item的关联数据
-         */
-        void onSelectedChange(@Nullable View contentView, int position, boolean selected, RatioBarData ratioBarData);
-    }
     
-    public void setOnBarSelectedChangeListener(OnBarSelectedChangeListener onBarSelectedChangeListener) {
-        this.mOnBarSelectedChangeListener = onBarSelectedChangeListener;
-    }
-    
-    public ScaleRatioColorBar(Context context) {
+    public ScaleRainbowBar(Context context) {
         super(context);
         init(context, null);
     }
     
-    public ScaleRatioColorBar(Context context, @Nullable AttributeSet attrs) {
+    public ScaleRainbowBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
     
-    public ScaleRatioColorBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ScaleRainbowBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
     
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ScaleRatioColorBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ScaleRainbowBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
     
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.ScaleRatioColorBar);
-            showBorder = t.getBoolean(R.styleable.ScaleRatioColorBar_srcb_show_border, false);
-            borderColor = t.getColor(R.styleable.ScaleRatioColorBar_srcb_border_color, 0xffeeeeee);
-            borderWidth = t.getDimensionPixelSize(R.styleable.ScaleRatioColorBar_srcb_border_width, 1);
+            TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.ScaleRainbowBar);
+            showBorder = t.getBoolean(R.styleable.ScaleRainbowBar_rb_show_border, false);
+            borderColor = t.getColor(R.styleable.ScaleRainbowBar_rb_border_color, 0xffeeeeee);
+            borderWidth = t.getDimensionPixelSize(R.styleable.ScaleRainbowBar_rb_border_width, 1);
             t.recycle();
         } else {
             showBorder = false;
@@ -140,9 +126,9 @@ public class ScaleRatioColorBar extends View {
             mArrowHeight = SimpleUtil.getScaledValue(mArrowHeight);
             initPop();
         } else {
-            List<RatioBarData> list = new ArrayList<>();
+            List<RainbowBarData> list = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
-                RatioBarData data = new RatioBarData();
+                RainbowBarData data = new RainbowBarData();
                 data.setColor(COLORS[i % 4]);
                 data.setValue((i + 1) * 8);
                 list.add(data);
@@ -200,7 +186,7 @@ public class ScaleRatioColorBar extends View {
             endY -= borderWidth / 2f;
             // 绘制STROKE矩形。左边开始和右边结束位置需要设置StrokeWidth的一半
             canvas.drawRect(startX, startY, endX, endY, borderPaint);
-    
+            
             // 绘制边框，里面的内容要进行偏移边框宽度
             startX += borderWidth / 2f;
             endX -= borderWidth / 2f;
@@ -217,13 +203,13 @@ public class ScaleRatioColorBar extends View {
             float dx = endX - startX;
             float sum = mEndValue - mStartValue;
             float realStartX = startX;
-            for (RatioBarDataInner colorBar : colorBars) {
-                float value = colorBar.ratioBarData.getValue();
+            for (RainbowBarDataInner colorBar : colorBars) {
+                float value = colorBar.mRainbowBarData.getValue();
                 if (value < mStartValue || value > mEndValue) {
                     continue;
                 }
                 
-                int color = colorBar.ratioBarData.getColor();
+                int color = colorBar.mRainbowBarData.getColor();
                 barPaint.setColor(color);
                 
                 // 需要绘制的彩虹条结束位置，向前绘制
@@ -285,11 +271,11 @@ public class ScaleRatioColorBar extends View {
         
         if (curSelect >= 0) {
             colorBars.get(curSelect).selected = true;
-            RatioBarDataInner data = colorBars.get(curSelect);
+            RainbowBarDataInner data = colorBars.get(curSelect);
             int[] positions = new int[2];
             getLocationOnScreen(positions);
             if (selection != curSelect && mOnBarSelectedChangeListener != null) {
-                mOnBarSelectedChangeListener.onSelectedChange(mUserContentView, curSelect, data.selected, data.ratioBarData);
+                mOnBarSelectedChangeListener.onSelectedChange(mUserContentView, curSelect, data.selected, data.mRainbowBarData);
             }
             showItemInfoPop(data.startX + positions[0], (data.endX - data.startX) / 2, positions[1]);
         }
@@ -305,7 +291,7 @@ public class ScaleRatioColorBar extends View {
     private int judgeTouchPosition(float downX) {
         if (colorBars != null) {
             for (int i = 0; i < colorBars.size(); i++) {
-                RatioBarDataInner ratioBarData = colorBars.get(i);
+                RainbowBarDataInner ratioBarData = colorBars.get(i);
                 if (downX > ratioBarData.startX && downX < ratioBarData.endX) {
                     return i;
                 }
@@ -314,7 +300,7 @@ public class ScaleRatioColorBar extends View {
         return -1;
     }
     
-    public void showItemInfoPop(final float startX, final float halfWidth, final float y) {
+    private void showItemInfoPop(final float startX, final float halfWidth, final float y) {
         mContentView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
         int width = mContentView.getMeasuredWidth();
         int height = mContentView.getMeasuredHeight();
@@ -390,9 +376,9 @@ public class ScaleRatioColorBar extends View {
      *
      * @param startValue 彩虹条起始位置值
      * @param endValue   彩虹条结束位置值
-     * @param colorBars  {@link RatioBarData}集合,设置后已经按升序排列，如果不想改变源数据顺序，请传colorBars副本
+     * @param colorBars  {@link RainbowBarData}集合,设置后已经按升序排列，如果不想改变源数据顺序，请传colorBars副本
      */
-    public <T extends RatioBarData> void setColorBars(float startValue, float endValue, List<T> colorBars) {
+    public <T extends RainbowBarData> void setColorBars(float startValue, float endValue, List<T> colorBars) {
         selection = -1;
         hideRainbowBarPop();
         mStartValue = startValue;
@@ -402,12 +388,12 @@ public class ScaleRatioColorBar extends View {
         } else {
             this.colorBars.clear();
         }
-        RatioBarDataInner inner;
+        RainbowBarDataInner inner;
         if (mStartValue < mEndValue && colorBars != null && colorBars.size() > 0) {
             Collections.sort(colorBars, (o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
-            for (RatioBarData bar : colorBars) {
-                inner = new RatioBarDataInner();
-                inner.ratioBarData = bar;
+            for (RainbowBarData bar : colorBars) {
+                inner = new RainbowBarDataInner();
+                inner.mRainbowBarData = bar;
                 this.colorBars.add(inner);
             }
         }
@@ -416,7 +402,14 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置在弹窗中展示的View
+     * 设置彩虹条选中监听
+     */
+    public void setOnBarSelectedChangeListener(OnBarSelectedChangeListener onBarSelectedChangeListener) {
+        this.mOnBarSelectedChangeListener = onBarSelectedChangeListener;
+    }
+    
+    /**
+     * 当设置{@link #setOnBarSelectedChangeListener(OnBarSelectedChangeListener)}后，用于展示选择内容的界面
      *
      * @param contentView view对象
      */
@@ -428,7 +421,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置在弹窗中展示的View
+     * 当设置{@link #setOnBarSelectedChangeListener(OnBarSelectedChangeListener)}后，用于展示选择内容的界面
      *
      * @param resId view资源Id
      */
@@ -437,9 +430,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 返回用户设置的ContentView
-     *
-     * @return 如果用户没有设置过任何内容则返回null
+     * 返回当设置{@link #setOnBarSelectedChangeListener(OnBarSelectedChangeListener)}后，用于展示选择内容的界面
      */
     @Nullable
     public View getContentView() {
@@ -447,7 +438,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置向上的标记，展示彩虹条详情的弹窗在彩虹条底部弹出时展示
+     * 设置向上的标记(默认是一个向上的三角箭头)，当彩虹条详情的弹窗在彩虹条底部弹出时展示
      *
      * @param resId 图片资源Id
      */
@@ -456,7 +447,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置向下的标记，展示彩虹条详情的弹窗在彩虹条顶部弹出时展示
+     * 设置向下的标记(默认是一个向下的三角箭头)，当彩虹条详情的弹窗在彩虹条顶部弹出时展示
      *
      * @param resId 图片资源Id
      */
@@ -465,7 +456,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置弹窗背景色
+     * 设置展示彩虹条详情的弹窗背景色
      *
      * @param colorId 颜色资源ID
      */
@@ -474,7 +465,7 @@ public class ScaleRatioColorBar extends View {
     }
     
     /**
-     * 设置弹窗背景色
+     * 设置展示彩虹条详情的弹窗背景色
      *
      * @param color 颜色值
      */
@@ -482,21 +473,39 @@ public class ScaleRatioColorBar extends View {
         mContentView.setBackgroundColor(color);
     }
     
-    public void setPopOnDismissListener(PopupWindow.OnDismissListener dismissListener) {
+    /**
+     * 设置展示彩虹条详情的弹窗关闭监听
+     */
+    public void setRainbowBarPopOnDismissListener(PopupWindow.OnDismissListener dismissListener) {
         mRainbowBarPop.setOnDismissListener(dismissListener);
     }
     
+    /**
+     * 隐藏彩虹条详情弹窗
+     */
     public void hideRainbowBarPop() {
-        if (mRainbowBarPop.isShowing()) {
+        if (mRainbowBarPop != null && mRainbowBarPop.isShowing()) {
             mRainbowBarPop.dismiss();
         }
     }
     
+    /**
+     * 彩虹条选中监听
+     */
+    public interface OnBarSelectedChangeListener {
+        /**
+         * @param contentView    用户设置的用于弹窗弹出时展示需要显示的内容
+         * @param position       当前选择的Item的下标
+         * @param selected       当前选择的Item是否被选中
+         * @param rainbowBarData 当前选择的Item的关联数据
+         */
+        void onSelectedChange(@Nullable View contentView, int position, boolean selected, RainbowBarData rainbowBarData);
+    }
     
-    private static class RatioBarDataInner {
+    private static class RainbowBarDataInner {
         private boolean selected;
         private float startX;
         private float endX;
-        private RatioBarData ratioBarData;
+        private RainbowBarData mRainbowBarData;
     }
 }

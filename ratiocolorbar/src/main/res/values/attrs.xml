@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--RatioColorBar-->
-    <declare-styleable name="RatioColorBar">
-        <attr name="rcb_show_border" format="boolean" />
-        <attr name="rcb_border_width" format="dimension|reference" />
-        <attr name="rcb_border_color" format="color|reference" />
+    <attr name="rb_show_border" format="boolean" />
+    <attr name="rb_border_width" format="dimension|reference" />
+    <attr name="rb_border_color" format="color|reference" />
+
+    <declare-styleable name="RainbowBar">
+        <attr name="rb_show_border" />
+        <attr name="rb_border_width" />
+        <attr name="rb_border_color" />
     </declare-styleable>
 
-    <declare-styleable name="ScaleRatioColorBar">
-        <attr name="srcb_show_border" format="boolean" />
-        <attr name="srcb_border_width" format="dimension|reference" />
-        <attr name="srcb_border_color" format="color|reference" />
+    <declare-styleable name="ScaleRainbowBar">
+        <attr name="rb_show_border" />
+        <attr name="rb_border_width" />
+        <attr name="rb_border_color" />
     </declare-styleable>
 </resources>

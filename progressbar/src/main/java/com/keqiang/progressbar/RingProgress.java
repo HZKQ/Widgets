@@ -19,20 +19,18 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
-
 
 /**
  * 圆环形进度条
@@ -274,8 +272,8 @@ public class RingProgress extends View {
         mArcBgPaint.setStrokeWidth(mRingWidth);
         mArcPaint.setStrokeWidth(mRingWidth);
         
-        //根据progress绘制进度条圆环
-        mProgress = mProgress > mMax ? mMax : mProgress;
+        // 根据progress绘制进度条圆环
+        mProgress = Math.min(mProgress, mMax);
         float angle = mProgress / mMax * mMaxAngle;
         RectF f = mRectBuffer[0];
         f.left = centerX - radius;
@@ -406,37 +404,61 @@ public class RingProgress extends View {
         c.restore();
     }
     
+    /**
+     * 获取圆环半径
+     */
     public int getRadius() {
         return Math.min(mWidth / 2, mHeight / 2);
     }
     
+    /**
+     * 设置圆环最大值
+     */
     public void setMax(float max) {
         mMax = max;
         invalidate();
     }
     
+    /**
+     * 获取圆环最大值
+     */
     public float getMax() {
         return mMax;
     }
     
+    /**
+     * 设置圆环当前进度值
+     */
     public void setProgress(float progress) {
         mProgress = progress;
         invalidate();
     }
     
+    /**
+     * 获取圆环当前进度值
+     */
     public float getProgress() {
         return mProgress;
     }
     
+    /**
+     * 设置圆环中心文本字体
+     */
     public void setCenterTextTypeface(Typeface typeface) {
         mCenterTextPaint.setTypeface(typeface);
     }
     
+    /**
+     * 设置圆环中心文本
+     */
     public void setCenterText(CharSequence centerText) {
         mCenterText = centerText;
         invalidate();
     }
     
+    /**
+     * 获取圆环中心文本
+     */
     public CharSequence getCenterText() {
         return mCenterText;
     }
@@ -451,6 +473,9 @@ public class RingProgress extends View {
         invalidate();
     }
     
+    /**
+     * 是否绘制中心圆
+     */
     public boolean isDrawHole() {
         return mDrawHole;
     }
@@ -474,6 +499,9 @@ public class RingProgress extends View {
         invalidate();
     }
     
+    /**
+     * 获取中心圆颜色
+     */
     public int getHoleColor() {
         return mHoleColor;
     }
@@ -516,11 +544,17 @@ public class RingProgress extends View {
         invalidate();
     }
     
+    /**
+     * 设置圆环渐变色
+     */
     public void setRingColors(int[] colors) {
         mRingColors = colors;
         invalidate();
     }
     
+    /**
+     * 设置圆环渐变色
+     */
     public void setRingColors2(int... colors) {
         mRingColors = colors;
         invalidate();
@@ -561,35 +595,56 @@ public class RingProgress extends View {
         invalidate();
     }
     
+    /**
+     * 设置是否绘制圆环边框
+     */
     public void setDrawBorder(boolean drawBorder) {
         mDrawBorder = drawBorder;
         invalidate();
     }
     
+    /**
+     * 设置圆环边框宽度
+     */
     public void setBorderWidth(float width) {
         mBorderWidth = width;
         invalidate();
     }
     
+    /**
+     * 设置圆环边框颜色
+     */
     public void setBorderColorRes(@ColorRes int resId) {
         setBorderColor(ContextCompat.getColor(getContext(), resId));
     }
     
+    /**
+     * 设置圆环边框颜色
+     */
     public void setBorderColor(@ColorInt int color) {
         mBorderColor = color;
         invalidate();
     }
     
+    /**
+     * 设置圆环边框路径效果
+     */
     public void setBorderPathEffect(PathEffect pathEffect) {
         mBorderPaint.setPathEffect(pathEffect);
         invalidate();
     }
     
+    /**
+     * 设置圆环边框与圆环之间的偏移值
+     */
     public void setBorderOffset(float offset) {
         mBorderOffset = offset;
         invalidate();
     }
     
+    /**
+     * 执行进度动画
+     */
     public void animate(long duration, ProgressChangeListener listener) {
         if (mValueAnimator != null && mValueAnimator.isStarted()) {
             mValueAnimator.cancel();

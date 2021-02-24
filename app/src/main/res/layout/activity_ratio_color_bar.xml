@@ -28,16 +28,16 @@
         android:text="数据连续的彩虹条"
         android:textColor="@color/colorBlack80" />
 
-    <com.keqiang.ratiocolorbar.RatioColorBar
+    <com.keqiang.ratiocolorbar.RainbowBar
         android:id="@+id/color_bar"
         android:layout_width="match_parent"
         android:layout_height="55px"
         android:layout_marginLeft="30px"
         android:layout_marginRight="30px"
         android:background="#E7EAEE"
-        app:rcb_border_color="@color/colorBlack80"
-        app:rcb_border_width="5px"
-        app:rcb_show_border="true" />
+        app:rb_border_color="@color/colorBlack80"
+        app:rb_border_width="5px"
+        app:rb_show_border="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
         android:text="数据不连续的彩虹条"
         android:textColor="@color/colorBlack80" />
 
-    <com.keqiang.ratiocolorbar.ScaleRatioColorBar
+    <com.keqiang.ratiocolorbar.ScaleRainbowBar
         android:id="@+id/scale_color_bar"
         android:layout_width="match_parent"
         android:layout_height="55px"
@@ -56,5 +56,5 @@
         android:layout_marginRight="30px"
         android:background="#E7EAEE"
         android:paddingTop="8px"
-        android:paddingBottom="8px"/>
+        android:paddingBottom="8px" />
 </LinearLayout>

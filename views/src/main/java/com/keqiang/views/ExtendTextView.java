@@ -70,7 +70,7 @@ public class ExtendTextView extends AppCompatTextView {
     }
     
     public ExtendTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, android.R.attr.textViewStyle);
     }
     
     public ExtendTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
