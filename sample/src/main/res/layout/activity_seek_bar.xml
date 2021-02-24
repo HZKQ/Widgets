@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="HardcodedText,PxUsage">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="SeekBar" />
+
+    <com.keqiang.seekbar.TwoWaySeekBar
+        android:id="@+id/two_way_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="350px"
+        android:paddingStart="30px"
+        android:paddingEnd="30px"
+        app:ts_bar_height="20px"
+        app:ts_max="150"
+        app:ts_progress_text_color="@color/colorPrimary"
+        app:ts_progress_text_gravity="top"
+        app:ts_progress_text_margin="20px"
+        app:ts_progress_text_size="26px"
+        app:ts_show_progress_text="true"
+        app:ts_thumb_bg_scale="1"
+        app:ts_thumb_size="80px" />
+
+    <com.keqiang.seekbar.OneWaySeekBar
+        android:id="@+id/one_way_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="300px"
+        android:paddingStart="30px"
+        android:paddingEnd="30px"
+        app:os_bar_height="20px"
+        app:os_max="100"
+        app:os_progress_text_color="@color/colorPrimary"
+        app:os_progress_text_gravity="top"
+        app:os_progress_text_margin="20px"
+        app:os_progress_text_size="26px"
+        app:os_show_progress_text="true"
+        app:os_thumb_size="80px"
+        app:os_thumb_bg="@null"/>
+</LinearLayout>

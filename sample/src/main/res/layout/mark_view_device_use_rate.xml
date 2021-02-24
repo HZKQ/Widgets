@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--驾驶舱中设备利用率折线图点击某一个点时用于显示其值-->
+<TextView
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_use_rate"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="120px"
+    android:layout_height="50px"
+    android:textSize="31px"
+    android:textColor="@color/colorWhite"
+    android:background="@drawable/bg_round_rect_100dp_blue"
+    android:text="90%"
+    android:gravity="center"
+    tools:ignore="HardcodedText,PxUsage"/>

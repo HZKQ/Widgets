@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="简单View集合" />
+
+    <com.keqiang.views.SettingItemView
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:layout_marginTop="30px"
+        android:background="@drawable/item_bg_selector"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="5555"
+        android:textSize="42px"
+        app:siv_left_image="@drawable/up_arrow"
+        app:siv_left_image_size="30px"
+        app:siv_right_image="@drawable/down_arrow"
+        app:siv_right_image_size="30px"
+        app:siv_text_padding_left="20px"
+        app:siv_text_padding_right="20px" />
+
+    <com.keqiang.views.ExtendEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:drawableRight="@mipmap/ic_launcher"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="55555555555555555555555555544433333" />
+
+    <com.keqiang.views.ExtendEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:gravity="end|center_vertical"
+        android:hint="超过一行自动从左到右布局"
+        android:paddingLeft="30px"
+        android:paddingRight="30px" />
+
+    <com.keqiang.views.ExtendTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:gravity="end|center_vertical"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week"
+        app:et_auto_wrap_by_width="true" />
+
+    <com.keqiang.views.ExtendTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:gravity="end|center_vertical"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week。此文本未开启自动裁剪"
+        app:et_auto_wrap_by_width="false" />
+</LinearLayout>
