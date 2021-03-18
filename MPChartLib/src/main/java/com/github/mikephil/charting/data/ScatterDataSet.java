@@ -41,9 +41,6 @@ public class ScatterDataSet extends LineScatterCandleRadarDataSet<Entry> impleme
      */
     private int mScatterShapeHoleColor = ColorTemplate.COLOR_NONE;
     
-    private boolean mOverVerticalHighlightIndicatorEnd = true;
-    private boolean mOverHorizontalHighlightIndicatorEnd = true;
-
     public ScatterDataSet(List<Entry> yVals, String label) {
         super(yVals, label);
     }
@@ -156,29 +153,5 @@ public class ScatterDataSet extends LineScatterCandleRadarDataSet<Entry> impleme
         }
 
         return null;
-    }
-    
-    @Override
-    public boolean isOverVerticalHighlightIndicatorEnd() {
-        return mOverVerticalHighlightIndicatorEnd;
-    }
-    
-    @Override
-    public boolean isOverHorizontalHighlightIndicatorEnd() {
-        return mOverHorizontalHighlightIndicatorEnd;
-    }
-    
-    /**
-     * 垂直线绘制时是否超出刻度点垂直结束位置，目前只针对x轴位置在底部
-     */
-    public void setOverVerticalHighlightIndicatorEnd(boolean overVerticalHighlightIndicatorEnd) {
-        mOverVerticalHighlightIndicatorEnd = overVerticalHighlightIndicatorEnd;
-    }
-    
-    /**
-     * 水平线绘制时是否超出刻度点水平结束位置,目前只针对y轴位置在左边
-     */
-    public void setOverHorizontalHighlightIndicatorEnd(boolean overHorizontalHighlightIndicatorEnd) {
-        mOverHorizontalHighlightIndicatorEnd = overHorizontalHighlightIndicatorEnd;
     }
 }

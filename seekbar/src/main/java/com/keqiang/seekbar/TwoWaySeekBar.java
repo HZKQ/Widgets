@@ -36,11 +36,11 @@ public class TwoWaySeekBar extends View {
     @Retention(RetentionPolicy.SOURCE)
     private @interface ProgressTextGravity {}
     
-    private static final int CLICK_ON_LOW = 1;        //手指在前滑块上滑动
-    private static final int CLICK_ON_HIGH = 2;       //手指在后滑块上滑动
-    private static final int CLICK_IN_LOW_AREA = 3;   //手指点击离前滑块近
-    private static final int CLICK_IN_HIGH_AREA = 4;  //手指点击离后滑块近
-    private static final int CLICK_OUT_AREA = 5;      //手指点击在view外
+    private static final int CLICK_ON_START = 1; // 手指在前滑块上滑动
+    private static final int CLICK_ON_END = 2; // 手指在后滑块上滑动
+    private static final int CLICK_IN_START_AREA = 3; // 手指点击离前滑块近
+    private static final int CLICK_IN_END_AREA = 4; // 手指点击离后滑块近
+    private static final int CLICK_OUT_AREA = 5; // 手指点击在view外
     private static final int CLICK_INVALID = 0;
     private static final int[] STATE_NORMAL = {};
     private static final int[] STATE_PRESSED = {
@@ -67,22 +67,22 @@ public class TwoWaySeekBar extends View {
     /**
      * 左滑块
      */
-    private Drawable mThumbLeft;
+    private Drawable mThumbStart;
     
     /**
      * 右滑块
      */
-    private Drawable mThumbRight;
+    private Drawable mThumbEnd;
     
     /**
      * 左滑块点击背景
      */
-    private Drawable mThumbLeftBg;
+    private Drawable mThumbStartBg;
     
     /**
      * 右滑块点击背景
      */
-    private Drawable mThumbRightBg;
+    private Drawable mThumbEndBg;
     
     /**
      * 滑动条高度
@@ -107,12 +107,12 @@ public class TwoWaySeekBar extends View {
     /**
      * 左滑块中心坐标
      */
-    private double mOffsetLeft = 0;
+    private double mOffsetStart = 0;
     
     /**
      * 右滑块中心坐标
      */
-    private double mOffsetRight = 0;
+    private double mOffsetEnd = 0;
     
     /**
      * 总刻度是固定距离 两边各去掉半个滑块距离
@@ -132,17 +132,22 @@ public class TwoWaySeekBar extends View {
     /**
      * 默认左滑块位置百分比
      */
-    private double mDefaultScreenLeft = 0;
+    private int mProgressStart = 0;
     
     /**
      * 默认右滑块位置百分比
      */
-    private double mDefaultScreenRight = 100;
+    private int mProgressEnd = 100;
     
     /**
      * 滑动监听
      */
     private OnSeekBarChangeListener mBarChangeListener;
+    
+    /**
+     * 多项监听
+     */
+    private OnSeekBarMultiChangeListener mBarMultiChangeListener;
     
     /**
      * 用于绘制滑块位置值
@@ -170,19 +175,18 @@ public class TwoWaySeekBar extends View {
         init(context, attrs);
     }
     
-    @SuppressWarnings("ConstantConditions")
     private void init(Context context, AttributeSet attrs) {
         int textColor;
         int textSize;
-        mThumbLeftBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
-        mThumbRightBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
+        mThumbStartBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
+        mThumbEndBg = ContextCompat.getDrawable(context, R.drawable.bg_circle_gray_alpha);
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.TwoWaySeekBar);
             mStartScrollBar = t.getDrawable(R.styleable.TwoWaySeekBar_ts_start_bar);
             mCenterScrollBar = t.getDrawable(R.styleable.TwoWaySeekBar_ts_center_bar);
             mEndScrollBar = t.getDrawable(R.styleable.TwoWaySeekBar_ts_end_bar);
-            mThumbLeft = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb);
-            mThumbRight = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb);
+            mThumbStart = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb);
+            mThumbEnd = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb);
             mThumbSize = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_thumb_size, -1);
             mScrollBarHeight = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_bar_height, 20);
             mShowProgressText = t.getBoolean(R.styleable.TwoWaySeekBar_ts_show_progress_text, true);
@@ -192,8 +196,8 @@ public class TwoWaySeekBar extends View {
             mProgressTextMargin = t.getDimensionPixelSize(R.styleable.TwoWaySeekBar_ts_progress_text_margin, 10);
             max = t.getInteger(R.styleable.TwoWaySeekBar_ts_max, 100);
             if (isAttributeMatch(attrs, "ts_thumb_bg")) {
-                mThumbLeftBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
-                mThumbRightBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
+                mThumbStartBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
+                mThumbEndBg = t.getDrawable(R.styleable.TwoWaySeekBar_ts_thumb_bg);
             }
             
             mThumbBgScale = t.getFloat(R.styleable.TwoWaySeekBar_ts_thumb_bg_scale, 1.1f);
@@ -207,7 +211,7 @@ public class TwoWaySeekBar extends View {
             mProgressTextMargin = 10;
         }
         mUserSetThumbSize = mThumbSize != -1;
-        mDefaultScreenRight = max;
+        mProgressEnd = max;
         
         if (!isInEditMode()) {
             textSize = SimpleUtil.getScaledValue(textSize);
@@ -227,19 +231,19 @@ public class TwoWaySeekBar extends View {
             mEndScrollBar = ContextCompat.getDrawable(context, R.drawable.bg_round_rectangle_260dp_green);
         }
         
-        if (mThumbLeft == null) {
-            mThumbLeft = ContextCompat.getDrawable(context, R.drawable.huadong);
+        if (mThumbStart == null) {
+            mThumbStart = ContextCompat.getDrawable(context, R.drawable.huadong);
         }
         
-        if (mThumbRight == null) {
-            mThumbRight = ContextCompat.getDrawable(context, R.drawable.huadong);
+        if (mThumbEnd == null) {
+            mThumbEnd = ContextCompat.getDrawable(context, R.drawable.huadong);
         }
         
         if (mThumbSize == -1) {
-            mThumbSize = mThumbLeft.getIntrinsicWidth();
+            mThumbSize = mThumbStart.getIntrinsicWidth();
         }
-        mThumbLeft.setState(STATE_NORMAL);
-        mThumbRight.setState(STATE_NORMAL);
+        mThumbStart.setState(STATE_NORMAL);
+        mThumbEnd.setState(STATE_NORMAL);
         
         mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
@@ -300,16 +304,19 @@ public class TwoWaySeekBar extends View {
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
         }
         
-        mOffsetLeft = mThumbSize / 2f + getPaddingStartInner();
-        mOffsetRight = widthSize - getPaddingEndInner() - mThumbSize / 2f;
         mDistance = widthSize - getPaddingStartInner() - getPaddingEndInner() - mThumbSize;
-        if (mDefaultScreenLeft != 0) {
-            mOffsetLeft = formatInt(mDefaultScreenLeft / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
+        if (mProgressStart != 0) {
+            mOffsetStart = mProgressStart * 1f / max * mDistance + mThumbSize / 2f + getPaddingStartInner();
+        } else {
+            mOffsetStart = mThumbSize / 2f + getPaddingStartInner();
         }
         
-        if (mDefaultScreenRight != max) {
-            mOffsetRight = formatInt(mDefaultScreenRight / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
+        if (mProgressEnd != max) {
+            mOffsetEnd = mProgressEnd * 1f / max * mDistance + mThumbSize / 2f + getPaddingStartInner();
+        } else {
+            mOffsetEnd = widthSize - getPaddingEndInner() - mThumbSize / 2f;
         }
+        
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
@@ -317,7 +324,7 @@ public class TwoWaySeekBar extends View {
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
     private int getPaddingStartInner() {
-        if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
+        if (mThumbBgScale <= 1 || (mThumbStartBg == null && mThumbEndBg == null)) {
             return getPaddingStart();
         }
         
@@ -328,7 +335,7 @@ public class TwoWaySeekBar extends View {
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
     private int getPaddingEndInner() {
-        if (mThumbBgScale <= 0 || (mThumbLeftBg == null && mThumbRightBg == null)) {
+        if (mThumbBgScale <= 1 || (mThumbStartBg == null && mThumbEndBg == null)) {
             return getPaddingStart();
         }
         
@@ -345,15 +352,15 @@ public class TwoWaySeekBar extends View {
         int bottom = top + mScrollBarHeight;
         
         // 左边滑动条部分
-        mStartScrollBar.setBounds(mThumbSize / 2 + getPaddingStartInner(), top, (int) mOffsetLeft, bottom);
+        mStartScrollBar.setBounds(mThumbSize / 2 + getPaddingStartInner(), top, (int) mOffsetStart, bottom);
         mStartScrollBar.draw(canvas);
         
         // 中间滑动条部分
-        mCenterScrollBar.setBounds((int) mOffsetLeft, top, (int) mOffsetRight, bottom);
+        mCenterScrollBar.setBounds((int) mOffsetStart, top, (int) mOffsetEnd, bottom);
         mCenterScrollBar.draw(canvas);
         
         // 右边滑动条部分
-        mEndScrollBar.setBounds((int) mOffsetRight, top, getWidth() - getPaddingEndInner() - mThumbSize / 2, bottom);
+        mEndScrollBar.setBounds((int) mOffsetEnd, top, getWidth() - getPaddingEndInner() - mThumbSize / 2, bottom);
         mEndScrollBar.draw(canvas);
         
         // 滑块高度绘制起始和结束
@@ -361,26 +368,24 @@ public class TwoWaySeekBar extends View {
         bottom = top + mThumbSize;
         
         // 前滑块
-        int[] state = mThumbLeft.getState();
-        if (isInEditMode() || state == STATE_PRESSED || (mOffsetRight == mOffsetLeft && mThumbRight.getState() == STATE_PRESSED)) {
-            drawThumbBg(canvas, mThumbLeftBg, mOffsetLeft);
+        int[] state = mThumbStart.getState();
+        if (isInEditMode() || state == STATE_PRESSED || (mOffsetEnd == mOffsetStart && mThumbEnd.getState() == STATE_PRESSED)) {
+            drawThumbBg(canvas, mThumbStartBg, mOffsetStart);
         }
-        mThumbLeft.setBounds((int) (mOffsetLeft - mThumbSize / 2), top, (int) (mOffsetLeft + mThumbSize / 2), bottom);
-        mThumbLeft.draw(canvas);
+        mThumbStart.setBounds((int) (mOffsetStart - mThumbSize / 2), top, (int) (mOffsetStart + mThumbSize / 2), bottom);
+        mThumbStart.draw(canvas);
         
-        if (mOffsetRight != mOffsetLeft) {
+        if (mOffsetEnd != mOffsetStart) {
             // 后滑块
-            state = mThumbRight.getState();
+            state = mThumbEnd.getState();
             if (isInEditMode() || state == STATE_PRESSED) {
-                drawThumbBg(canvas, mThumbRightBg, mOffsetRight);
+                drawThumbBg(canvas, mThumbEndBg, mOffsetEnd);
             }
-            mThumbRight.setBounds((int) (mOffsetRight - mThumbSize / 2), top, (int) (mOffsetRight + mThumbSize / 2), bottom);
-            mThumbRight.draw(canvas);
+            mThumbEnd.setBounds((int) (mOffsetEnd - mThumbSize / 2), top, (int) (mOffsetEnd + mThumbSize / 2), bottom);
+            mThumbEnd.draw(canvas);
         }
         
         // 当前滑块刻度
-        int progressLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
-        int progressRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
         if (mShowProgressText) {
             int y;
             Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
@@ -393,24 +398,20 @@ public class TwoWaySeekBar extends View {
                 y += mProgressTextMargin + measuredHeight / 2;
             }
             
-            String format = mProgressTextValueFormat.format(progressLeft);
+            String format = mProgressTextValueFormat.format(mProgressStart);
             if (!TextUtils.isEmpty(format)) {
-                canvas.drawText(format, (int) mOffsetLeft - 2 - 2, y, mTextPaint);
+                canvas.drawText(format, (int) mOffsetStart - 2 - 2, y, mTextPaint);
             }
             
-            if (progressLeft != progressRight) {
-                format = mProgressTextValueFormat.format(progressRight);
+            if (mProgressStart != mProgressEnd) {
+                format = mProgressTextValueFormat.format(mProgressEnd);
                 if (!TextUtils.isEmpty(format)) {
-                    canvas.drawText(format, (int) mOffsetRight - 2, y, mTextPaint);
+                    canvas.drawText(format, (int) mOffsetEnd - 2, y, mTextPaint);
                 }
             }
         }
         
         canvas.restore();
-        
-        if (mBarChangeListener != null) {
-            mBarChangeListener.onProgressChanged(this, progressLeft, progressRight);
-        }
     }
     
     /**
@@ -421,7 +422,7 @@ public class TwoWaySeekBar extends View {
             return;
         }
         
-        int bgSize = (int) (mThumbSize * mThumbBgScale);
+        int bgSize = mThumbBgScale == 1 ? mThumbSize : (int) (mThumbSize * mThumbBgScale);
         int bgTop = (getHeight() - bgSize) / 2;
         int bgBottom = bgTop + bgSize;
         int left = (int) (offset - bgSize / 2);
@@ -457,75 +458,81 @@ public class TwoWaySeekBar extends View {
             mFlag = getAreaFlag(e);
             mDownX = e.getX();
             mClickAdjustWho = true;
-            if (mFlag == CLICK_ON_LOW) {
-                mThumbLeft.setState(STATE_PRESSED);
+            if (mFlag == CLICK_ON_START) {
+                mThumbStart.setState(STATE_PRESSED);
                 refresh();
-            } else if (mFlag == CLICK_ON_HIGH) {
-                mThumbRight.setState(STATE_PRESSED);
+                if (mBarMultiChangeListener != null) {
+                    mBarMultiChangeListener.onStartTrackingTouch(this, true);
+                }
+            } else if (mFlag == CLICK_ON_END) {
+                mThumbEnd.setState(STATE_PRESSED);
                 refresh();
-            } else if (mFlag == CLICK_IN_LOW_AREA) {
-                mThumbLeft.setState(STATE_PRESSED);
-                mThumbRight.setState(STATE_NORMAL);
+                if (mBarMultiChangeListener != null) {
+                    mBarMultiChangeListener.onStartTrackingTouch(this, false);
+                }
+            } else if (mFlag == CLICK_IN_START_AREA) {
+                mThumbStart.setState(STATE_PRESSED);
+                mThumbEnd.setState(STATE_NORMAL);
                 // 如果点击0-mThumbSize/2坐标
                 if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
-                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetStart(mThumbSize / 2f + getPaddingStartInner());
                 } else if (e.getX() > getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f + mDistance + getPaddingStartInner());
-                    updateOffsetRight(mOffsetLeft);
+                    updateOffsetStart(mThumbSize / 2f + mDistance + getPaddingStartInner());
+                    updateOffsetEnd(mOffsetStart);
                 } else {
-                    updateOffsetLeft(formatInt(e.getX()));
+                    updateOffsetStart(formatInt(e.getX()));
                 }
                 refresh();
-            } else if (mFlag == CLICK_IN_HIGH_AREA) {
-                mThumbRight.setState(STATE_PRESSED);
-                mThumbLeft.setState(STATE_NORMAL);
+            } else if (mFlag == CLICK_IN_END_AREA) {
+                mThumbEnd.setState(STATE_PRESSED);
+                mThumbStart.setState(STATE_NORMAL);
                 if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
-                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
-                    updateOffsetRight(mOffsetLeft);
+                    updateOffsetStart(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetEnd(mOffsetStart);
                 } else if (e.getX() > getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
-                    updateOffsetRight(mThumbSize / 2f + mDistance + getPaddingStartInner());
+                    updateOffsetEnd(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
-                    updateOffsetRight(formatInt(e.getX()));
+                    updateOffsetEnd(formatInt(e.getX()));
                 }
                 refresh();
             }
         } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
             // 移动move
-            if (mClickAdjustWho && mOffsetLeft == mOffsetRight && mFlag == CLICK_ON_LOW && e.getX() > mDownX) {
-                mFlag = CLICK_ON_HIGH;
-                mThumbRight.setState(STATE_PRESSED);
-                mThumbLeft.setState(STATE_NORMAL);
+            if (mClickAdjustWho && mOffsetStart == mOffsetEnd && mFlag == CLICK_ON_START && e.getX() > mDownX) {
+                mFlag = CLICK_ON_END;
+                mThumbEnd.setState(STATE_PRESSED);
+                mThumbStart.setState(STATE_NORMAL);
             }
             
             if (e.getX() != mDownX) {
                 mClickAdjustWho = false;
             }
             
-            if (mFlag == CLICK_ON_LOW) {
+            if (mFlag == CLICK_ON_START) {
                 if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
-                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetStart(mThumbSize / 2f + getPaddingStartInner());
                 } else if (e.getX() >= getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
-                    updateOffsetLeft(mThumbSize / 2f + mDistance + getPaddingStartInner());
-                    updateOffsetRight(mOffsetLeft);
+                    updateOffsetStart(mThumbSize / 2f + mDistance + getPaddingStartInner());
+                    updateOffsetEnd(mOffsetStart);
                 } else {
-                    updateOffsetLeft(formatInt(e.getX()));
-                    if (mOffsetRight - mOffsetLeft <= 0) {
-                        updateOffsetRight((mOffsetLeft <= mDistance + mThumbSize / 2f + getPaddingStartInner())
-                            ? mOffsetLeft : (mDistance + mThumbSize / 2f + getPaddingStartInner()));
+                    updateOffsetStart(formatInt(e.getX()));
+                    if (mOffsetEnd - mOffsetStart <= 0) {
+                        updateOffsetEnd((mOffsetStart <= mDistance + mThumbSize / 2f + getPaddingStartInner())
+                            ? mOffsetStart : (mDistance + mThumbSize / 2f + getPaddingStartInner()));
                     }
                 }
                 
                 refresh();
-            } else if (mFlag == CLICK_ON_HIGH) {
+            } else if (mFlag == CLICK_ON_END) {
                 if (e.getX() <= mThumbSize / 2f + getPaddingStartInner()) {
-                    updateOffsetLeft(mThumbSize / 2f + getPaddingStartInner());
-                    updateOffsetRight(mOffsetLeft);
+                    updateOffsetStart(mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetEnd(mOffsetStart);
                 } else if (e.getX() >= getWidth() - getPaddingEndInner() - mThumbSize / 2f) {
-                    updateOffsetRight(mThumbSize / 2f + mDistance + getPaddingStartInner());
+                    updateOffsetEnd(mThumbSize / 2f + mDistance + getPaddingStartInner());
                 } else {
-                    updateOffsetRight(formatInt(e.getX()));
-                    if (mOffsetRight - mOffsetLeft <= 0) {
-                        updateOffsetLeft((mOffsetRight >= mThumbSize / 2f + getPaddingStartInner()) ? mOffsetRight : mThumbSize / 2f + getPaddingStartInner());
+                    updateOffsetEnd(formatInt(e.getX()));
+                    if (mOffsetEnd - mOffsetStart <= 0) {
+                        updateOffsetStart((mOffsetEnd >= mThumbSize / 2f + getPaddingStartInner()) ? mOffsetEnd : mThumbSize / 2f + getPaddingStartInner());
                     }
                 }
                 
@@ -533,9 +540,12 @@ public class TwoWaySeekBar extends View {
             }
         } else if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL) {
             // 抬起
-            mThumbLeft.setState(STATE_NORMAL);
-            mThumbRight.setState(STATE_NORMAL);
+            mThumbStart.setState(STATE_NORMAL);
+            mThumbEnd.setState(STATE_NORMAL);
             refresh();
+            if (mBarMultiChangeListener != null) {
+                mBarMultiChangeListener.onStopTrackingTouch(this);
+            }
         }
         return true;
     }
@@ -544,18 +554,18 @@ public class TwoWaySeekBar extends View {
     private int getAreaFlag(MotionEvent e) {
         int top = (getHeight() - mThumbSize) / 2;
         int bottom = mThumbSize + top;
-        if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetLeft - mThumbSize / 2f) && e.getX() <= mOffsetLeft + mThumbSize / 2f) {
-            return CLICK_ON_LOW;
-        } else if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetRight - mThumbSize / 2f) && e.getX() <= (mOffsetRight + mThumbSize / 2f)) {
-            return CLICK_ON_HIGH;
+        if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetStart - mThumbSize / 2f) && e.getX() <= mOffsetStart + mThumbSize / 2f) {
+            return CLICK_ON_START;
+        } else if (e.getY() >= top && e.getY() <= bottom && e.getX() >= (mOffsetEnd - mThumbSize / 2f) && e.getX() <= (mOffsetEnd + mThumbSize / 2f)) {
+            return CLICK_ON_END;
         } else if (e.getY() >= top && e.getY() <= bottom
-            && ((e.getX() >= getPaddingStartInner() && e.getX() < (mOffsetLeft - mThumbSize / 2f))
-            || ((e.getX() > (mOffsetLeft + mThumbSize / 2f)) && e.getX() <= (mOffsetRight + mOffsetLeft) / 2))) {
-            return CLICK_IN_LOW_AREA;
+            && ((e.getX() >= getPaddingStartInner() && e.getX() < (mOffsetStart - mThumbSize / 2f))
+            || ((e.getX() > (mOffsetStart + mThumbSize / 2f)) && e.getX() <= (mOffsetEnd + mOffsetStart) / 2))) {
+            return CLICK_IN_START_AREA;
         } else if (e.getY() >= top && e.getY() <= bottom &&
-            (((e.getX() > (mOffsetRight + mOffsetLeft) / 2) && e.getX() < (mOffsetRight - mThumbSize / 2f))
-                || (e.getX() > (mOffsetRight + mThumbSize / 2f) && e.getX() <= getWidth() - getPaddingEndInner()))) {
-            return CLICK_IN_HIGH_AREA;
+            (((e.getX() > (mOffsetEnd + mOffsetStart) / 2) && e.getX() < (mOffsetEnd - mThumbSize / 2f))
+                || (e.getX() > (mOffsetEnd + mThumbSize / 2f) && e.getX() <= getWidth() - getPaddingEndInner()))) {
+            return CLICK_IN_END_AREA;
         } else if (!(e.getX() >= 0 && e.getX() <= getWidth() - getPaddingEndInner() && e.getY() >= top && e.getY() <= bottom)) {
             return CLICK_OUT_AREA;
         } else {
@@ -568,14 +578,20 @@ public class TwoWaySeekBar extends View {
         invalidate();
     }
     
-    private void updateOffsetLeft(double offsetLeft) {
-        mOffsetLeft = offsetLeft;
-        this.mDefaultScreenLeft = formatInt((mOffsetLeft - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+    private void updateOffsetStart(double offsetLeft) {
+        mOffsetStart = offsetLeft;
+        mProgressStart = formatInt((mOffsetStart - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, true);
+        }
     }
     
-    private void updateOffsetRight(double offsetRight) {
-        mOffsetRight = offsetRight;
-        this.mDefaultScreenRight = formatInt((mOffsetRight - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+    private void updateOffsetEnd(double offsetRight) {
+        mOffsetEnd = offsetRight;
+        mProgressEnd = formatInt((mOffsetEnd - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, true);
+        }
     }
     
     // 设置滑动结果为整数
@@ -600,28 +616,81 @@ public class TwoWaySeekBar extends View {
     }
     
     /**
-     * 设置左滑块的值
+     * 设置左滑块进度
      */
-    public void setProgressLeft(int progressLeft) {
-        this.mDefaultScreenLeft = progressLeft;
-        mOffsetLeft = formatInt(progressLeft * 1f / max * mDistance) + mThumbSize / 2f;
+    public void setProgressStart(int progressStart) {
+        if (progressStart < 0) {
+            progressStart = 0;
+        } else if (progressStart > 100) {
+            progressStart = 100;
+        }
+        
+        if (progressStart == mProgressStart) {
+            return;
+        }
+        
+        mProgressStart = progressStart;
+        mOffsetStart = mProgressStart * 1f / max * mDistance + mThumbSize / 2f;
+        
+        if (mProgressEnd < mProgressStart) {
+            mProgressEnd = mProgressStart;
+            mOffsetEnd = mOffsetStart;
+        }
+        
         refresh();
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, false);
+        }
+        
+        if (mBarMultiChangeListener != null) {
+            mBarMultiChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, false);
+        }
     }
     
     /**
-     * 设置右滑块的值
+     * 设置右滑块进度
      */
-    public void setProgressRight(int progressRight) {
-        this.mDefaultScreenRight = progressRight;
-        mOffsetRight = formatInt(progressRight * 1f / max * (mDistance)) + mThumbSize / 2f;
+    public void setProgressEnd(int progressEnd) {
+        if (progressEnd < 0) {
+            progressEnd = 0;
+        } else if (progressEnd > 100) {
+            progressEnd = 100;
+        }
+        
+        if (mProgressEnd == progressEnd) {
+            return;
+        }
+        
+        mProgressEnd = progressEnd;
+        mOffsetEnd = mProgressEnd * 1f / max * mDistance + mThumbSize / 2f;
+        
+        if (mProgressStart > mProgressEnd) {
+            mProgressStart = mProgressEnd;
+            mOffsetStart = mOffsetEnd;
+        }
+        
         refresh();
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, false);
+        }
+        
+        if (mBarMultiChangeListener != null) {
+            mBarMultiChangeListener.onProgressChanged(this, mProgressStart, mProgressEnd, false);
+        }
     }
     
     /**
-     * 设置滑块值改变监听
+     * 设置滑动条进度改变监听
      */
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
         this.mBarChangeListener = mListener;
+    }
+    
+    /**
+     * 设置滑动条多项内容改变监听
+     */
+    public void setOnSeekBarMultiChangeListener(OnSeekBarMultiChangeListener mListener) {
+        this.mBarMultiChangeListener = mListener;
     }
     
     /**
@@ -651,10 +720,10 @@ public class TwoWaySeekBar extends View {
     /**
      * 设置左滑块样式
      */
-    public void setThumbLeft(@NonNull Drawable thumbLeft) {
-        mThumbLeft = thumbLeft;
+    public void setThumbStart(@NonNull Drawable thumbStart) {
+        mThumbStart = thumbStart;
         if (!mUserSetThumbSize) {
-            mThumbSize = Math.max(mThumbLeft.getIntrinsicHeight(), mThumbRight.getIntrinsicHeight());
+            mThumbSize = Math.max(mThumbStart.getIntrinsicHeight(), mThumbEnd.getIntrinsicHeight());
         }
         invalidate();
     }
@@ -662,10 +731,10 @@ public class TwoWaySeekBar extends View {
     /**
      * 设置右滑块样式
      */
-    public void setThumbRight(@NonNull Drawable thumbRight) {
-        mThumbRight = thumbRight;
+    public void setThumbEnd(@NonNull Drawable thumbEnd) {
+        mThumbEnd = thumbEnd;
         if (!mUserSetThumbSize) {
-            mThumbSize = Math.max(mThumbLeft.getIntrinsicHeight(), mThumbRight.getIntrinsicHeight());
+            mThumbSize = Math.max(mThumbStart.getIntrinsicHeight(), mThumbEnd.getIntrinsicHeight());
         }
         
         invalidate();
@@ -682,23 +751,23 @@ public class TwoWaySeekBar extends View {
     /**
      * 设置左滑块背景
      */
-    public void setThumbLeftBg(Drawable thumbLeftBg) {
-        mThumbLeftBg = thumbLeftBg;
+    public void setThumbStartBg(Drawable thumbStartBg) {
+        mThumbStartBg = thumbStartBg;
         invalidate();
     }
     
     /**
      * 设置右滑块背景
      */
-    public void setThumbRightBg(Drawable thumbRightBg) {
-        mThumbRightBg = thumbRightBg;
+    public void setThumbEndBg(Drawable thumbEndBg) {
+        mThumbEndBg = thumbEndBg;
         invalidate();
     }
     
     /**
      * 设置滑块背景相比于滑块大小缩放比例
      *
-     * @param thumbBgScale <=0则不绘制背景
+     * @param thumbBgScale <= 0 则不绘制背景
      */
     public void setThumbBgScale(float thumbBgScale) {
         mThumbBgScale = thumbBgScale;
@@ -769,13 +838,38 @@ public class TwoWaySeekBar extends View {
     }
     
     /**
-     * 滑动监听
+     * 滑动条进度改变监听
      */
     public interface OnSeekBarChangeListener {
         /**
-         * @param progressLeft  左滑块的值
-         * @param progressRight 右滑块的值
+         * @param progressStart 左滑块进度
+         * @param progressEnd   右滑块进度
+         * @param fromUser      是否是用户触摸滑动改变进度值
          */
-        void onProgressChanged(TwoWaySeekBar seekBar, int progressLeft, int progressRight);
+        void onProgressChanged(TwoWaySeekBar seekBar, int progressStart, int progressEnd, boolean fromUser);
+    }
+    
+    /**
+     * 滑动条多项改变监听
+     */
+    public interface OnSeekBarMultiChangeListener {
+        /**
+         * @param progressStart 左滑块进度
+         * @param progressEnd   右滑块进度
+         * @param fromUser      是否是用户触摸滑动改变进度值
+         */
+        void onProgressChanged(TwoWaySeekBar seekBar, int progressStart, int progressEnd, boolean fromUser);
+        
+        /**
+         * 通知用户已开始触摸
+         *
+         * @param isStartThumb {@code true}:触摸起始滑动块 {@code false}:触摸结束滑动块
+         */
+        void onStartTrackingTouch(TwoWaySeekBar seekBar, boolean isStartThumb);
+        
+        /**
+         * 通知用户已结束触摸
+         */
+        void onStopTrackingTouch(TwoWaySeekBar seekBar);
     }
 }

@@ -69,10 +69,6 @@ public class SmartLineDataSet extends LineRadarDataSet<SmartLineEntry> implement
     
     private boolean mDrawCircleHole = true;
     
-    private boolean mOverVerticalHighlightIndicatorEnd = true;
-    private boolean mOverHorizontalHighlightIndicatorEnd = true;
-    
-    
     public SmartLineDataSet(List<SmartLineEntry> yVals, String label) {
         super(yVals, label);
         
@@ -424,30 +420,6 @@ public class SmartLineDataSet extends LineRadarDataSet<SmartLineEntry> implement
     @Override
     public ISmartFillFormatter getFillFormatter() {
         return mFillFormatter;
-    }
-    
-    @Override
-    public boolean isOverVerticalHighlightIndicatorEnd() {
-        return mOverVerticalHighlightIndicatorEnd;
-    }
-    
-    /**
-     * 垂直线绘制时是否超出刻度点垂直结束位置，目前只针对x轴位置在底部
-     */
-    public void setOverVerticalHighlightIndicatorEnd(boolean overVerticalHighlightIndicatorEnd) {
-        mOverVerticalHighlightIndicatorEnd = overVerticalHighlightIndicatorEnd;
-    }
-    
-    /**
-     * 水平线绘制时是否超出刻度点水平结束位置,目前只针对y轴位置在左边
-     */
-    public void setOverHorizontalHighlightIndicatorEnd(boolean overHorizontalHighlightIndicatorEnd) {
-        mOverHorizontalHighlightIndicatorEnd = overHorizontalHighlightIndicatorEnd;
-    }
-    
-    @Override
-    public boolean isOverHorizontalHighlightIndicatorEnd() {
-        return mOverHorizontalHighlightIndicatorEnd;
     }
     
     private class DefaultFillFormatter implements ISmartFillFormatter {

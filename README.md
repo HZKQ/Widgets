@@ -1,7 +1,8 @@
 # Android组件库
 
-## 组件清单
+[基础库MagpieX](https://github.com/zhouzhuo810/MagpieX),以下组件清单中组件均以px作为单位进行尺寸配置，因此屏幕适配依赖基础库进行适配
 
+## 组件清单
 #### 1. [二维码](zxing)
 #### 2. [图表](MPChartLib)
 #### 3. [日历](CalendarPickerView)
@@ -13,6 +14,13 @@
 #### 9. [彩虹条](rainbowbar)
 #### 10. [滑动条](seekbar)
 #### 11. [定制的简单Views](views)
+
+
+## 其它库
+#### 1. [图片预览](https://github.com/wanggaowan/PhotoPreview)
+#### 2. [表格](https://github.com/wanggaowan/TableLite)
+#### 3. [多图展示](https://github.com/zhouzhuo810/ZzImageBox)
+
 
 ---
 ## 集成

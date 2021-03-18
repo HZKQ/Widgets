@@ -25,4 +25,12 @@
             <enum name="round" value="1" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="TextProgressBar">
+        <attr name="progress_text_size" format="dimension" />
+        <attr name="progress_text_color" format="color|reference" />
+        <attr name="progress_second_text_color" format="color|reference" />
+        <attr name="progress_text_padding" format="dimension" />
+        <attr name="isDrawProgressText" format="boolean" />
+    </declare-styleable>
 </resources>

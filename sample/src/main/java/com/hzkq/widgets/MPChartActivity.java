@@ -5,12 +5,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-
 import com.hzkq.widgets.chart.BarChartActivity;
 import com.hzkq.widgets.chart.LineChartActivity;
 import com.hzkq.widgets.chart.PieChartActivity;
+import com.hzkq.widgets.chart.RadarChartActivity;
 
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 
 /**
@@ -54,6 +54,10 @@ public class MPChartActivity extends BaseActivity {
     
     public void onBarChartClick(View view) {
         startActWithIntent(new Intent(this, BarChartActivity.class));
+    }
+    
+    public void onRadarChartClick(View view) {
+        startActWithIntent(new Intent(this, RadarChartActivity.class));
     }
     
     public void onMoreChartClick(View view) {

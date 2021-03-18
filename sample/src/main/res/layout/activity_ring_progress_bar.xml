@@ -19,12 +19,51 @@
         app:ttb_textSizeTitle="@dimen/base_title_text_size"
         app:ttb_titleText="圆环进度条" />
 
+    <com.keqiang.progressbar.TextProgressBar
+        android:id="@+id/pb_use_rate"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="30px"
+        android:layout_marginStart="28px"
+        android:layout_marginTop="10px"
+        android:layout_marginEnd="28px"
+        android:max="100"
+        android:progress="30"
+        android:progressDrawable="@drawable/bg_progress_machine_use_rate"
+        app:progress_text_color="@color/colorWhite"
+        app:progress_text_padding="10px"
+        app:progress_text_size="27px" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb_progress"
+        android:layout_width="match_parent"
+        android:layout_height="24px"
+        android:layout_marginStart="28px"
+        android:layout_marginTop="10px"
+        android:layout_marginEnd="28px"
+        app:zpb_bg_color="#d8d8d8"
+        app:zpb_border_color="@color/colorBlack50"
+        app:zpb_border_width="4px"
+        app:zpb_draw_border="false"
+        app:zpb_gradient_from="#429321"
+        app:zpb_gradient_to="#b4ec51"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_padding="0px"
+        app:zpb_progress="80"
+        app:zpb_round_rect_radius="10px"
+        app:zpb_second_pb_color="#f5a623"
+        app:zpb_second_progress="30"
+        app:zpb_show_mode="round_rect"
+        app:zpb_show_second_point_shape="point"
+        app:zpb_show_second_progress="true" />
+
     <com.keqiang.progressbar.RingProgress
         android:id="@+id/rb1"
         android:layout_width="400px"
         android:layout_height="400px"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100px"
+        android:layout_marginTop="50px"
         app:rp_centerText="50%"
         app:rp_centerTextColor="@color/text_green"
         app:rp_centerTextSize="52px"

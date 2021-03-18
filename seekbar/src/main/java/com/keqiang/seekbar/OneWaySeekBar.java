@@ -108,14 +108,19 @@ public class OneWaySeekBar extends View {
     private int max = 100;
     
     /**
-     * 默认滑块位置百分比
+     * 滑块进度值
      */
-    private double mDefaultScreen = 0;
+    private int mProgress = 0;
     
     /**
      * 滑动监听
      */
     private OnSeekBarChangeListener mBarChangeListener;
+    
+    /**
+     * 多项监听
+     */
+    private OnSeekBarMultiChangeListener mBarMultiChangeListener;
     
     /**
      * 用于绘制滑块位置值
@@ -139,7 +144,6 @@ public class OneWaySeekBar extends View {
         init(context, attrs);
     }
     
-    @SuppressWarnings("ConstantConditions")
     private void init(Context context, AttributeSet attrs) {
         int textColor;
         int textSize;
@@ -258,10 +262,11 @@ public class OneWaySeekBar extends View {
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
         }
         
-        mOffset = mThumbSize / 2f + getPaddingStartInner();
         mDistance = widthSize - getPaddingStartInner() - getPaddingEndInner() - mThumbSize;
-        if (mDefaultScreen != 0) {
-            mOffset = formatInt(mDefaultScreen / max * mDistance) + mThumbSize / 2f + getPaddingStartInner();
+        if (mProgress != 0) {
+            mOffset = mProgress * 1f / max * mDistance + mThumbSize / 2f + getPaddingStartInner();
+        } else {
+            mOffset = mThumbSize / 2f + getPaddingStartInner();
         }
         
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -271,7 +276,7 @@ public class OneWaySeekBar extends View {
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
     public int getPaddingStartInner() {
-        if (mThumbBg == null || mThumbBgScale <= 0) {
+        if (mThumbBg == null || mThumbBgScale <= 1) {
             return getPaddingStart();
         }
         return (int) (getPaddingStart() + mThumbSize * (mThumbBgScale - 1) / 2);
@@ -281,7 +286,7 @@ public class OneWaySeekBar extends View {
      * 在用户设置基础上为点击绘制滑块背景预览放大的宽度，否则滑动到两边时绘制不全
      */
     public int getPaddingEndInner() {
-        if (mThumbBg == null || mThumbBgScale <= 0) {
+        if (mThumbBg == null || mThumbBgScale <= 1) {
             return getPaddingStart();
         }
         return (int) (getPaddingEnd() + mThumbSize * (mThumbBgScale - 1) / 2);
@@ -317,7 +322,6 @@ public class OneWaySeekBar extends View {
         mThumb.draw(canvas);
         
         // 当前滑块刻度
-        int progress = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
         if (mShowProgressText) {
             int y;
             Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
@@ -330,17 +334,13 @@ public class OneWaySeekBar extends View {
                 y += mProgressTextMargin + measuredHeight / 2;
             }
             
-            String format = mProgressTextValueFormat.format(progress);
+            String format = mProgressTextValueFormat.format(mProgress);
             if (!TextUtils.isEmpty(format)) {
                 canvas.drawText(format, (int) mOffset - 2 - 2, y, mTextPaint);
             }
         }
         
         canvas.restore();
-        
-        if (mBarChangeListener != null) {
-            mBarChangeListener.onProgressChanged(this, progress);
-        }
     }
     
     /**
@@ -351,7 +351,7 @@ public class OneWaySeekBar extends View {
             return;
         }
         
-        int bgSize = (int) (mThumbSize * mThumbBgScale);
+        int bgSize = mThumbBgScale == 1 ? mThumbSize : (int) (mThumbSize * mThumbBgScale);
         int bgTop = (getHeight() - bgSize) / 2;
         int bgBottom = bgTop + bgSize;
         int left = (int) (offset - bgSize / 2);
@@ -384,6 +384,9 @@ public class OneWaySeekBar extends View {
             if (mFlag == CLICK_ON_THUMB) {
                 mThumb.setState(STATE_PRESSED);
                 refresh();
+                if (mBarMultiChangeListener != null) {
+                    mBarMultiChangeListener.onStartTrackingTouch(this);
+                }
             } else if (mFlag == CLICK_IN_THUMB_AREA) {
                 mThumb.setState(STATE_PRESSED);
                 // 如果点击0-mThumbSize/2坐标
@@ -413,6 +416,9 @@ public class OneWaySeekBar extends View {
             // 抬起
             mThumb.setState(STATE_NORMAL);
             refresh();
+            if (mBarMultiChangeListener != null) {
+                mBarMultiChangeListener.onStopTrackingTouch(this);
+            }
         }
         return true;
     }
@@ -445,7 +451,14 @@ public class OneWaySeekBar extends View {
      */
     private void updateOffset(double offset) {
         mOffset = offset;
-        this.mDefaultScreen = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+        this.mProgress = formatInt((mOffset - mThumbSize / 2f - getPaddingStartInner()) * max / mDistance);
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgress, true);
+        }
+        
+        if (mBarMultiChangeListener != null) {
+            mBarMultiChangeListener.onProgressChanged(this, mProgress, true);
+        }
     }
     
     // 设置滑动结果为整数
@@ -473,9 +486,27 @@ public class OneWaySeekBar extends View {
      * 设置左滑块的值
      */
     public void setProgress(int progress) {
-        this.mDefaultScreen = progress;
-        mOffset = formatInt(progress * 1f / max * mDistance) + mThumbSize / 2f;
+        if (progress < 0) {
+            progress = 0;
+        } else if (progress > 100) {
+            progress = 100;
+        }
+        
+        if (mProgress == progress) {
+            return;
+        }
+        
+        mProgress = progress;
+        mOffset = progress * 1f / max * mDistance + mThumbSize / 2f;
         refresh();
+        
+        if (mBarChangeListener != null) {
+            mBarChangeListener.onProgressChanged(this, mProgress, false);
+        }
+        
+        if (mBarMultiChangeListener != null) {
+            mBarMultiChangeListener.onProgressChanged(this, mProgress, false);
+        }
     }
     
     /**
@@ -483,6 +514,13 @@ public class OneWaySeekBar extends View {
      */
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener mListener) {
         this.mBarChangeListener = mListener;
+    }
+    
+    /**
+     * 设置滑动条多项内容改变监听
+     */
+    public void setOnSeekBarMultiChangeListener(OnSeekBarMultiChangeListener mListener) {
+        this.mBarMultiChangeListener = mListener;
     }
     
     /**
@@ -602,12 +640,34 @@ public class OneWaySeekBar extends View {
     }
     
     /**
-     * 滑动监听
+     * 滑动条进度改变监听
      */
     public interface OnSeekBarChangeListener {
         /**
-         * @param progress 滑块的值
+         * @param progress 滑块进度
+         * @param fromUser 是否是用户触摸滑动改变进度值
          */
-        void onProgressChanged(OneWaySeekBar oneWaySeekBar, int progress);
+        void onProgressChanged(OneWaySeekBar oneWaySeekBar, int progress, boolean fromUser);
+    }
+    
+    /**
+     * 滑动条多项改变监听
+     */
+    public interface OnSeekBarMultiChangeListener {
+        /**
+         * @param progress 滑块进度
+         * @param fromUser 是否是用户触摸滑动改变进度值
+         */
+        void onProgressChanged(OneWaySeekBar seekBar, int progress, boolean fromUser);
+        
+        /**
+         * 通知用户已开始触摸
+         */
+        void onStartTrackingTouch(OneWaySeekBar seekBar);
+        
+        /**
+         * 通知用户已结束触摸
+         */
+        void onStopTrackingTouch(OneWaySeekBar seekBar);
     }
 }

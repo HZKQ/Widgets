@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="水平进度条" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="50px"
+        android:text="文本进度条"
+        android:textSize="16sp"
+        tools:ignore="PxUsage" />
+
+    <com.keqiang.progressbar.TextProgressBar
+        android:id="@+id/tpb"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50px"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20px"
+        android:layout_marginEnd="20dp"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/bg_progress_machine_use_rate"
+        app:progress_text_color="@color/colorWhite"
+        app:progress_text_padding="10px"
+        app:progress_text_size="27px"
+        tools:ignore="PxUsage" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="100px"
+        android:text="多层级、渐变进度条"
+        android:textSize="16sp"
+        tools:ignore="PxUsage" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb"
+        android:layout_width="match_parent"
+        android:layout_height="60px"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:padding="2dp" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb1"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_bg_color="#d8d8d8"
+        app:zpb_gradient_from="#429321"
+        app:zpb_gradient_to="#b4ec51"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_padding="1px"
+        app:zpb_progress="50"
+        app:zpb_second_pb_color="#f5a623"
+        app:zpb_second_progress="100"
+        app:zpb_show_second_point_shape="point"
+        app:zpb_show_second_progress="true" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb2"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_bg_color="#d8d8d8"
+        app:zpb_gradient_from="#429321"
+        app:zpb_gradient_to="#b4ec51"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_open_second_gradient="true"
+        app:zpb_padding="1px"
+        app:zpb_progress="50"
+        app:zpb_second_gradient_from="#f76b1c"
+        app:zpb_second_gradient_to="#fad961"
+        app:zpb_second_pb_color="#f5a623"
+        app:zpb_show_second_point_shape="line"
+        app:zpb_show_second_progress="true" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb3"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_padding="0dp"
+        app:zpb_pb_color="@android:color/holo_green_dark"
+        app:zpb_show_mode="rect" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb4"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_bg_color="#dbdbdb"
+        app:zpb_gradient_from="#419120"
+        app:zpb_gradient_to="#b3eb50"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_padding="1dp"
+        app:zpb_show_mode="rect" />
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb5"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_bg_color="#0000"
+        app:zpb_border_color="#85ff00"
+        app:zpb_border_width="2dp"
+        app:zpb_draw_border="true"
+        app:zpb_gradient_from="#7f58A800"
+        app:zpb_gradient_to="#7fa8e600"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_padding="0px"
+        app:zpb_round_rect_radius="4dp"
+        app:zpb_show_mode="round_rect" />
+
+
+    <me.zhouzhuo.zzhorizontalprogressbar.ZzHorizontalProgressBar
+        android:id="@+id/pb6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:zpb_bg_color="#0000"
+        app:zpb_border_color="#85ff00"
+        app:zpb_border_width="2dp"
+        app:zpb_draw_border="true"
+        app:zpb_gradient_from="#7ff5515f"
+        app:zpb_gradient_to="#7f9f041b"
+        app:zpb_max="100"
+        app:zpb_open_gradient="true"
+        app:zpb_padding="0px"
+        app:zpb_round_rect_radius="4dp"
+        app:zpb_show_mode="round_rect" />
+
+    <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:text="拖动试试?" />
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:max="100"
+        android:progress="0" />
+</LinearLayout>

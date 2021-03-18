@@ -1,7 +1,6 @@
 package com.github.mikephil.charting.custom.piechart;
 
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.github.mikephil.charting.data.Entry;
 
@@ -110,18 +109,22 @@ public class SmartPieEntry extends Entry {
         mDrawBaseline = drawBaseline;
     }
     
+    /**
+     * Pie entries do not have x values
+     */
     @Deprecated
     @Override
     public void setX(float x) {
-        super.setX(x);
-        Log.i("DEPRECATED", "Pie entries do not have x values");
+    
     }
     
+    /**
+     * is always 0, Pie entries do not have x values
+     */
     @Deprecated
     @Override
     public float getX() {
-        Log.i("DEPRECATED", "Pie entries do not have x values");
-        return super.getX();
+        return 0;
     }
     
     @Override

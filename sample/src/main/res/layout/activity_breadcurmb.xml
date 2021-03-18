@@ -69,6 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="106px"
         android:layout_marginTop="100px"
+        android:background="@color/colorBlack10"
         android:paddingLeft="30px"
         android:paddingRight="30px"
         android:textColor="@color/colorBlack40"

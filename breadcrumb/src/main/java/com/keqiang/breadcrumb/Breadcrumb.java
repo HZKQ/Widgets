@@ -41,7 +41,7 @@ public class Breadcrumb extends LinearLayout {
     
     private TextView mTvRootFolder;
     private TextView mTvFolders;
-    private MyHorizontalScrollView mScrollView;
+    private CustomHorizontalScrollView mScrollView;
     
     private com.keqiang.breadcrumb.OnClickListener mOnClickListener;
     private FolderChangeListener mFolderChangeListener;
@@ -69,7 +69,6 @@ public class Breadcrumb extends LinearLayout {
      */
     private int mTextColor;
     private int mTextSize;
-    
     
     public Breadcrumb(Context context) {
         this(context, null);
@@ -118,7 +117,7 @@ public class Breadcrumb extends LinearLayout {
         mTvRootFolder.setLayoutParams(params);
         addView(mTvRootFolder);
         
-        mScrollView = new MyHorizontalScrollView(context);
+        mScrollView = new CustomHorizontalScrollView(context);
         mScrollView.setOverScrollMode(OVER_SCROLL_NEVER);
         mScrollView.setHorizontalScrollBarEnabled(false);
         mScrollView.setVerticalScrollBarEnabled(false);
@@ -139,6 +138,13 @@ public class Breadcrumb extends LinearLayout {
         mFolders = "";
         mFolderSpans = new ArrayList<>();
         mCurFolderPosition = -2;
+        
+        if (isInEditMode()) {
+            addFolderSpan("0", "Folder 1");
+            addFolderSpan("1", "Folder 2");
+            addFolderSpan("2", "Folder 3");
+            addFolderSpan("3", "Folder 4");
+        }
     }
     
     /**

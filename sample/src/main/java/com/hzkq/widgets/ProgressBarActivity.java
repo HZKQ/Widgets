@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-
+import com.hzkq.widgets.progress.HProgressBarActivity;
 import com.hzkq.widgets.progress.RingProgressBarActivity;
 
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 
 /**
@@ -37,6 +37,10 @@ public class ProgressBarActivity extends BaseActivity {
     @Override
     public void initEvent() {
     
+    }
+    
+    public void onHProgressBarClick(View view) {
+        startActWithIntent(new Intent(this, HProgressBarActivity.class));
     }
     
     public void onRingProgressBarClick(View view) {
