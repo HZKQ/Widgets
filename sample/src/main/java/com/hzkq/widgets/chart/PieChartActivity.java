@@ -4,9 +4,6 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.custom.piechart.LabelGravity;
@@ -19,6 +16,8 @@ import com.hzkq.widgets.R;
 
 import java.util.ArrayList;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 import me.zhouzhuo810.magpiex.utils.ScreenAdapterUtil;
@@ -100,7 +99,7 @@ public class PieChartActivity extends BaseActivity {
         // 是否格式化成百分比值
         mPieChart.setUsePercentValues(true);
         // 中间绘制的文字大小
-        mPieChart.setCenterTextSizePixels(SimpleUtil.getScaledValue(62));
+        mPieChart.setCenterTextSizeInPx(SimpleUtil.getScaledValue(62));
         // 中间绘制的文字颜色
         mPieChart.setCenterTextColor(ContextCompat.getColor(this, R.color.colorBlack50));
         // 设置中间字体文字类型

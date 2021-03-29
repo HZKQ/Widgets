@@ -2,6 +2,8 @@ package com.hzkq.widgets;
 
 import android.os.Bundle;
 
+import com.keqiang.views.ExtendEditText;
+
 import androidx.annotation.Nullable;
 
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
@@ -33,6 +35,9 @@ public class ViewsActivity extends BaseActivity {
     
     @Override
     public void initEvent() {
-    
+        ExtendEditText editText = findViewById(R.id.et_test);
+        findViewById(R.id.rl_test).setOnClickListener(v -> {
+            editText.setEnabled(!editText.isEnabled());
+        });
     }
 }

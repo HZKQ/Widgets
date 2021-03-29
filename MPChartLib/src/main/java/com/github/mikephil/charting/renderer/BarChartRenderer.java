@@ -2,6 +2,7 @@ package com.github.mikephil.charting.renderer;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -15,12 +16,11 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.highlight.Range;
 import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.model.GradientColor;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
-import android.graphics.LinearGradient;
-import com.github.mikephil.charting.model.GradientColor;
 
 import java.util.List;
 
@@ -91,7 +91,7 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
         mBarBorderPaint.setColor(dataSet.getBarBorderColor());
-        mBarBorderPaint.setStrokeWidth(Utils.convertDpToPixel(dataSet.getBarBorderWidth()));
+        mBarBorderPaint.setStrokeWidth(dataSet.getBarBorderWidth());
 
         final boolean drawBorder = dataSet.getBarBorderWidth() > 0.f;
 
@@ -257,8 +257,6 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
                 ValueFormatter formatter = dataSet.getValueFormatter();
 
                 MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-                iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-                iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
 
                 // if only single values are drawn (sum)
                 if (!dataSet.isStacked()) {

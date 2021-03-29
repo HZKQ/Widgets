@@ -437,9 +437,14 @@ public abstract class BaseDataSet<T extends Entry> implements IDataSet<T> {
 
     @Override
     public void setIconsOffset(MPPointF offsetDp) {
-
-        mIconsOffset.x = offsetDp.x;
-        mIconsOffset.y = offsetDp.y;
+        mIconsOffset.x = Utils.convertDpToPixel(offsetDp.x);
+        mIconsOffset.y = Utils.convertDpToPixel(offsetDp.y);
+    }
+    
+    @Override
+    public void setIconsOffsetInPx(MPPointF offsetPx) {
+        mIconsOffset.x = offsetPx.x;
+        mIconsOffset.y = offsetPx.y;
     }
 
     @Override

@@ -57,7 +57,7 @@ public class HorizontalBarChartRenderer extends BarChartRenderer {
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
         mBarBorderPaint.setColor(dataSet.getBarBorderColor());
-        mBarBorderPaint.setStrokeWidth(Utils.convertDpToPixel(dataSet.getBarBorderWidth()));
+        mBarBorderPaint.setStrokeWidth(dataSet.getBarBorderWidth());
 
         final boolean drawBorder = dataSet.getBarBorderWidth() > 0.f;
 
@@ -174,8 +174,6 @@ public class HorizontalBarChartRenderer extends BarChartRenderer {
                 final float phaseY = mAnimator.getPhaseY();
 
                 MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-                iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-                iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
 
                 // if only single values are drawn (sum)
                 if (!dataSet.isStacked()) {

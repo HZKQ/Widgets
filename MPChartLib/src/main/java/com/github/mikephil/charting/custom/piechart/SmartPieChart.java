@@ -8,8 +8,6 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
-import androidx.annotation.ColorInt;
-
 import com.github.mikephil.charting.charts.PieRadarChartBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -17,6 +15,8 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.List;
+
+import androidx.annotation.ColorInt;
 
 /**
  * 饼状图
@@ -453,9 +453,9 @@ public class SmartPieChart extends PieRadarChartBase<SmartPieData> {
     }
     
     /**
-     * Sets the size of the center text of the PieChart in pixels.
+     * Sets the size of the center text of the PieChart in px.
      */
-    public void setCenterTextSizePixels(float sizePixels) {
+    public void setCenterTextSizeInPx(float sizePixels) {
         ((SmartPieChartRenderer) mRenderer).getPaintCenterText().setTextSize(sizePixels);
     }
     
@@ -465,6 +465,14 @@ public class SmartPieChart extends PieRadarChartBase<SmartPieData> {
     public void setCenterTextOffset(float x, float y) {
         mCenterTextOffset.x = Utils.convertDpToPixel(x);
         mCenterTextOffset.y = Utils.convertDpToPixel(y);
+    }
+    
+    /**
+     * Sets the offset the center text should have from it's original position in px. Default x = 0, y = 0
+     */
+    public void setCenterTextOffsetInPx(float x, float y) {
+        mCenterTextOffset.x = x;
+        mCenterTextOffset.y = y;
     }
     
     /**
@@ -577,6 +585,13 @@ public class SmartPieChart extends PieRadarChartBase<SmartPieData> {
     }
     
     /**
+     * Sets the size of the entry labels in px
+     */
+    public void setEntryLabelTextSizeInPx(float size) {
+        ((SmartPieChartRenderer) mRenderer).getPaintEntryLabels().setTextSize(size);
+    }
+    
+    /**
      * Returns true if the chart is set to draw each end of a pie-slice
      * "rounded".
      */
@@ -647,7 +662,7 @@ public class SmartPieChart extends PieRadarChartBase<SmartPieData> {
     }
     
     /**
-     * 设置外边框的宽度
+     * 设置外边框的宽度,单位px
      */
     public void setBorderWidth(float borderWidth) {
         ((SmartPieChartRenderer) mRenderer).setBorderWidth(borderWidth);

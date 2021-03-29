@@ -18,7 +18,6 @@ import com.github.mikephil.charting.renderer.YAxisRendererHorizontalBarChart;
 import com.github.mikephil.charting.utils.HorizontalViewPortHandler;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.TransformerHorizontalBarChart;
-import com.github.mikephil.charting.utils.Utils;
 
 /**
  * BarChart with horizontal bar orientation. In this implementation, x- and y-axis are switched, meaning the YAxis class
@@ -106,7 +105,7 @@ public class HorizontalBarChart extends BarChart {
         offsetBottom += getExtraBottomOffset();
         offsetLeft += getExtraLeftOffset();
 
-        float minOffset = Utils.convertDpToPixel(mMinOffset);
+        float minOffset = getMinOffset();
 
         mViewPortHandler.restrainViewPort(
                 Math.max(minOffset, offsetLeft),

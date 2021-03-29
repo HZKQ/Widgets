@@ -7,6 +7,7 @@ import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.LineRadarDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +93,10 @@ public class SmartRadarDataSet extends LineRadarDataSet<SmartRadarEntry> impleme
     }
     
     public void setHighlightCircleInnerRadius(float radius) {
+        mHighlightCircleInnerRadius = Utils.convertDpToPixel(radius);
+    }
+    
+    public void setHighlightCircleInnerRadiusInPx(float radius) {
         mHighlightCircleInnerRadius = radius;
     }
     
@@ -101,6 +106,10 @@ public class SmartRadarDataSet extends LineRadarDataSet<SmartRadarEntry> impleme
     }
     
     public void setHighlightCircleOuterRadius(float radius) {
+        mHighlightCircleOuterRadius = Utils.convertDpToPixel(radius);
+    }
+    
+    public void setHighlightCircleOuterRadiusInPx(float radius) {
         mHighlightCircleOuterRadius = radius;
     }
     

@@ -482,16 +482,28 @@ public interface IDataSet<T extends Entry> {
      * @return
      */
     boolean isDrawIconsEnabled();
-
+    
     /**
      * Offset of icons drawn on the chart.
      *
      * For all charts except Pie and Radar it will be ordinary (x offset,y offset).
      *
      * For Pie and Radar chart it will be (y offset, distance from center offset); so if you want icon to be rendered under value, you should increase X component of CGPoint, and if you want icon to be rendered closet to center, you should decrease height component of CGPoint.
-     * @param offset
+     *
+     * @param offset The value is in dp
      */
     void setIconsOffset(MPPointF offset);
+    
+    /**
+     * Offset of icons drawn on the chart.
+     *
+     * For all charts except Pie and Radar it will be ordinary (x offset,y offset).
+     *
+     * For Pie and Radar chart it will be (y offset, distance from center offset); so if you want icon to be rendered under value, you should increase X component of CGPoint, and if you want icon to be rendered closet to center, you should decrease height component of CGPoint.
+     *
+     * @param offset The value is in PX
+     */
+    void setIconsOffsetInPx(MPPointF offset);
 
     /**
      * Get the offset for drawing icons.

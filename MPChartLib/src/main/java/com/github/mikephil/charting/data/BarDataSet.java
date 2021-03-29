@@ -4,6 +4,7 @@ package com.github.mikephil.charting.data;
 import android.graphics.Color;
 
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,14 +166,20 @@ public class BarDataSet extends BarLineScatterCandleBubbleDataSet<BarEntry> impl
     public int getBarShadowColor() {
         return mBarShadowColor;
     }
-
+    
     /**
-     * Sets the width used for drawing borders around the bars.
+     * Sets the width used for drawing borders around the bars in dp.
      * If borderWidth == 0, no border will be drawn.
-     *
-     * @return
      */
     public void setBarBorderWidth(float width) {
+        mBarBorderWidth = Utils.convertDpToPixel(width);
+    }
+    
+    /**
+     * Sets the width used for drawing borders around the bars in px.
+     * If borderWidth == 0, no border will be drawn.
+     */
+    public void setBarBorderWidthInPx(float width) {
         mBarBorderWidth = width;
     }
 

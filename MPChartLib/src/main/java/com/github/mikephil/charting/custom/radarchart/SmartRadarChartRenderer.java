@@ -173,8 +173,6 @@ public class SmartRadarChartRenderer extends LineRadarRenderer {
             ISmartValueFormatter<SmartRadarEntry> formatter = dataSet.getSmartValueFormatter();
             
             MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-            iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-            iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
             
             for (int j = 0; j < dataSet.getEntryCount(); j++) {
                 
@@ -430,9 +428,6 @@ public class SmartRadarChartRenderer extends LineRadarRenderer {
                                     int strokeColor,
                                     float strokeWidth) {
         c.save();
-        
-        outerRadius = Utils.convertDpToPixel(outerRadius);
-        innerRadius = Utils.convertDpToPixel(innerRadius);
         
         if (fillColor != ColorTemplate.COLOR_NONE) {
             Path p = mDrawHighlightCirclePathBuffer;

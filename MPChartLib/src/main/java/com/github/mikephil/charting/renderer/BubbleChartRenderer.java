@@ -153,8 +153,6 @@ public class BubbleChartRenderer extends BarLineScatterCandleBubbleRenderer {
                 ValueFormatter formatter = dataSet.getValueFormatter();
 
                 MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-                iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-                iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
 
                 for (int j = 0; j < positions.length; j += 2) {
 

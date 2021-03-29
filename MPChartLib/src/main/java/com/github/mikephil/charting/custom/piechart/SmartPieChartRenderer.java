@@ -14,8 +14,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 
-import androidx.annotation.ColorInt;
-
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -29,6 +27,8 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import androidx.annotation.ColorInt;
 
 /**
  * 处理饼状图绘制逻辑
@@ -486,8 +486,6 @@ public class SmartPieChartRenderer extends DataRenderer {
             final float sliceSpace = getSliceSpace(dataSet);
             
             MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-            iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-            iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
             
             for (int j = 0; j < entryCount; j++) {
                 boolean needsHighlight = mChart.needsHighlight(j);
@@ -1185,7 +1183,7 @@ public class SmartPieChartRenderer extends DataRenderer {
     }
     
     /**
-     * 设置外边框的宽度
+     * 设置外边框的宽度，单位px
      */
     public void setBorderWidth(float borderWidth) {
         mBorderWidth = borderWidth;

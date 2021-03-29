@@ -108,6 +108,10 @@ public class LimitLine extends ComponentBase {
      * @param width px
      */
     public void setLineWidthInPx(float width) {
+        if (width < 1) {
+            width = 1;
+        }
+        
         mLineWidth = width;
     }
     

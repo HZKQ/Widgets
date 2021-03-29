@@ -64,6 +64,13 @@ public abstract class ComponentBase {
     }
     
     /**
+     * Sets the used x-axis offset for the labels on this axis in px.
+     */
+    public void setXOffsetInPx(float xOffset) {
+        mXOffset = xOffset;
+    }
+    
+    /**
      * Returns the used offset on the x-axis for drawing the axis labels. This
      * offset is applied before and after the label.
      */

@@ -536,15 +536,6 @@ public class PieChart extends PieRadarChartBase<PieData> {
     }
 
     /**
-     * Sets the size of the center text of the PieChart in pixels.
-     *
-     * @param sizePixels
-     */
-    public void setCenterTextSizePixels(float sizePixels) {
-        ((PieChartRenderer) mRenderer).getPaintCenterText().setTextSize(sizePixels);
-    }
-
-    /**
      * Sets the offset the center text should have from it's original position in dp. Default x = 0, y = 0
      *
      * @param x
@@ -553,6 +544,14 @@ public class PieChart extends PieRadarChartBase<PieData> {
     public void setCenterTextOffset(float x, float y) {
         mCenterTextOffset.x = Utils.convertDpToPixel(x);
         mCenterTextOffset.y = Utils.convertDpToPixel(y);
+    }
+    
+    /**
+     * Sets the offset the center text should have from it's original position in dp. Default x = 0, y = 0
+     */
+    public void setCenterTextOffsetInPx(float x, float y) {
+        mCenterTextOffset.x = x;
+        mCenterTextOffset.y = y;
     }
 
     /**
@@ -686,6 +685,13 @@ public class PieChart extends PieRadarChartBase<PieData> {
      */
     public void setEntryLabelTextSize(float size) {
         ((PieChartRenderer) mRenderer).getPaintEntryLabels().setTextSize(Utils.convertDpToPixel(size));
+    }
+    
+    /**
+     * Sets the size of the entry labels in px. Default: 13dp
+     */
+    public void setEntryLabelTextSizeInPx(float size) {
+        ((PieChartRenderer) mRenderer).getPaintEntryLabels().setTextSize(size);
     }
 
     /**

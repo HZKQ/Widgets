@@ -11,7 +11,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.animation.Easing.EasingFunction;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -222,7 +221,7 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends IDataSet<?
             legendBottom += getRequiredBaseOffset();
         }
 
-        float minOffset = Utils.convertDpToPixel(mMinOffset);
+        float minOffset = getMinOffset();
 
         if (this instanceof RadarChart) {
             XAxis x = this.getXAxis();

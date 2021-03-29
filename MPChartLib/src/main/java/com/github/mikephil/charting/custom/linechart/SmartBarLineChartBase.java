@@ -94,9 +94,9 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
     protected boolean mClipValuesToContent = false;
     
     /**
-     * Sets the minimum offset (padding) around the chart, defaults to 15
+     * Sets the minimum offset (padding) around the chart, defaults to 15dp
      */
-    protected float mMinOffset = 15.f;
+    protected float mMinOffset;
     
     /**
      * flag indicating if the chart should stay at the same position after a rotation. Default is false.
@@ -145,7 +145,8 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
     @Override
     protected void init() {
         super.init();
-        
+    
+        mMinOffset = Utils.convertDpToPixel(15.f);
         mAxisLeft = new SmartYAxis(YAxis.AxisDependency.LEFT);
         mAxisRight = new SmartYAxis(YAxis.AxisDependency.RIGHT);
         
@@ -154,7 +155,7 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
         
         mAxisRendererLeft = new YAxisRenderer(mViewPortHandler, mAxisLeft, mLeftAxisTransformer);
         mAxisRendererRight = new YAxisRenderer(mViewPortHandler, mAxisRight, mRightAxisTransformer);
-    
+        
         mXAxis = new SmartXAxis();
         mXAxisRenderer = new SmartXAxisRenderer(mViewPortHandler, (SmartXAxis) mXAxis, mLeftAxisTransformer);
         
@@ -496,7 +497,7 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
             offsetBottom += getExtraBottomOffset();
             offsetLeft += getExtraLeftOffset();
             
-            float minOffset = Utils.convertDpToPixel(mMinOffset);
+            float minOffset = getMinOffset();
             
             mViewPortHandler.restrainViewPort(
                 Math.max(minOffset, offsetLeft),
@@ -1154,6 +1155,13 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
     }
     
     /**
+     * Sets the width of the border lines in px.
+     */
+    public void setBorderWidthInPx(float width) {
+        mBorderPaint.setStrokeWidth(width);
+    }
+    
+    /**
      * Sets the color of the chart border lines.
      */
     public void setBorderColor(int color) {
@@ -1311,7 +1319,7 @@ public class SmartBarLineChartBase<T extends BarLineScatterCandleBubbleData<? ex
     public SmartYAxis getAxisLeft() {
         return mAxisLeft;
     }
-
+    
     /**
      * Returns the right y-axis object. In the horizontal bar-chart, this is the
      * bottom axis.

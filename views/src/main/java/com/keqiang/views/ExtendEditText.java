@@ -568,12 +568,12 @@ public class ExtendEditText extends AppCompatEditText {
         super.setEnabled(enabled);
         if (mAutoWrapByWidth) {
             super.setText(mDefText);
-            if (TextUtils.isEmpty(mDefText)) {
+            if (!TextUtils.isEmpty(mDefText)) {
                 setSelection(mDefText.length());
             }
         } else if (mClearButtonEnabled && !isTextEmpty() && enabled) {
             // 设置enable为true时，不会触发onPreDraw，因此手动调用
-            countClearButtonPosition();
+            post(this :: countClearButtonPosition);
         }
     }
     

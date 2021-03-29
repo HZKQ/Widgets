@@ -130,7 +130,7 @@ public class Legend extends ComponentBase {
      * private float mYEntrySpace = 2f; /** the space between the form and the
      * actual label/text
      */
-    private float mFormToTextSpace = 5f;
+    private float mFormToTextSpace;
 
     /**
      * the space that should be left between stacked forms
@@ -146,7 +146,7 @@ public class Legend extends ComponentBase {
      * default constructor
      */
     public Legend() {
-
+        this.mFormToTextSpace = Utils.convertDpToPixel(5);
         this.mTextSize = Utils.convertDpToPixel(10f);
         this.mXOffset = Utils.convertDpToPixel(5f);
         this.mYOffset = Utils.convertDpToPixel(3f); // 2
@@ -191,7 +191,7 @@ public class Legend extends ComponentBase {
 
         float max = 0f;
         float maxFormSize = 0f;
-        float formToTextSpace = Utils.convertDpToPixel(mFormToTextSpace);
+        float formToTextSpace = getFormToTextSpace();
 
         for (LegendEntry entry : mEntries) {
             final float formSize = Utils.convertDpToPixel(
@@ -529,14 +529,20 @@ public class Legend extends ComponentBase {
     public float getFormToTextSpace() {
         return mFormToTextSpace;
     }
-
+    
     /**
      * sets the space between the form and the actual label/text, converts to dp
      * internally
-     *
-     * @param space
      */
     public void setFormToTextSpace(float space) {
+        this.mFormToTextSpace = Utils.convertDpToPixel(space);
+    }
+    
+    /**
+     * sets the space between the form and the actual label/text, converts to px
+     * internally
+     */
+    public void setFormToTextSpaceInPx(float space) {
         this.mFormToTextSpace = space;
     }
 
@@ -653,7 +659,7 @@ public class Legend extends ComponentBase {
 
         float defaultFormSize = Utils.convertDpToPixel(mFormSize);
         float stackSpace = Utils.convertDpToPixel(mStackSpace);
-        float formToTextSpace = Utils.convertDpToPixel(mFormToTextSpace);
+        float formToTextSpace = getFormToTextSpace();
         float xEntrySpace = Utils.convertDpToPixel(mXEntrySpace);
         float yEntrySpace = Utils.convertDpToPixel(mYEntrySpace);
         boolean wordWrapEnabled = mWordWrapEnabled;

@@ -113,6 +113,16 @@ public class ScatterDataSet extends LineScatterCandleRadarDataSet<Entry> impleme
     public void setScatterShapeHoleRadius(float holeRadius) {
         mScatterShapeHoleRadius = holeRadius;
     }
+    
+    /**
+     * Sets the radius of the hole in the shape (applies to Square, Circle and Triangle)
+     * Set this to <= 0 to remove holes.
+     *
+     * @param holeRadius
+     */
+    public void setScatterShapeHoleRadiusInPx(float holeRadius) {
+        mScatterShapeHoleRadius = holeRadius;
+    }
 
     @Override
     public float getScatterShapeHoleRadius() {

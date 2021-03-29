@@ -474,8 +474,6 @@ public class PieChartRenderer extends DataRenderer {
             final float sliceSpace = getSliceSpace(dataSet);
 
             MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
-            iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
-            iconsOffset.y = Utils.convertDpToPixel(iconsOffset.y);
 
             for (int j = 0; j < entryCount; j++) {
 

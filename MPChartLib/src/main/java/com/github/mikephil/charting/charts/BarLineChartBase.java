@@ -103,7 +103,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
     /**
      * Sets the minimum offset (padding) around the chart, defaults to 15
      */
-    protected float mMinOffset = 15.f;
+    protected float mMinOffset;
 
     /**
      * flag indicating if the chart should stay at the same position after a rotation. Default is false.
@@ -152,6 +152,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
     protected void init() {
         super.init();
 
+        mMinOffset = Utils.convertDpToPixel(15.f);
         mAxisLeft = new YAxis(AxisDependency.LEFT);
         mAxisRight = new YAxis(AxisDependency.RIGHT);
 
@@ -509,7 +510,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
             offsetBottom += getExtraBottomOffset();
             offsetLeft += getExtraLeftOffset();
 
-            float minOffset = Utils.convertDpToPixel(mMinOffset);
+            float minOffset = getMinOffset();
 
             mViewPortHandler.restrainViewPort(
                     Math.max(minOffset, offsetLeft),
@@ -1241,6 +1242,13 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
      */
     public void setBorderWidth(float width) {
         mBorderPaint.setStrokeWidth(Utils.convertDpToPixel(width));
+    }
+    
+    /**
+     * Sets the width of the border lines in px.
+     */
+    public void setBorderWidthInPx(float width) {
+        mBorderPaint.setStrokeWidth(width);
     }
 
     /**
