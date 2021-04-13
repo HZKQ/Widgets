@@ -15,18 +15,20 @@
     </declare-styleable>
 
     <declare-styleable name="ExtendEditText">
-        <attr name="ee_clearButtonEnabled" format="boolean"/>
-        <attr name="ee_clearButtonIcon" format="reference"/>
-        <attr name="ee_clearButtonSize" format="dimension"/>
-        <attr name="ee_clearButtonWidth" format="dimension"/>
-        <attr name="ee_clearButtonHeight" format="dimension"/>
-        <attr name="ee_hintTextSize" format="dimension"/>
+        <attr name="ee_clearButtonEnabled" format="boolean" />
+        <attr name="ee_clearButtonIcon" format="reference" />
+        <attr name="ee_clearButtonSize" format="dimension" />
+        <attr name="ee_clearButtonWidth" format="dimension" />
+        <attr name="ee_clearButtonHeight" format="dimension" />
+        <attr name="ee_hintTextSize" format="dimension" />
+        <!--获取焦点时才展示清除按钮-->
+        <attr name="ee_onFocusShowClearButtonEnable" format="boolean" />
 
         <!--始终绘制在右侧-->
-        <attr name="ee_clearButtonPaddingLeft" format="dimension"/>
-        <attr name="ee_clearButtonPaddingRight" format="dimension"/>
-        <attr name="ee_clearButtonMarginLeft" format="dimension"/>
-        <attr name="ee_clearButtonMarginRight" format="dimension"/>
+        <attr name="ee_clearButtonPaddingLeft" format="dimension" />
+        <attr name="ee_clearButtonPaddingRight" format="dimension" />
+        <attr name="ee_clearButtonMarginLeft" format="dimension" />
+        <attr name="ee_clearButtonMarginRight" format="dimension" />
 
         <!--是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
         <attr name="ee_auto_wrap_by_width" format="boolean" />

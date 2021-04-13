@@ -161,6 +161,19 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
             Log.e("LineDataSet", "Circle radius cannot be < 1");
         }
     }
+    
+    /**
+     * 设置外圆的半径，单位px
+     *
+     * @param radius px
+     */
+    public void setCircleRadiusInPx(float radius) {
+        if (radius >= 1f) {
+            mCircleRadius = radius;
+        } else {
+            Log.e("LineDataSet", "Circle radius cannot be < 1");
+        }
+    }
 
     @Override
     public float getCircleRadius() {
@@ -177,6 +190,19 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
 
         if (holeRadius >= 0.5f) {
             mCircleHoleRadius = Utils.convertDpToPixel(holeRadius);
+        } else {
+            Log.e("LineDataSet", "Circle radius cannot be < 0.5");
+        }
+    }
+    
+    /**
+     * 设置内圆的半径，单位px
+     *
+     * @param holeRadius px
+     */
+    public void setCircleHoleRadiusInPx(float holeRadius) {
+        if (holeRadius >= 0.5f) {
+            mCircleHoleRadius = holeRadius;
         } else {
             Log.e("LineDataSet", "Circle radius cannot be < 0.5");
         }

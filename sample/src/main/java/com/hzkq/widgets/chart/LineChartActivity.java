@@ -6,8 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-
 import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.custom.linechart.ISmartLineDataSet;
 import com.github.mikephil.charting.custom.linechart.SmartLineChart;
@@ -27,6 +25,7 @@ import com.hzkq.widgets.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 import me.zhouzhuo810.magpiex.utils.ScreenAdapterUtil;
@@ -69,7 +68,7 @@ public class LineChartActivity extends BaseActivity {
     @Override
     public void initEvent() {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
-    
+        
     }
     
     private void initLineChart1() {
@@ -153,7 +152,7 @@ public class LineChartActivity extends BaseActivity {
         int size = values.size();
         mLineChart1.getXAxis().setAxisMaximum(size);
         mLineChart1.getXAxis().setLabelCount(size);
-    
+        
         mLineChart1.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -161,7 +160,7 @@ public class LineChartActivity extends BaseActivity {
                 if (index >= values.size()) {
                     return "";
                 }
-            
+                
                 return (index + 1) + "月";
             }
         });
@@ -246,7 +245,7 @@ public class LineChartActivity extends BaseActivity {
         int size = values.size();
         mLineChart2.getXAxis().setAxisMaximum(size);
         mLineChart2.getXAxis().setLabelCount(size);
-    
+        
         mLineChart2.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {

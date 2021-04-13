@@ -43,6 +43,7 @@
         android:drawableRight="@mipmap/ic_launcher"
         android:paddingLeft="30px"
         android:paddingRight="30px"
+        app:ee_onFocusShowClearButtonEnable="true"
         android:text="55555555555555555555555555544433333" />
 
     <com.keqiang.views.ExtendEditText
@@ -52,6 +53,7 @@
         android:layout_marginTop="100px"
         android:gravity="end|center_vertical"
         android:hint="超过一行自动从左到右布局"
+        app:ee_onFocusShowClearButtonEnable="true"
         android:paddingLeft="30px"
         android:paddingRight="30px" />
 

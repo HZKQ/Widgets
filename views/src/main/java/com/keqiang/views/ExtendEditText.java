@@ -94,6 +94,12 @@ public class ExtendEditText extends AppCompatEditText {
      * true：启用 false：不启用
      */
     private boolean mClearButtonEnabled = true;
+    
+    /**
+     * 是否获取焦点时才展示清除按钮，默认false
+     */
+    private boolean mOnFocusShowClearButtonEnable = false;
+    
     /**
      * 清除文本按钮是否显示
      */
@@ -189,6 +195,7 @@ public class ExtendEditText extends AppCompatEditText {
             mClearButtonHeight = DEFAULT_CLEAR_BUTTON_SIZE;
             mClearButtonPaddingLeft = mClearButtonPaddingRight = 0;
             mClearButtonMarginLeft = mClearButtonMarginRight = 0;
+            mOnFocusShowClearButtonEnable = false;
             mHintTextSize = null;
             mAutoGravityRtl = GRAVITY_RTL_END | GRAVITY_RTL_CENTER_HORIZONTAL;
             mAutoWrapByWidth = false;
@@ -235,6 +242,7 @@ public class ExtendEditText extends AppCompatEditText {
             
             mAutoWrapByWidth = typedArray.getBoolean(R.styleable.ExtendEditText_ee_auto_wrap_by_width, false);
             mAutoGravityRtl = typedArray.getInt(R.styleable.ExtendEditText_ee_auto_gravity_rtl, GRAVITY_RTL_END | GRAVITY_RTL_CENTER_HORIZONTAL);
+            mOnFocusShowClearButtonEnable = typedArray.getBoolean(R.styleable.ExtendEditText_ee_onFocusShowClearButtonEnable, false);
         } finally {
             if (typedArray != null) {
                 typedArray.recycle();
@@ -306,7 +314,7 @@ public class ExtendEditText extends AppCompatEditText {
      * @return {@code true}:表示有效计算，取消本次绘制流程
      */
     private boolean countClearButtonPosition() {
-        if (!mClearButtonEnabled || isTextEmpty() || !isEnabled()) {
+        if (!needDrawClearButton()) {
             return false;
         }
         
@@ -393,7 +401,8 @@ public class ExtendEditText extends AppCompatEditText {
         }
         
         super.onDraw(canvas);
-        if (mClearButtonEnabled && !isTextEmpty() && isEnabled()) {
+        
+        if (needDrawClearButton()) {
             drawClearButton(canvas);
             return;
         }
@@ -401,8 +410,14 @@ public class ExtendEditText extends AppCompatEditText {
         if (mClearButtonVisibility) {
             super.setCompoundDrawablePadding(mCompoundDrawablePadding);
             mClearButtonVisibility = false;
-            mClearButtonClickRange.set(0, 0, 0, 0);
         }
+    }
+    
+    /**
+     * 判断是否需要绘制clearButton
+     */
+    private boolean needDrawClearButton() {
+        return mClearButtonEnabled && !isTextEmpty() && isEnabled() && (!mOnFocusShowClearButtonEnable || hasFocus());
     }
     
     /**
@@ -523,12 +538,21 @@ public class ExtendEditText extends AppCompatEditText {
      */
     private final OnFocusChangeListener mFocusChangeListener = new OnFocusChangeListener() {
         @Override
-        public void onFocusChange(View v, boolean hasFocus) {
+        public void onFocusChange(final View v, boolean hasFocus) {
             if (!softInputOnFocusShow) {
                 closeInputMethod();
             }
             
-            if (mOnFocusChangeListener != null) {
+            if (mOnFocusShowClearButtonEnable && hasFocus && needDrawClearButton()) {
+                setCursorVisible(false);
+                countClearButtonPosition();
+                post(() -> {
+                    setCursorVisible(true);
+                    if (mOnFocusChangeListener != null) {
+                        mOnFocusChangeListener.onFocusChange(v, true);
+                    }
+                });
+            } else if (mOnFocusChangeListener != null) {
                 mOnFocusChangeListener.onFocusChange(v, hasFocus);
             }
         }
@@ -571,7 +595,7 @@ public class ExtendEditText extends AppCompatEditText {
             if (!TextUtils.isEmpty(mDefText)) {
                 setSelection(mDefText.length());
             }
-        } else if (mClearButtonEnabled && !isTextEmpty() && enabled) {
+        } else if (needDrawClearButton()) {
             // 设置enable为true时，不会触发onPreDraw，因此手动调用
             post(this :: countClearButtonPosition);
         }
@@ -705,14 +729,22 @@ public class ExtendEditText extends AppCompatEditText {
      * 启用一键清除文本按钮
      */
     public void setClearButtonEnable() {
+        if (mClearButtonEnabled) {
+            return;
+        }
+        
         mClearButtonEnabled = true;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
      * 关闭一键清除文本按钮
      */
     public void setClearButtonDisable() {
+        if (!mClearButtonEnabled) {
+            return;
+        }
+        
         mClearButtonEnabled = false;
         invalidate();
     }
@@ -722,7 +754,7 @@ public class ExtendEditText extends AppCompatEditText {
      *
      * @return true:一键清除文本可以
      */
-    public boolean getClearButtonEnabled() {
+    public boolean isClearButtonEnabled() {
         return mClearButtonEnabled;
     }
     
@@ -731,7 +763,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonIcon(Drawable clearButton) {
         mClearButton = clearButton;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -741,7 +773,7 @@ public class ExtendEditText extends AppCompatEditText {
         mClearButtonWidth = clearButtonSize;
         mClearButtonHeight = clearButtonSize;
         needMeasureClearButtonSizeAgain = true;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -752,7 +784,7 @@ public class ExtendEditText extends AppCompatEditText {
     public void setClearButtonWidth(int clearButtonWidth) {
         mClearButtonWidth = clearButtonWidth;
         needMeasureClearButtonSizeAgain = true;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -763,7 +795,7 @@ public class ExtendEditText extends AppCompatEditText {
     public void setClearButtonHeight(int clearButtonHeight) {
         mClearButtonHeight = clearButtonHeight;
         needMeasureClearButtonSizeAgain = true;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -771,7 +803,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonPaddingLeft(int clearButtonPaddingLeft) {
         mClearButtonPaddingLeft = clearButtonPaddingLeft;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -779,7 +811,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonPaddingRight(int clearButtonPaddingRight) {
         mClearButtonPaddingRight = clearButtonPaddingRight;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -787,7 +819,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonMarginLeft(int clearButtonMarginLeft) {
         mClearButtonMarginLeft = clearButtonMarginLeft;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -795,7 +827,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setClearButtonMarginRight(int clearButtonMarginRight) {
         mClearButtonMarginRight = clearButtonMarginRight;
-        invalidate();
+        invalidateForClearButton();
     }
     
     /**
@@ -858,6 +890,33 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public boolean isAutoWrapByWidth() {
         return mAutoWrapByWidth && !isEnabled();
+    }
+    
+    /**
+     * 设置是否获取焦点时才展示清除按钮，默认false
+     */
+    public void setOnFocusShowClearButtonEnable(boolean onFocusShowClearButtonEnable) {
+        mOnFocusShowClearButtonEnable = onFocusShowClearButtonEnable;
+        invalidate();
+    }
+    
+    /**
+     * 是否获取焦点时才展示清除按钮
+     */
+    public boolean isOnFocusShowClearButtonEnable() {
+        return mOnFocusShowClearButtonEnable;
+    }
+    
+    /**
+     * 重绘清除按钮数据
+     */
+    protected void invalidateForClearButton() {
+        if (needDrawClearButton()) {
+            // 设置enable为true时，不会触发onPreDraw，因此手动调用invalidate()
+            post(this :: countClearButtonPosition);
+        } else {
+            invalidate();
+        }
     }
     
     /**
