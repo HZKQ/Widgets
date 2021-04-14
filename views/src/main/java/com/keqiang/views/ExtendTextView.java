@@ -6,25 +6,33 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.text.Editable;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.TextView;
+
+import com.keqiang.views.edittext.SimpleTextWatcher;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatTextView;
 
 /**
  * {@link TextView}扩展，扩展功能如下：
  * <ul>
+ *     <li>支持设置文本时不触发{@link TextWatcher}监听</li>
  *     <li>支持配置文本超出一行时，是否自动靠左排版</li>
  *     <li>支持配置文本仅根据控件宽度自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题</li>
  * </ul>
@@ -51,6 +59,8 @@ public class ExtendTextView extends AppCompatTextView {
     @Retention(RetentionPolicy.SOURCE)
     private @interface GravityRtl {}
     
+    private final TextWatcherInner mTextWatcherInner;
+    
     private int mDefGravity;
     private CharSequence mDefText;
     
@@ -75,6 +85,8 @@ public class ExtendTextView extends AppCompatTextView {
     
     public ExtendTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mTextWatcherInner = new TextWatcherInner();
+        super.addTextChangedListener(mTextWatcherInner);
         mDefGravity = getGravity();
         parseAttrs(context, attrs, defStyleAttr);
     }
@@ -226,6 +238,51 @@ public class ExtendTextView extends AppCompatTextView {
         super.setText(text, type);
     }
     
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(CharSequence charSequence) {
+        mTextWatcherInner.setCallListener(false);
+        setText(charSequence);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(CharSequence text, BufferType type) {
+        mTextWatcherInner.setCallListener(false);
+        setText(text, type);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(@StringRes int resid) {
+        mTextWatcherInner.setCallListener(false);
+        setText(resid);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(@StringRes int resid, BufferType type) {
+        mTextWatcherInner.setCallListener(false);
+        setText(resid, type);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(char[] text, int start, int len) {
+        mTextWatcherInner.setCallListener(false);
+        setText(text, start, len);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
@@ -362,5 +419,80 @@ public class ExtendTextView extends AppCompatTextView {
      */
     public boolean isAutoWrapByWidth() {
         return mAutoWrapByWidth;
+    }
+    
+    private static final class TextWatcherInner implements TextWatcher {
+        
+        private List<TextWatcher> mTextWatchers;
+        /**
+         * 是否需要触发监听
+         */
+        private boolean mCallListener = true;
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            if (mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.beforeTextChanged(s, start, count, after);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.beforeTextChanged(s, start, count, after);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (mCallListener && mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.onTextChanged(s, start, before, count);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.onTextChanged(s, start, before, count);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (mCallListener && mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.afterTextChanged(s);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.afterTextChanged(s);
+                    }
+                }
+            }
+        }
+        
+        public void setCallListener(boolean callListener) {
+            mCallListener = callListener;
+        }
+        
+        public void addTextWatcher(TextWatcher textWatcher) {
+            if (mTextWatchers == null) {
+                mTextWatchers = new ArrayList<>();
+            }
+            mTextWatchers.add(textWatcher);
+        }
+        
+        public void removeTextWatcher(TextWatcher textWatcher) {
+            if (mTextWatchers != null) {
+                int i = mTextWatchers.indexOf(textWatcher);
+                if (i >= 0) {
+                    mTextWatchers.remove(i);
+                }
+            }
+        }
+        
+        public void removeAllTextWatcher() {
+            mTextWatchers.clear();
+        }
     }
 }

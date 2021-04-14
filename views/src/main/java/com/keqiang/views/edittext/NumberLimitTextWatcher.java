@@ -1,7 +1,6 @@
 package com.keqiang.views.edittext;
 
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
@@ -13,11 +12,17 @@ import androidx.annotation.NonNull;
  *
  * @author Created by wanggaowan on 1/29/21 10:05 AM
  */
-public class NumberLimitTextWatcher implements TextWatcher {
+public class NumberLimitTextWatcher extends SimpleTextWatcher {
     private int mDecimalLimit = Integer.MAX_VALUE;
-    private final EditText mEditText;
+    protected final EditText mEditText;
     
     public NumberLimitTextWatcher(@NonNull EditText editText) {
+        super();
+        mEditText = editText;
+    }
+    
+    public NumberLimitTextWatcher(@NonNull EditText editText, boolean forceCall) {
+        super(forceCall);
         mEditText = editText;
     }
     
@@ -25,6 +30,19 @@ public class NumberLimitTextWatcher implements TextWatcher {
      * @param decimalCount 如果editText为可输入浮点数，此值限制最长的小数位数
      */
     public NumberLimitTextWatcher(@NonNull EditText editText, int decimalCount) {
+        super();
+        mEditText = editText;
+        if (decimalCount < 0) {
+            decimalCount = 0;
+        }
+        mDecimalLimit = decimalCount;
+    }
+    
+    /**
+     * @param decimalCount 如果editText为可输入浮点数，此值限制最长的小数位数
+     */
+    public NumberLimitTextWatcher(@NonNull EditText editText, int decimalCount, boolean forceCall) {
+        super(forceCall);
         mEditText = editText;
         if (decimalCount < 0) {
             decimalCount = 0;

@@ -24,14 +24,19 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.keqiang.views.edittext.SimpleTextWatcher;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
@@ -42,6 +47,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  * <ul>
  *     <li>支持配置一键清除按钮</li>
  *     <li>支持配置获取焦点时是否弹出软键盘，兼容低版本</li>
+ *     <li>支持设置文本时不触发{@link TextWatcher}监听</li>
  *     <li>支持配置文本超出一行时，是否自动靠左排版</li>
  *     <li>支持配置文本仅根据控件宽度自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题</li>
  * </ul>
@@ -77,6 +83,8 @@ public class ExtendEditText extends AppCompatEditText {
     private static final int DEFAULT_CLEAR_BUTTON_SIZE = 50;
     
     private Context mContext;
+    private final TextWatcherInner mTextWatcherInner;
+    
     private Drawable mClearButton;
     private int mClearButtonWidth;
     private int mClearButtonHeight;
@@ -163,18 +171,20 @@ public class ExtendEditText extends AppCompatEditText {
     
     public ExtendEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mTextWatcherInner = new TextWatcherInner();
         init(context, attrs, defStyleAttr);
     }
     
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        super.addTextChangedListener(mTextWatcherInner);
+        super.setOnFocusChangeListener(mFocusChangeListener);
+        
         PLACEHOLDER.setBounds(0, 0, 0, 0);
         mContext = context;
         mClearButton = ContextCompat.getDrawable(context, R.drawable.undo);
         mClearButtonClickRange = new Rect();
         mTextSize = super.getTextSize();
-        addTextChangedListener(mTextWatcher);
         parseAttrs(context, attrs, defStyleAttr);
-        super.setOnFocusChangeListener(mFocusChangeListener);
         mCompoundDrawablePadding = super.getCompoundDrawablePadding();
         Drawable[] drawables = super.getCompoundDrawables();
         if (drawables[2] == null) {
@@ -570,6 +580,73 @@ public class ExtendEditText extends AppCompatEditText {
         }
     }
     
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(CharSequence charSequence) {
+        mTextWatcherInner.setCallListener(false);
+        setText(charSequence);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(CharSequence text, BufferType type) {
+        mTextWatcherInner.setCallListener(false);
+        setText(text, type);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(@StringRes int resid) {
+        mTextWatcherInner.setCallListener(false);
+        setText(resid);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(@StringRes int resid, BufferType type) {
+        mTextWatcherInner.setCallListener(false);
+        setText(resid, type);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    /**
+     * 设置文本但不触发{@link TextWatcher}监听
+     */
+    public void setTextNoListen(char[] text, int start, int len) {
+        mTextWatcherInner.setCallListener(false);
+        setText(text, start, len);
+        mTextWatcherInner.setCallListener(true);
+    }
+    
+    @Override
+    public void addTextChangedListener(TextWatcher watcher) {
+        if (mTextWatcherInner == null) {
+            super.addTextChangedListener(watcher);
+        } else {
+            mTextWatcherInner.addTextWatcher(watcher);
+        }
+    }
+    
+    @Override
+    public void removeTextChangedListener(TextWatcher watcher) {
+        if (mTextWatcherInner == null) {
+            super.removeTextChangedListener(watcher);
+        } else {
+            mTextWatcherInner.removeTextWatcher(watcher);
+        }
+    }
+    
+    public void removeAllTextWatcher() {
+        mTextWatcherInner.removeAllTextWatcher();
+    }
+    
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
@@ -624,36 +701,6 @@ public class ExtendEditText extends AppCompatEditText {
         
         super.setGravity(gravity);
     }
-    
-    private final TextWatcher mTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        
-        }
-        
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        
-        }
-        
-        @Override
-        public void afterTextChanged(Editable s) {
-            String string = s.toString().trim();
-            if (TextUtils.isEmpty(string)) {
-                mUserEnterContent = 0;
-            } else {
-                mUserEnterContent++;
-            }
-            
-            if (mHintTextSize != null) {
-                if (TextUtils.isEmpty(string)) {
-                    ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
-                } else {
-                    ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
-                }
-            }
-        }
-    };
     
     /**
      * 是否触摸了清除文本的按钮
@@ -1059,5 +1106,95 @@ public class ExtendEditText extends AppCompatEditText {
             }
         }
         return sbNewText.toString();
+    }
+    
+    private final class TextWatcherInner implements TextWatcher {
+        
+        private List<TextWatcher> mTextWatchers;
+        /**
+         * 是否需要触发监听
+         */
+        private boolean mCallListener = true;
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            if (mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.beforeTextChanged(s, start, count, after);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.beforeTextChanged(s, start, count, after);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (mCallListener && mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.onTextChanged(s, start, before, count);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.onTextChanged(s, start, before, count);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void afterTextChanged(Editable s) {
+            String string = s.toString().trim();
+            if (TextUtils.isEmpty(string)) {
+                mUserEnterContent = 0;
+            } else {
+                mUserEnterContent++;
+            }
+            
+            if (mHintTextSize != null) {
+                if (TextUtils.isEmpty(string)) {
+                    ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
+                } else {
+                    ExtendEditText.super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
+                }
+            }
+            
+            if (mCallListener && mTextWatchers != null) {
+                for (TextWatcher watcher : mTextWatchers) {
+                    if (mCallListener) {
+                        watcher.afterTextChanged(s);
+                    } else if (watcher instanceof SimpleTextWatcher
+                        && ((SimpleTextWatcher) watcher).isForceCall()) {
+                        watcher.afterTextChanged(s);
+                    }
+                }
+            }
+        }
+        
+        public void setCallListener(boolean callListener) {
+            mCallListener = callListener;
+        }
+        
+        public void addTextWatcher(TextWatcher textWatcher) {
+            if (mTextWatchers == null) {
+                mTextWatchers = new ArrayList<>();
+            }
+            mTextWatchers.add(textWatcher);
+        }
+        
+        public void removeTextWatcher(TextWatcher textWatcher) {
+            if (mTextWatchers != null) {
+                int i = mTextWatchers.indexOf(textWatcher);
+                if (i >= 0) {
+                    mTextWatchers.remove(i);
+                }
+            }
+        }
+        
+        public void removeAllTextWatcher() {
+            mTextWatchers.clear();
+        }
     }
 }
