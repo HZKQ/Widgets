@@ -480,7 +480,7 @@ public class SmartPieChartRenderer extends DataRenderer {
             int entryCount = dataSet.getEntryCount();
             
             mValueLinePaint.setColor(dataSet.getValueLineColor());
-            mValueLinePaint.setStrokeWidth(Utils.convertDpToPixel(dataSet.getValueLineWidth()));
+            mValueLinePaint.setStrokeWidth(dataSet.getValueLineWidth());
             mValueLinePaint.setStyle(Paint.Style.FILL_AND_STROKE);
             
             final float sliceSpace = getSliceSpace(dataSet);

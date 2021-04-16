@@ -27,7 +27,7 @@
         android:background="@drawable/item_bg_selector"
         android:paddingLeft="30px"
         android:paddingRight="30px"
-        android:text="5555"
+        android:text="点击改变以下文本框2和3状态或数据"
         android:textSize="42px"
         app:siv_left_image="@drawable/up_arrow"
         app:siv_left_image_size="30px"
@@ -43,8 +43,8 @@
         android:drawableRight="@mipmap/ic_launcher"
         android:paddingLeft="30px"
         android:paddingRight="30px"
-        app:ee_onFocusShowClearButtonEnable="true"
-        android:text="55555555555555555555555555544433333" />
+        android:text="55555555555555555555555555544433333"
+        app:ee_onFocusShowClearButtonEnable="true" />
 
     <com.keqiang.views.ExtendEditText
         android:id="@+id/et_test"
@@ -53,9 +53,25 @@
         android:layout_marginTop="100px"
         android:gravity="end|center_vertical"
         android:hint="超过一行自动从左到右布局"
-        app:ee_onFocusShowClearButtonEnable="true"
         android:paddingLeft="30px"
-        android:paddingRight="30px" />
+        android:paddingRight="30px"
+        app:ee_onFocusShowClearButtonEnable="true" />
+
+    <com.keqiang.views.ExtendEditText
+        android:id="@+id/et_test2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100px"
+        android:gravity="end|center_vertical"
+        android:hint="限制整数最多5位，小数最多2位"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        app:ee_decimalLimit="2"
+        app:ee_integerLimit="5"
+        app:ee_onFocusShowClearButtonEnable="true"
+        app:ee_setTextUseNumberLimit="true" />
 
     <com.keqiang.views.ExtendTextView
         android:layout_width="match_parent"

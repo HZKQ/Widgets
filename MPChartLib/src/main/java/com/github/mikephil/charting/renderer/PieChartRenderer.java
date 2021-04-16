@@ -469,7 +469,7 @@ public class PieChartRenderer extends DataRenderer {
             int entryCount = dataSet.getEntryCount();
 
             mValueLinePaint.setColor(dataSet.getValueLineColor());
-            mValueLinePaint.setStrokeWidth(Utils.convertDpToPixel(dataSet.getValueLineWidth()));
+            mValueLinePaint.setStrokeWidth(dataSet.getValueLineWidth());
 
             final float sliceSpace = getSliceSpace(dataSet);
 

@@ -23,6 +23,14 @@
         <attr name="ee_hintTextSize" format="dimension" />
         <!--获取焦点时才展示清除按钮-->
         <attr name="ee_onFocusShowClearButtonEnable" format="boolean" />
+        <!--限制最大小数位-->
+        <attr name="ee_decimalLimit" format="integer" />
+        <!--限制最大整数位-->
+        <attr name="ee_integerLimit" format="integer" />
+        <!--自动去除整数位前端无效0值-->
+        <attr name="ee_autoRemoveInValidZero" format="boolean" />
+        <!--使用setText方法设置文本时，是否启用数字长度限制规则-->
+        <attr name="ee_setTextUseNumberLimit" format="boolean" />
 
         <!--始终绘制在右侧-->
         <attr name="ee_clearButtonPaddingLeft" format="dimension" />

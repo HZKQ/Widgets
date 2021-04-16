@@ -3,13 +3,13 @@ package com.github.mikephil.charting.custom.piechart;
 import android.graphics.Color;
 import android.view.Gravity;
 
-import androidx.annotation.ColorInt;
-
 import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.ColorInt;
 
 
 /**
@@ -53,6 +53,7 @@ public class SmartPieDataSet extends DataSet<SmartPieEntry> implements ISmartPie
     
     public SmartPieDataSet(List<SmartPieEntry> yVals, String label) {
         super(yVals, label);
+        mValueLineWidth = Utils.convertDpToPixel(mValueLineWidth);
     }
     
     @Override
@@ -179,7 +180,11 @@ public class SmartPieDataSet extends DataSet<SmartPieEntry> implements ISmartPie
     }
     
     public void setValueLineWidth(float valueLineWidth) {
-        this.mValueLineWidth = valueLineWidth;
+        this.mValueLineWidth = Utils.convertDpToPixel(valueLineWidth);
+    }
+    
+    public void setValueLineWidthInPx(float valueLineWidthPx) {
+        this.mValueLineWidth = valueLineWidthPx;
     }
     
     /**

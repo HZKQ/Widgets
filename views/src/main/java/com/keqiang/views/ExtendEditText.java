@@ -21,9 +21,12 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.keqiang.views.edittext.NumberLimitTextWatcher;
+import com.keqiang.views.edittext.NumberOverLimitListener;
 import com.keqiang.views.edittext.SimpleTextWatcher;
 
 import java.lang.annotation.ElementType;
@@ -48,6 +51,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  *     <li>支持配置一键清除按钮</li>
  *     <li>支持配置获取焦点时是否弹出软键盘，兼容低版本</li>
  *     <li>支持设置文本时不触发{@link TextWatcher}监听</li>
+ *     <li>当输入类型为Number、NumberDecimal时，支持配置整数最大位数，小数最大位数以及自动去除整数位无效0值</li>
  *     <li>支持配置文本超出一行时，是否自动靠左排版</li>
  *     <li>支持配置文本仅根据控件宽度自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题</li>
  * </ul>
@@ -161,6 +165,13 @@ public class ExtendEditText extends AppCompatEditText {
     private boolean mAutoWrapByWidth = false;
     private String mAutoWrapText;
     
+    private NumberLimitTextWatcherInner mNumberLimitTextWatcher;
+    private int mDecimalLimit = Integer.MAX_VALUE;
+    private int mIntegerLimit = Integer.MAX_VALUE;
+    private boolean mAutoRemoveInValidZero = true;
+    private NumberOverLimitListener mNumberOverLimitListener;
+    private boolean mSetTextUseNumberLimit;
+    
     public ExtendEditText(Context context) {
         this(context, null);
     }
@@ -176,9 +187,6 @@ public class ExtendEditText extends AppCompatEditText {
     }
     
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-        super.addTextChangedListener(mTextWatcherInner);
-        super.setOnFocusChangeListener(mFocusChangeListener);
-        
         PLACEHOLDER.setBounds(0, 0, 0, 0);
         mContext = context;
         mClearButton = ContextCompat.getDrawable(context, R.drawable.undo);
@@ -190,6 +198,11 @@ public class ExtendEditText extends AppCompatEditText {
         if (drawables[2] == null) {
             setCompoundDrawables(drawables[0], drawables[1], null, drawables[3]);
         }
+        
+        mNumberLimitTextWatcher = new NumberLimitTextWatcherInner(this, mDecimalLimit, mIntegerLimit, mAutoRemoveInValidZero);
+        super.addTextChangedListener(mNumberLimitTextWatcher);
+        super.addTextChangedListener(mTextWatcherInner);
+        super.setOnFocusChangeListener(mFocusChangeListener);
     }
     
     /**
@@ -209,6 +222,7 @@ public class ExtendEditText extends AppCompatEditText {
             mHintTextSize = null;
             mAutoGravityRtl = GRAVITY_RTL_END | GRAVITY_RTL_CENTER_HORIZONTAL;
             mAutoWrapByWidth = false;
+            
             if (!isInEditMode()) {
                 mClearButtonWidth = SimpleUtil.getScaledValue(mClearButtonWidth);
                 mClearButtonHeight = SimpleUtil.getScaledValue(mClearButtonHeight);
@@ -253,6 +267,11 @@ public class ExtendEditText extends AppCompatEditText {
             mAutoWrapByWidth = typedArray.getBoolean(R.styleable.ExtendEditText_ee_auto_wrap_by_width, false);
             mAutoGravityRtl = typedArray.getInt(R.styleable.ExtendEditText_ee_auto_gravity_rtl, GRAVITY_RTL_END | GRAVITY_RTL_CENTER_HORIZONTAL);
             mOnFocusShowClearButtonEnable = typedArray.getBoolean(R.styleable.ExtendEditText_ee_onFocusShowClearButtonEnable, false);
+            
+            mDecimalLimit = typedArray.getInt(R.styleable.ExtendEditText_ee_decimalLimit, Integer.MAX_VALUE);
+            mIntegerLimit = typedArray.getInt(R.styleable.ExtendEditText_ee_integerLimit, Integer.MAX_VALUE);
+            mAutoRemoveInValidZero = typedArray.getBoolean(R.styleable.ExtendEditText_ee_autoRemoveInValidZero, true);
+            mSetTextUseNumberLimit = typedArray.getBoolean(R.styleable.ExtendEditText_ee_setTextUseNumberLimit, false);
         } finally {
             if (typedArray != null) {
                 typedArray.recycle();
@@ -570,10 +589,19 @@ public class ExtendEditText extends AppCompatEditText {
     
     @Override
     public void setText(CharSequence text, BufferType type) {
-        mDefText = text;
+        if (mNumberLimitTextWatcher != null) {
+            mNumberLimitTextWatcher.setCallListener(mSetTextUseNumberLimit);
+        }
+        
         // 在super.setText(text, type)之上的代码会先于TextWatcher相关方法执行
         super.setText(text, type);
         // 在super.setText(text, type)之下的代码会后于TextWatcher相关方法执行
+        
+        if (mNumberLimitTextWatcher != null) {
+            mNumberLimitTextWatcher.setCallListener(true);
+        }
+        
+        mDefText = text;
         mUserEnterContent--;
         if (mUserEnterContent < 0) {
             mUserEnterContent = 0;
@@ -631,6 +659,12 @@ public class ExtendEditText extends AppCompatEditText {
             super.addTextChangedListener(watcher);
         } else {
             mTextWatcherInner.addTextWatcher(watcher);
+        }
+    }
+    
+    public void addTextChangedListener(int index, TextWatcher watcher) {
+        if (mTextWatcherInner != null) {
+            mTextWatcherInner.addTextWatcher(index, watcher);
         }
     }
     
@@ -955,6 +989,85 @@ public class ExtendEditText extends AppCompatEditText {
     }
     
     /**
+     * 当输入模式为{@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时，设置限制输入的小数位数
+     */
+    public void setDecimalLimit(int decimalLimit) {
+        if (decimalLimit != mDecimalLimit && decimalLimit >= 0) {
+            mDecimalLimit = decimalLimit;
+            mNumberLimitTextWatcher.setDecimalLimit(mDecimalLimit);
+        }
+    }
+    
+    /**
+     * 获取当输入模式为{@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时，限制输入的小数位数
+     */
+    public final int getDecimalLimit() {
+        return mDecimalLimit;
+    }
+    
+    /**
+     * 当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER NUMBER}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时，设置限制输入的整数位数
+     */
+    public void setIntegerLimit(int integerLimit) {
+        if (integerLimit != mIntegerLimit && integerLimit >= 1) {
+            mIntegerLimit = integerLimit;
+            mNumberLimitTextWatcher.setIntegerLimit(mIntegerLimit);
+        }
+    }
+    
+    /**
+     * 获取当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时，限制输入的整数位数
+     */
+    public final int getIntegerLimit() {
+        return mIntegerLimit;
+    }
+    
+    /**
+     * 当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,设置是否自动去除整数位无效0值
+     */
+    public void setAutoRemoveInValidZero(boolean autoRemoveInValidZero) {
+        if (autoRemoveInValidZero != mAutoRemoveInValidZero) {
+            mAutoRemoveInValidZero = autoRemoveInValidZero;
+            mNumberLimitTextWatcher.setAutoRemoveInValidZero(mAutoRemoveInValidZero);
+        }
+    }
+    
+    /**
+     * 获取当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,是否自动去除整数位无效0值
+     */
+    public boolean isAutoRemoveInValidZero() {
+        return mAutoRemoveInValidZero;
+    }
+    
+    /**
+     * 设置当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,是否启用位数限制规则
+     */
+    public void setSetTextUseNumberLimit(boolean setTextUseNumberLimit) {
+        mSetTextUseNumberLimit = setTextUseNumberLimit;
+    }
+    
+    /**
+     * 当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,是否启用位数限制规则
+     */
+    public boolean isSetTextUseNumberLimit() {
+        return mSetTextUseNumberLimit;
+    }
+    
+    /**
+     * 当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时，设置数值超过限制位数回调监听
+     */
+    public void setNumberOverLimitListener(NumberOverLimitListener numberOverLimitListener) {
+        mNumberOverLimitListener = numberOverLimitListener;
+    }
+    
+    /**
      * 重绘清除按钮数据
      */
     protected void invalidateForClearButton() {
@@ -1108,6 +1221,33 @@ public class ExtendEditText extends AppCompatEditText {
         return sbNewText.toString();
     }
     
+    private final class NumberLimitTextWatcherInner extends NumberLimitTextWatcher {
+        
+        private boolean mCallListener = true;
+        
+        public NumberLimitTextWatcherInner(@NonNull EditText editText, int decimalCount, int integerLimit, boolean autoRemoveInValidZero) {
+            super(editText, decimalCount, integerLimit, autoRemoveInValidZero);
+        }
+        
+        @Override
+        public void onTextChanged(CharSequence ss, int start, int before, int count) {
+            if (mCallListener) {
+                super.onTextChanged(ss, start, before, count);
+            }
+        }
+        
+        @Override
+        public void lengthOverLimit(EditText editText, boolean isDecimalOver, boolean isIntegerOver) {
+            if (mNumberOverLimitListener != null) {
+                mNumberOverLimitListener.onOver(ExtendEditText.this, isDecimalOver, isIntegerOver);
+            }
+        }
+        
+        public void setCallListener(boolean callListener) {
+            mCallListener = callListener;
+        }
+    }
+    
     private final class TextWatcherInner implements TextWatcher {
         
         private List<TextWatcher> mTextWatchers;
@@ -1182,6 +1322,18 @@ public class ExtendEditText extends AppCompatEditText {
                 mTextWatchers = new ArrayList<>();
             }
             mTextWatchers.add(textWatcher);
+        }
+        
+        public void addTextWatcher(int index, TextWatcher textWatcher) {
+            if (mTextWatchers == null) {
+                mTextWatchers = new ArrayList<>();
+            }
+            
+            if (index >= mTextWatchers.size() - 1) {
+                mTextWatchers.add(textWatcher);
+            } else {
+                mTextWatchers.add(Math.max(index, 0), textWatcher);
+            }
         }
         
         public void removeTextWatcher(TextWatcher textWatcher) {
