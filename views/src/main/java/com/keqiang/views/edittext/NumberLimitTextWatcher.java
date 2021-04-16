@@ -230,7 +230,10 @@ public class NumberLimitTextWatcher extends SimpleTextWatcher {
      * {@link EditText}输入类型是否是Number类型
      */
     public static boolean isNumber(EditText editText) {
-        return (EditorInfo.TYPE_CLASS_NUMBER & (editText.getInputType() & EditorInfo.TYPE_MASK_CLASS))
-            == EditorInfo.TYPE_CLASS_NUMBER;
+        if ((EditorInfo.TYPE_CLASS_NUMBER & (editText.getInputType() & EditorInfo.TYPE_MASK_CLASS)) == EditorInfo.TYPE_CLASS_NUMBER) {
+            return (EditorInfo.TYPE_CLASS_PHONE & (editText.getInputType() & EditorInfo.TYPE_MASK_CLASS)) != EditorInfo.TYPE_CLASS_PHONE;
+        }
+        
+        return false;
     }
 }
