@@ -219,10 +219,10 @@ public class RingProgress extends View {
         
         setRotateAngle(mRotateAngle);
         if (!isInEditMode()) {
-            mRingWidth = SimpleUtil.getScaledValue((int) mRingWidth);
-            mCenterTextSize = SimpleUtil.getScaledValue((int) mCenterTextSize);
-            mBorderWidth = SimpleUtil.getScaledValue((int) mBorderWidth);
-            mBorderOffset = SimpleUtil.getScaledValue((int) mBorderOffset);
+            mRingWidth = SimpleUtil.getScaledValue(mRingWidth);
+            mCenterTextSize = SimpleUtil.getScaledValue(mCenterTextSize, true);
+            mBorderWidth = SimpleUtil.getScaledValue(mBorderWidth);
+            mBorderOffset = SimpleUtil.getScaledValue(mBorderOffset);
         }
     }
     

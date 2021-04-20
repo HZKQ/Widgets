@@ -2,9 +2,6 @@ package com.hzkq.widgets.chart;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -20,6 +17,8 @@ import com.hzkq.widgets.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
@@ -110,7 +109,7 @@ public class BarChartActivity extends BaseActivity {
         l.setDrawInside(false);
         l.setForm(Legend.LegendForm.SQUARE);
         l.setFormSize(9f);
-        l.setTextSizeInPx(SimpleUtil.getScaledValue(20));
+        l.setTextSizeInPx(SimpleUtil.getScaledValue(20, true));
         l.setXEntrySpace(4f);
     }
     
@@ -162,7 +161,7 @@ public class BarChartActivity extends BaseActivity {
             dataSets.add(set1);
             
             BarData data = new BarData(dataSets);
-            data.setValueTextSizeInPx(SimpleUtil.getScaledValue(20));
+            data.setValueTextSizeInPx(SimpleUtil.getScaledValue(20, true));
             data.setBarWidth(0.9f);
             mBarChart.setData(data);
         }

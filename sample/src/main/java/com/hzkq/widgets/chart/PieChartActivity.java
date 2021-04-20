@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
-import me.zhouzhuo810.magpiex.utils.ScreenAdapterUtil;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
@@ -77,7 +76,7 @@ public class PieChartActivity extends BaseActivity {
         // 设置饼状图描述字体颜色
         description.setTextColor(ContextCompat.getColor(this, R.color.colorBlack70));
         // 设置饼状图描述字体大小
-        description.setTextSizeInPx(SimpleUtil.getScaledValue(28));
+        description.setTextSizeInPx(SimpleUtil.getScaledValue(28, true));
         
         // 饼状图的位置偏移
         int offset = SimpleUtil.getScaledValue(30);
@@ -99,7 +98,7 @@ public class PieChartActivity extends BaseActivity {
         // 是否格式化成百分比值
         mPieChart.setUsePercentValues(true);
         // 中间绘制的文字大小
-        mPieChart.setCenterTextSizeInPx(SimpleUtil.getScaledValue(62));
+        mPieChart.setCenterTextSizeInPx(SimpleUtil.getScaledValue(62, true));
         // 中间绘制的文字颜色
         mPieChart.setCenterTextColor(ContextCompat.getColor(this, R.color.colorBlack50));
         // 设置中间字体文字类型
@@ -124,10 +123,10 @@ public class PieChartActivity extends BaseActivity {
         mPieChart.setTouchEnabled(true);
         // 是否可用，置未false，只是禁止掉用户与饼状图的所有交互，饼状图依然会绘制
         mPieChart.setEnabled(true);
-
+        
         // 是否绘制标签
         mPieChart.setDrawEntryLabels(true);
-    
+        
         // 饼状图各模块之间的描述
         Legend legend = mPieChart.getLegend();
         // 描述是否可用
@@ -140,7 +139,7 @@ public class PieChartActivity extends BaseActivity {
         legend.setYOffsetInPx(0f);
         // 设置各描述之间怎么排列，横向和纵向
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
-    
+        
         // 横向和纵向起始位置共同决定描述在饼状图中的位置
         // 设置描述横向起始位置
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
@@ -187,7 +186,7 @@ public class PieChartActivity extends BaseActivity {
         // 是否绘制选中扇形图的y轴值
         dataSet.setDrawHighlightYValue(true);
         // 设置绘制值的字体大小
-        dataSet.setValueTextSizeInPx(ScreenAdapterUtil.getInstance().getScaledValue(26));
+        dataSet.setValueTextSizeInPx(SimpleUtil.getScaledValue(26, true));
         // 设置绘制值的颜色值
         dataSet.setValueTextColors(colors);
         // 设置绘制值的位置，顶部，底部或尾部
@@ -197,7 +196,7 @@ public class PieChartActivity extends BaseActivity {
         // 设置绘制第二个数值颜色
         dataSet.setYSecondValueTextColors(colors);
         // 设置绘制第二个数值字体大小
-        dataSet.setYSecondValueTextSize(ScreenAdapterUtil.getInstance().getScaledValue(26));
+        dataSet.setYSecondValueTextSize(SimpleUtil.getScaledValue(26, true));
         
         
         // 设置绘制值引线颜色

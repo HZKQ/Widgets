@@ -88,7 +88,7 @@ public class LineChartActivity extends BaseActivity {
         // x轴文本颜色
         xAxis.setTextColor(color);
         // x轴字体大小
-        xAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20));
+        xAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20, true));
         // x轴是否绘制纵向指示线
         xAxis.setDrawGridLines(false);
         // x轴最小值
@@ -101,7 +101,7 @@ public class LineChartActivity extends BaseActivity {
         SmartYAxis yAxis = mLineChart1.getAxisLeft();
         yAxis.setDrawGridLines(true);
         yAxis.setTextColor(color);
-        yAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20));
+        yAxis.setTextSizeInPx(SimpleUtil.getScaledValue(20, true));
         yAxis.setAxisLineColor(lineColor);
         yAxis.setAxisLineWidthInPx(2);
         yAxis.setGridColor(lineColor);
@@ -180,7 +180,7 @@ public class LineChartActivity extends BaseActivity {
             set.setLineWidthInPx(SimpleUtil.getScaledValue(6));
             set.setCircleRadiusInPx(SimpleUtil.getScaledValue(8));
             set.setCircleColor(blue);
-            set.setValueTextSizeInPx(SimpleUtil.getScaledValue(20));
+            set.setValueTextSizeInPx(SimpleUtil.getScaledValue(20, true));
             set.setDrawFilled(true);
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -195,8 +195,8 @@ public class LineChartActivity extends BaseActivity {
             // 当选中某个节点值时，是否绘制横向指示线
             set.setDrawHorizontalHighlightIndicator(false);
             // 设置纵向指示线是否是间断的
-            set.enableDashedHighlightLine(ScreenAdapterUtil.getInstance().getScaledValue(10),
-                ScreenAdapterUtil.getInstance().getScaledValue(5), 0);
+            set.enableDashedHighlightLine(SimpleUtil.getScaledValue(10),
+                SimpleUtil.getScaledValue(5), 0);
             // 设置纵向指示线是否超出所点击节点的最高点
             set.setOverVerticalHighlightIndicatorEnd(false);
         }
@@ -309,8 +309,8 @@ public class LineChartActivity extends BaseActivity {
             ScreenAdapterUtil.getInstance().loadView(getRootView());
             value = getRootView().findViewById(R.id.tv_use_rate);
             offset = new MPPointF();
-            offset.x = -ScreenAdapterUtil.getInstance().getScaledValue(60);
-            offset.y = -ScreenAdapterUtil.getInstance().getScaledValue(60);
+            offset.x = -SimpleUtil.getScaledValue(60);
+            offset.y = -SimpleUtil.getScaledValue(60);
         }
         
         @SuppressLint("SetTextI18n")

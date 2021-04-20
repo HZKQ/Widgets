@@ -284,7 +284,7 @@ public class ExtendEditText extends AppCompatEditText {
             mClearButtonMarginLeft = SimpleUtil.getScaledValue(mClearButtonMarginLeft);
             mClearButtonMarginRight = SimpleUtil.getScaledValue(mClearButtonMarginRight);
             if (mHintTextSize != null && mHintTextSize != mTextSize) {
-                int scaledValue = SimpleUtil.getScaledValue(mHintTextSize.intValue());
+                int scaledValue = SimpleUtil.getScaledValue(mHintTextSize.intValue(), true);
                 mHintTextSize = scaledValue * 1f;
             }
             

@@ -91,8 +91,8 @@ public class CountdownView extends View {
         }
         
         if (!isInEditMode()) {
-            mTextSize = SimpleUtil.getScaledValue((int) mTextSize);
-            mBorderWidth = SimpleUtil.getScaledValue((int) mBorderWidth);
+            mTextSize = SimpleUtil.getScaledValue(mTextSize, true);
+            mBorderWidth = SimpleUtil.getScaledValue(mBorderWidth);
         } else {
             mDuration = 3 * 1000;
             mCurDuration = mDuration;

@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.zhouzhuo810.magpiex.utils.DisplayUtil;
-import me.zhouzhuo810.magpiex.utils.ScreenAdapterUtil;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**
@@ -82,7 +81,7 @@ public class ViewfinderView extends View {
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         rectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         
-        textPaint.setTextSize(SimpleUtil.getScaledValue(46));
+        textPaint.setTextSize(SimpleUtil.getScaledValue(46, true));
         textPaint.setColor(Color.WHITE);
         rectPaint.setColor(Color.WHITE);
         rectPaint.setStyle(Paint.Style.STROKE);
@@ -283,7 +282,7 @@ public class ViewfinderView extends View {
      */
     private void drawCorner(Canvas canvas, Rect rect) {
         Path leftTopPath = new Path();
-        final int lineLength = ScreenAdapterUtil.getInstance().getScaledValue(40);
+        final int lineLength = SimpleUtil.getScaledValue(40);
         leftTopPath.moveTo(rect.left + lineLength, rect.top);
         leftTopPath.lineTo(rect.left, rect.top);
         leftTopPath.lineTo(rect.left, rect.top + lineLength);
@@ -321,7 +320,7 @@ public class ViewfinderView extends View {
     private void drawText(Canvas canvas, Rect rect) {
         final String text = hintText;
         if (text != null) {
-            final int lineLength = ScreenAdapterUtil.getInstance().getScaledValue(40);
+            final int lineLength = SimpleUtil.getScaledValue(40);
             float textWidth = textPaint.measureText(text);
             int screenWidth = DisplayUtil.getScreenWidth();
             if (textWidth > screenWidth) {

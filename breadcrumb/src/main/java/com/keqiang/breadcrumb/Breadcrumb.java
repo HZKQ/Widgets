@@ -106,7 +106,7 @@ public class Breadcrumb extends LinearLayout {
         }
         
         if (!isInEditMode()) {
-            mTextSize = SimpleUtil.getScaledValue(mTextSize);
+            mTextSize = SimpleUtil.getScaledValue(mTextSize, true);
         }
         
         mTvRootFolder = new TextView(context);

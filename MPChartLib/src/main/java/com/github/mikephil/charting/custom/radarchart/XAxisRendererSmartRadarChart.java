@@ -45,11 +45,12 @@ public class XAxisRendererSmartRadarChart extends XAxisRenderer {
             
             float angle = (sliceangle * i + mChart.getRotationAngle()) % 360f;
             
-            Utils.getPosition(center, mChart.getYRange() * factor
+            float offsetX = (float) (mAxis.getXOffset() * Math.cos(Math.toRadians(angle)));
+            float offsetY = (float) (mAxis.getYOffset() * Math.sin(Math.toRadians(angle)));
+            Utils.getPosition(center, (mChart.getYRange()) * factor
                 + mXAxis.mLabelRotatedWidth / 2f, angle, pOut);
             
-            drawLabel(c, label, pOut.x, pOut.y - mXAxis.mLabelRotatedHeight / 2.f,
-                drawLabelAnchor, labelRotationAngleDegrees);
+            drawLabel(c, label, pOut.x + offsetX, pOut.y + offsetY, drawLabelAnchor, labelRotationAngleDegrees);
         }
         
         MPPointF.recycleInstance(center);

@@ -181,7 +181,7 @@ public class OneWaySeekBar extends View {
         mUserSetThumbSize = mThumbSize != -1;
         
         if (!isInEditMode()) {
-            textSize = SimpleUtil.getScaledValue(textSize);
+            textSize = SimpleUtil.getScaledValue(textSize, true);
             mScrollBarHeight = SimpleUtil.getScaledValue(mScrollBarHeight);
             mProgressTextMargin = SimpleUtil.getScaledValue(mProgressTextMargin);
         }

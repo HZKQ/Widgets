@@ -134,7 +134,7 @@ public class IndexBar extends View {
             minTextSize = SimpleUtil.getScaledValueByHeight(minTextSize);
             
             mTvToast = new TextView(context);
-            mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50));
+            mTvToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(50, true));
             mTvToast.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
             mTvToast.setBackgroundResource(R.drawable.sort_lv_bg);
             mTvToast.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));

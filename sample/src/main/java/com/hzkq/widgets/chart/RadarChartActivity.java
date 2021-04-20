@@ -91,8 +91,8 @@ public class RadarChartActivity extends BaseActivity {
         
         XAxis xAxis = mRadarChart.getXAxis();
         xAxis.setTextSize(9f);
-        xAxis.setYOffset(10f);
-        xAxis.setXOffset(10f);
+        xAxis.setYOffset(0);
+        xAxis.setXOffset(3f);
         xAxis.setValueFormatter(new ValueFormatter() {
             private final String[] mActivities = new String[]{"Burger", "Steak", "Salad", "Pasta", "Pizza"};
             
@@ -134,8 +134,8 @@ public class RadarChartActivity extends BaseActivity {
         
         XAxis xAxis = mRadarChart2.getXAxis();
         xAxis.setTextSize(9f);
-        xAxis.setYOffset(10f);
-        xAxis.setXOffset(10f);
+        xAxis.setYOffset(0f);
+        xAxis.setXOffset(3f);
         xAxis.setValueFormatter(new ValueFormatter() {
             private final String[] mActivities = new String[]{"Burger", "Steak", "Salad", "Pasta", "Pizza"};
             

@@ -50,7 +50,7 @@ public class MonthView extends LinearLayout {
         
         // Set the views
         view.title = new TextView(new ContextThemeWrapper(view.getContext(), titleTextStyle));
-        view.title.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(36));
+        view.title.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(36, true));
         view.grid = view.findViewById(R.id.calendar_grid);
         view.dayNamesHeaderRowView = view.findViewById(R.id.day_names_header_row);
         

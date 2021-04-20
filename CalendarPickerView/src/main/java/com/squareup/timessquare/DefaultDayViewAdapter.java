@@ -13,7 +13,7 @@ public class DefaultDayViewAdapter implements DayViewAdapter {
         TextView textView = new TextView(
             new ContextThemeWrapper(parent.getContext(), R.style.CalendarCell_CalendarDate));
         textView.setDuplicateParentStateEnabled(true);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(36));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, SimpleUtil.getScaledValue(36, true));
         parent.addView(textView);
         parent.setDayOfMonthTextView(textView);
     }

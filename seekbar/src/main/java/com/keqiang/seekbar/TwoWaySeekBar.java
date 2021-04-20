@@ -214,7 +214,7 @@ public class TwoWaySeekBar extends View {
         mProgressEnd = max;
         
         if (!isInEditMode()) {
-            textSize = SimpleUtil.getScaledValue(textSize);
+            textSize = SimpleUtil.getScaledValue(textSize, true);
             mScrollBarHeight = SimpleUtil.getScaledValue(mScrollBarHeight);
             mProgressTextMargin = SimpleUtil.getScaledValue(mProgressTextMargin);
         }

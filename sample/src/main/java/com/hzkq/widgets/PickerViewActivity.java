@@ -5,9 +5,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-
 import com.bigkoo.pickerview.OptionsPickerView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.bigkoo.pickerview.model.IPickerViewData;
@@ -23,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
@@ -67,8 +66,8 @@ public class PickerViewActivity extends BaseActivity {
         mPvOptions = new OptionsPickerView.Builder(this, (options1, option2, options3, v) -> {
             //返回的分别是三个级别的选中位置
         }).setCancelColor(0xff999999)
-            .setContentTextSize(SimpleUtil.getScaledValue(46))
-            .setOutTextSize(SimpleUtil.getScaledValue(36))
+            .setContentTextSize(SimpleUtil.getScaledValue(46, true))
+            .setOutTextSize(SimpleUtil.getScaledValue(36, true))
             .setLineSpacingMultiplier(3f)
             .setLayoutRes(R.layout.pickerview_options2)
             .setGravity(Gravity.BOTTOM)
@@ -102,8 +101,8 @@ public class PickerViewActivity extends BaseActivity {
                     });
                     tvCancel.setOnClickListener(v1 -> mStartTimePicker.dismiss());
                 })
-                .setContentSize(SimpleUtil.getScaledValue(46))
-                .setOutSize(SimpleUtil.getScaledValue(36))
+                .setContentSize(SimpleUtil.getScaledValue(46, true))
+                .setOutSize(SimpleUtil.getScaledValue(36, true))
                 .setType(new boolean[]{true, true, true, false, false, false})
                 .setLabel(getString(R.string.pickerview_year),
                     getString(R.string.pickerview_month),

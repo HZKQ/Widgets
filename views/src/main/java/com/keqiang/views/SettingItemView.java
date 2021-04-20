@@ -82,7 +82,7 @@ public class SettingItemView extends RelativeLayout {
         if (!isInEditMode()) {
             mLeftImageSize = SimpleUtil.getScaledValue(mLeftImageSize);
             mRightImageSize = SimpleUtil.getScaledValue(mRightImageSize);
-            mTextSize = SimpleUtil.getScaledValue((int) mTextSize);
+            mTextSize = SimpleUtil.getScaledValue(mTextSize, true);
             mTextPaddingLeft = SimpleUtil.getScaledValue((mTextPaddingLeft));
             mTextPaddingRight = SimpleUtil.getScaledValue(mTextPaddingRight);
         }
