@@ -3,7 +3,7 @@ package com.keqiang.indexbar;
 import java.io.Serializable;
 import java.util.List;
 
-import io.reactivex.annotations.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * 索引数据

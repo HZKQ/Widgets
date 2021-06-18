@@ -21,6 +21,11 @@ public class MyApp extends BaseApplication {
     }
     
     @Override
+    public boolean isScreenAdaptDisable() {
+        return false;
+    }
+    
+    @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
