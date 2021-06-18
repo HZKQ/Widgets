@@ -93,6 +93,7 @@ public class SettingItemView extends RelativeLayout {
         LayoutParams params = new LayoutParams(mLeftImageSize, mLeftImageSize);
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         mImageViewLeft.setLayoutParams(params);
+        SimpleUtil.setScaleTag(mImageViewLeft, true);
         addView(mImageViewLeft);
         if (!mShowLeftImage) {
             mImageViewLeft.setVisibility(GONE);
@@ -105,6 +106,7 @@ public class SettingItemView extends RelativeLayout {
         params.addRule(RelativeLayout.ALIGN_PARENT_END);
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         mImageViewRight.setLayoutParams(params);
+        SimpleUtil.setScaleTag(mImageViewRight, true);
         addView(mImageViewRight);
         if (!mShowRightImage) {
             mImageViewRight.setVisibility(GONE);
@@ -120,6 +122,7 @@ public class SettingItemView extends RelativeLayout {
         params.addRule(RelativeLayout.START_OF, mImageViewRight.getId());
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         mTextView.setLayoutParams(params);
+        SimpleUtil.setScaleTag(mTextView, true);
         addView(mTextView);
     }
     

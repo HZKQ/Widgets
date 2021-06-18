@@ -115,6 +115,7 @@ public class Breadcrumb extends LinearLayout {
         mTvRootFolder.setGravity(Gravity.CENTER_VERTICAL);
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mTvRootFolder.setLayoutParams(params);
+        SimpleUtil.setScaleTag(mTvRootFolder,true);
         addView(mTvRootFolder);
         
         mScrollView = new CustomHorizontalScrollView(context);
@@ -132,6 +133,7 @@ public class Breadcrumb extends LinearLayout {
         mTvFolders.setGravity(Gravity.CENTER_VERTICAL);
         params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mTvFolders.setLayoutParams(params);
+        SimpleUtil.setScaleTag(mTvFolders,true);
         mScrollView.addView(mTvFolders);
         
         setFixFirstFolder(mFixFirstFolder);

@@ -545,7 +545,7 @@ public class RingProgress extends View {
     }
     
     /**
-     * 设置圆环渐变色
+     * 设置圆环渐变色,如果{@link #mMaxAngle}设置的是360，建议最后一个颜色值和第一个值相同，这样有更好的渐变
      */
     public void setRingColors(int[] colors) {
         mRingColors = colors;
@@ -553,7 +553,7 @@ public class RingProgress extends View {
     }
     
     /**
-     * 设置圆环渐变色
+     * 设置圆环渐变色,如果{@link #mMaxAngle}设置的是360，建议最后一个颜色值和第一个值相同，这样有更好的渐变
      */
     public void setRingColors2(int... colors) {
         mRingColors = colors;
