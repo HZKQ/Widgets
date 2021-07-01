@@ -15,7 +15,7 @@ deps.annotation = 'androidx.annotation:annotation:1.1.0'
 deps.junit = 'junit:junit:4.12'
 deps.multidex = 'androidx.multidex:multidex:2.0.1'
 
-deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.8.9'
+deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.9.0'
 deps.zzProgressbar = 'com.github.zhouzhuo810:ZzHorizontalProgressBar:1.1.1'
 
 ext.deps = deps

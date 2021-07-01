@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="choose_item_view_id_1" type="id" />
+    <item name="choose_item_view_id_2" type="id" />
+    <item name="choose_item_view_id_3" type="id" />
+    <item name="choose_item_view_id_4" type="id" />
+
+    <item name="edit_item_view_id_1" type="id" />
+    <item name="edit_item_view_id_2" type="id" />
+    <item name="edit_item_view_id_3" type="id" />
+    <item name="edit_item_view_id_4" type="id" />
+
+    <item type="id" name="setting_item_view_left_image_view_id"/>
+    <item type="id" name="setting_item_view_right_image_view_id"/>
+</resources>

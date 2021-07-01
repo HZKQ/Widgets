@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <integer name="setting_item_view_left_image_view_id">0x10</integer>
-  <integer name="setting_item_view_right_image_view_id">0x11</integer>
-</resources>

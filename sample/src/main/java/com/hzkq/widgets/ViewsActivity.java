@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
 
+import com.keqiang.views.ChooseItemView;
+import com.keqiang.views.EditItemView;
 import com.keqiang.views.ExtendEditText;
 import com.keqiang.views.edittext.SimpleTextWatcher;
 
@@ -63,6 +65,23 @@ public class ViewsActivity extends BaseActivity {
         findViewById(R.id.rl_test).setOnClickListener(v -> {
             editText.setEnabled(!editText.isEnabled());
             etTest2.setText("0001234567.987654");
+        });
+        
+        ChooseItemView civItem = findViewById(R.id.civ_item);
+        EditItemView eivItem = findViewById(R.id.eiv_item);
+        civItem.setOnClickListener(v -> {
+            civItem.getTvContent().setText("当前为阅读模式，不可编辑");
+            civItem.setShowStyle(ChooseItemView.SHOW_STYLE_READ);
+            eivItem.setShowStyle(EditItemView.SHOW_STYLE_READ);
+        });
+        
+        
+        eivItem.setOnClickListener(v -> {
+            if (eivItem.getShowStyle() == EditItemView.SHOW_STYLE_READ) {
+                civItem.getTvContent().setText("点击切换不同的显示模式");
+                civItem.setShowStyle(ChooseItemView.SHOW_STYLE_EDIT);
+                eivItem.setShowStyle(EditItemView.SHOW_STYLE_EDIT);
+            }
         });
     }
 }

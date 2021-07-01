@@ -2,6 +2,7 @@ package com.keqiang.indexbar;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
 
@@ -119,14 +120,11 @@ public final class PinyinUtils {
         
         if (name.length() >= 2) {
             CharSequence str = name.subSequence(0, 2);
-            if (str.equals("澹台")) {
-                return "tantai";
-            } else if (str.equals("尉迟")) {
-                return "yuchi";
-            } else if (str.equals("万俟")) {
-                return "moqi";
-            } else if (str.equals("单于")) {
-                return "chanyu";
+            if (REPEAT_SURNAMES.containsKey(str)) {
+                RepeatSurname repeatSurname = REPEAT_SURNAMES.get(str);
+                if (repeatSurname != null) {
+                    return repeatSurname.pinyin;
+                }
             }
         }
         
@@ -171,7 +169,7 @@ public final class PinyinUtils {
         CharSequence name;
         if (fullName.length() >= 2) {
             CharSequence str = fullName.subSequence(0, 2);
-            if (str.equals("澹台") || str.equals("尉迟") || str.equals("万俟") || str.equals("单于")) {
+            if (REPEAT_SURNAMES.containsKey(str)) {
                 surname = str;
                 name = fullName.subSequence(2, fullName.length());
             } else {
@@ -227,20 +225,35 @@ public final class PinyinUtils {
         boolean splitEmpty = split == null || split.length() == 0;
         if (surname.length() >= 2) {
             CharSequence str = surname.subSequence(0, 2);
-            if (str.equals("澹台")) {
-                return splitEmpty ? "tt" : "t" + split + "t";
-            } else if (str.equals("尉迟")) {
-                return splitEmpty ? "yc" : "y" + split + "c";
-            } else if (str.equals("万俟")) {
-                return splitEmpty ? "mq" : "m" + split + "q";
-            } else if (str.equals("单于")) {
-                return splitEmpty ? "cy" : "c" + split + "y";
+            if (REPEAT_SURNAMES.containsKey(str)) {
+                RepeatSurname repeatSurname = REPEAT_SURNAMES.get(str);
+                if (repeatSurname != null) {
+                    if (splitEmpty || TextUtils.isEmpty(repeatSurname.initials)) {
+                        return repeatSurname.initials;
+                    }
+                    
+                    StringBuilder builder = null;
+                    for (int i = 0; i < repeatSurname.initials.length(); i++) {
+                        char charAt = repeatSurname.initials.charAt(i);
+                        if (builder == null) {
+                            builder = new StringBuilder(charAt);
+                        } else {
+                            builder.append(split).append(charAt);
+                        }
+                    }
+                    
+                    return builder == null ? null : builder.toString();
+                }
             }
         }
         
         char ch = surname.charAt(0);
         if (SURNAMES.containsKey(ch)) {
-            return SURNAMES.get(ch).substring(0, 1);
+            String pinyin = SURNAMES.get(ch);
+            if (TextUtils.isEmpty(pinyin)) {
+                return null;
+            }
+            return pinyin.substring(0, 1);
         }
         
         if (ch >= 0x4E00 && ch <= 0x9FA5) {
@@ -280,7 +293,7 @@ public final class PinyinUtils {
         CharSequence name;
         if (fullName.length() >= 2) {
             CharSequence str = fullName.subSequence(0, 2);
-            if (str.equals("澹台") || str.equals("尉迟") || str.equals("万俟") || str.equals("单于")) {
+            if (REPEAT_SURNAMES.containsKey(str)) {
                 surname = str;
                 name = fullName.subSequence(2, fullName.length());
             } else {
@@ -309,6 +322,10 @@ public final class PinyinUtils {
      * 多音字姓氏映射表
      */
     private static final SimpleArrayMap<Character, String> SURNAMES;
+    /**
+     * 多音字复姓映射表
+     */
+    private static final SimpleArrayMap<CharSequence, RepeatSurname> REPEAT_SURNAMES;
     
     /**
      * 获取拼音对照表，对比过pinyin4j和其他方式，这样查表设计的好处就是读取快
@@ -318,43 +335,88 @@ public final class PinyinUtils {
      */
     private static final String PINYIN_TABLE;
     
+    /**
+     * 添加多音字首字母映射关系
+     *
+     * @param surname  多音字姓氏
+     * @param initials 姓氏首字母，小写
+     */
+    public static void addSurnames(Character surname, @NonNull String initials) {
+        SURNAMES.put(surname, initials);
+    }
+    
+    /**
+     * 移除多音字首字母映射关系
+     *
+     * @param surname 多音字姓氏
+     */
+    public static void removeSurnames(Character surname) {
+        SURNAMES.remove(surname);
+    }
+    
+    /**
+     * 添加复姓多音字首字母映射关系
+     *
+     * @param repeatSurname 复姓多音字姓氏
+     * @param initials      姓氏首字母，小写
+     * @param pinyin        姓氏全拼，小写
+     */
+    public static void addRepeatSurnames(String repeatSurname, @NonNull String initials, @NonNull String pinyin) {
+        REPEAT_SURNAMES.put(repeatSurname, new RepeatSurname(initials, pinyin));
+    }
+    
+    /**
+     * 移除复姓多音字首字母映射关系
+     *
+     * @param repeatSurname 复姓多音字姓氏
+     */
+    public static void removeRepeatSurnames(String repeatSurname) {
+        REPEAT_SURNAMES.remove(repeatSurname);
+    }
+    
     static {
+        REPEAT_SURNAMES = new SimpleArrayMap<>();
+        REPEAT_SURNAMES.put("澹台", new RepeatSurname("tt", "tantai"));
+        REPEAT_SURNAMES.put("尉迟", new RepeatSurname("yc", "yuchi"));
+        REPEAT_SURNAMES.put("万俟", new RepeatSurname("mq", "moqi"));
+        REPEAT_SURNAMES.put("单于", new RepeatSurname("cy", "chanyu"));
+        
         SURNAMES = new SimpleArrayMap<>(35);
         SURNAMES.put('乐', "yue");
-        SURNAMES.put('乘', "sheng");
+        // SURNAMES.put('乘', "sheng");
         SURNAMES.put('乜', "nie");
         SURNAMES.put('仇', "qiu");
-        SURNAMES.put('会', "gui");
-        SURNAMES.put('便', "pian");
-        SURNAMES.put('区', "ou");
+        // SURNAMES.put('会', "gui");
+        // SURNAMES.put('便', "pian");
+        // SURNAMES.put('区', "ou");
         SURNAMES.put('单', "shan");
-        SURNAMES.put('参', "shen");
-        SURNAMES.put('句', "gou");
-        SURNAMES.put('召', "shao");
-        SURNAMES.put('员', "yun");
+        // SURNAMES.put('参', "shen");
+        // SURNAMES.put('句', "gou");
+        // SURNAMES.put('召', "shao");
+        // SURNAMES.put('员', "yun");
         SURNAMES.put('宓', "fu");
-        SURNAMES.put('弗', "fei");
-        SURNAMES.put('折', "she");
+        // SURNAMES.put('弗', "fei");
+        // SURNAMES.put('折', "she");
         SURNAMES.put('曾', "zeng");
         SURNAMES.put('朴', "piao");
         SURNAMES.put('查', "zha");
-        SURNAMES.put('洗', "xian");
+        // SURNAMES.put('洗', "xian");
         SURNAMES.put('盖', "ge");
-        SURNAMES.put('祭', "zhai");
-        SURNAMES.put('种', "chong");
-        SURNAMES.put('秘', "bi");
-        SURNAMES.put('繁', "po");
+        // SURNAMES.put('祭', "zhai");
+        // SURNAMES.put('种', "chong");
+        // SURNAMES.put('秘', "bi");
+        // SURNAMES.put('繁', "po");
         SURNAMES.put('缪', "miao");
         SURNAMES.put('能', "nai");
-        SURNAMES.put('蕃', "pi");
-        SURNAMES.put('覃', "qin");
+        // SURNAMES.put('蕃', "pi");
+        // SURNAMES.put('覃', "qin");
         SURNAMES.put('解', "xie");
-        SURNAMES.put('谌', "shan");
-        SURNAMES.put('适', "kuo");
+        // SURNAMES.put('谌', "shan");
+        // SURNAMES.put('适', "kuo");
         SURNAMES.put('都', "du");
-        SURNAMES.put('阿', "e");
-        SURNAMES.put('难', "ning");
-        SURNAMES.put('黑', "he");
+        // SURNAMES.put('阿', "e");
+        // SURNAMES.put('难', "ning");
+        // SURNAMES.put('黑', "he");
         
         //noinspection StringBufferReplaceableByString
         PINYIN_TABLE = new StringBuilder(125412)
@@ -389,5 +451,24 @@ public final class PinyinUtils {
             .append("  du    yan   yuan  zou   sao   shan  li    zhi   shuanglu    xi    luo   zhang mo    ao    can   piao  cong  qu    bi    zhi   yu    xu    hua   bo    su    xiao  lin   zhan  dun   liu   tuo   zeng  tan   jiao  tie   yan   luo   zhan  jing  yi    ye    tuo   bin   zou   yan   peng  lu:   teng  xiang ji    shuangju    xi    huan  li    biao  ma    yu    tuo   xun   chi   qu    ri    bo    lu:   zang  shi   si    fu    ju    zou   zhu   tuo   nu    jia   yi    tai   xiao  ma    yin   jiao  hua   luo   hai   pian  biao  li    cheng yan   xing  qin   jun   qi    qi    ke    zhui  zong  su    can   pian  zhi   kui   sao   wu    ao    liu   qian  shan  piao  luo   cong  zhan  zhou  ji    shuangxiang gu    wei   wei   wei   yu    gan   yi    ang   tou   jie   bo    bi    ci    ti    di    ku    hai   qiao  hou   kua   ge    tui   geng  pian  bi    ke    qia   yu    sui   lou   bo    xiao  bang  bo    cuo   kuan  bin   mo    liao  lou   nao   du    zang  sui   ti    bin   kuan  lu    gao   gao   qiao  kao   qiao  lao   zao   biao  kun   kun   ti    fang  xiu   ran   mao   dan   kun   bin   fa    tiao  pi    zi    fa    ran   ti    pao   pi    mao   fu    er    rong  qu    none  xiu   gua   ji    peng  zhua  shao  sha   ti    li    bin   zong  ti    peng  song  zheng quan  zong  shun  jian  duo   hu    la    jiu   qi    lian  zhen  bin   peng  mo    san   man   man   seng  xu    lie   qian  qian  nong  huan  kuai  ning  bin   lie   rang  dou   dou   nao   hong  xi    dou   kan   dou   dou   jiu   chang yu    yu    li    juan  fu    qian  gui   zong  liu   gui   shang yu    gui   mei   ji    qi    jie   kui   hun   ba    po    mei   xu    yan   xiao  liang yu    tui   qi    wang  liang wei   jian  chi   piao  bi    mo    ji    xu    chou  yan   zhan  yu    dao   ren   ji    ba    hong  tuo   diao  ji    yu    e     que   sha   hang  tun   mo    gai   shen  fan   yuan  pi    lu    wen   hu    lu    za    fang  fen   na    you   none  none  he    xia   qu    han   pi    ling  tuo   ba    qiu   ping  fu    bi    ji    wei   ju    diao  ba    you   gun   pi    nian  xing  tai   bao   fu    zha   ju    gu    none  none  none  ta    jie   shua  hou   xiang er    an    wei   tiao  zhu   yin   lie   luo   tong  yi    qi    bing  wei   jiao  pu    gui   xian  ge    hui   none  none  kao   none  duo   jun   ti    mian  shao  za    suo   qin   yu    nei   zhe   gun   geng  none  wu    qiu   ting  fu    huan  chou  li    sha   sha   gao   meng  none  none  none  none  yong  ni    zi    qi    qing  xiang nei   chun  ji    diao  qie   gu    zhou  dong  lai   fei   ni    yi    kun   lu    jiu   chang jing  lun   ling  zou   li    meng  zong  zhi   nian  none  none  none  shi   sao   hun   ti    hou   xing  ju    la    zong  ji    bian  bian  huan  quan  ji    wei   wei   yu    chun  rou   die   huang lian  yan   qiu   qiu   jian  bi    e     yang  fu    sai   jian  ha    tuo   hu    none  ruo   none  wen   jian  hao   wu    pang  sao   liu   ma    shi   shi   guan  zi    teng  ta    yao   ge    rong  qian  qi    wen   ruo   none  lian  ao    le    hui   min   ji    tiao  qu    jian  sao   man   xi    qiu   biao  ji    ji    zhu   jiang qiu   zhuan yong  zhang kang  xue   bie   jue   qu    xiang bo    jiao  xun   su    huang zun   shan  shan  fan   gui   lin   xun   miao  xi    none  xiang fen   guan  hou   kuai  zei   sao   zhan  gan   gui   sheng li    chang none  none  ai    ru    ji    xu    huo   none  li    lie   li    mie   zhen  xiang e     lu    guan  li    xian  yu    dao   ji    you   tun   lu    fang  ba    ke    ba    ping  nian  lu    you   zha   fu    ba    bao   hou   pi    tai   gui   jie   kao   wei   er    tong  zei   hou   kuai  ji    jiao  xian  zha   xiang xun   geng  li    lian  jian  li    shi   tiao  gun   sha   huan  jun   ji    yong  qing  ling  qi    zou   fei   kun   chang gu    ni    nian  diao  jing  shen  shi   zi    fen   die   bi    chang ti    wen   wei   sai   e     qiu   fu    huang quan  jiang bian  sao   ao    qi    ta    guan  yao   pang  jian  le    biao  xue   bie   man   min   yong  wei   xi    gui   shan  lin   zun   hu    gan   li    shan  guan  niao  yi    fu    li    jiu   bu    ya")
             .append("n   fu    diao  ji    feng  none  gan   shi   feng  ming  bao   yuan  zhi   hu    qian  fu    fen   wen   jian  shi   yu    fou   yiao  ju    jue   pi    huan  zhen  bao   yan   ya    zheng fang  feng  wen   ou    te    jia   nu    ling  mie   fu    tuo   wen   li    bian  zhi   ge    yuan  zi    qu    xiao  chi   dan   ju    you   gu    zhong yu    yang  rong  ya    zhi   yu    none  ying  zhui  wu    er    gua   ai    zhi   yan   heng  jiao  ji    lie   zhu   ren   ti    hong  luo   ru    mou   ge    ren   jiao  xiu   zhou  chi   luo   none  none  none  luan  jia   ji    yu    huan  tuo   bu    wu    juan  yu    bo    xun   xun   bi    xi    jun   ju    tu    jing  ti    e     e     kuang hu    wu    shen  la    none  none  lu    bing  shu   fu    an    zhao  peng  qin   qian  bei   diao  lu    que   jian  ju    tu    ya    yuan  qi    li    ye    zhui  kong  duo   kun   sheng qi    jing  ni    e     jing  zi    lai   dong  qi    chun  geng  ju    qu    none  none  ji    shu   none  chi   miao  rou   fu    qiu   ti    hu    ti    e     jie   mao   fu    chun  tu    yan   he    yuan  pian  yun   mei   hu    ying  dun   mu    ju    none  cang  fang  ge    ying  yuan  xuan  weng  shi   he    chu   tang  xia   ruo   liu   ji    gu    jian  zhun  han   zi    ci    yi    yao   yan   ji    li    tian  kou   ti    ti    ni    tu    ma    jiao  liu   zhen  chen  li    zhuan zhe   ao    yao   yi    ou    chi   zhi   liao  rong  lou   bi    shuangzhuo  yu    wu    jue   yin   tan   si    jiao  yi    hua   bi    ying  su    huang fan   jiao  liao  yan   kao   jiu   xian  xian  tu    mai   zun   yu    ying  lu    tuan  xian  xue   yi    pi    shu   luo   qi    yi    ji    zhe   yu    zhan  ye    yang  pi    ning  hu    mi    ying  meng  di    yue   yu    lei   bo    lu    he    long  shuangyue   ying  guan  qu    li    luan  niao  jiu   ji    yuan  ming  shi   ou    ya    cang  bao   zhen  gu    dong  lu    ya    xiao  yang  ling  chi   qu    yuan  xue   tuo   si    zhi   er    gua   xiu   heng  zhou  ge    luan  hong  wu    bo    li    juan  hu    e     yu    xian  ti    wu    que   miao  an    kun   bei   peng  qian  chun  geng  yuan  su    hu    he    e     gu    qiu   ci    mei   wu    yi    yao   weng  liu   ji    yi    jian  he    yi    ying  zhe   liu   liao  jiao  jiu   yu    lu    huan  zhan  ying  hu    meng  guan  shuanglu    jin   ling  jian  xian  cuo   jian  jian  yan   cuo   lu    you   cu    ji    biao  cu    pao   zhu   jun   zhu   jian  mi    mi    wu    liu   chen  jun   lin   ni    qi    lu    jiu   jun   jing  li    xiang yan   jia   mi    li    she   zhang lin   jing  qi    ling  yan   cu    mai   mai   ge    chao  fu    mian  mian  fu    pao   qu    qu    mou   fu    xian  lai   qu    mian  chi   feng  fu    qu    mian  ma    ma    mo    hui   none  zou   nen   fen   huang huang jin   guang tian  tou   hong  xi    kuang hong  shu   li    nian  chi   hei   hei   yi    qian  zhen  xi    tuan  mo    mo    qian  dai   chu   you   dian  yi    xia   yan   qu    mei   yan   qing  yu    li    dang  du    can   yin   an    yan   tan   an    zhen  dai   can   yi    mei   dan   yan   du    lu    zhi   fen   fu    fu    min   min   yuan  cu    qu    chao  wa    zhu   zhi   mang  ao    bie   tuo   bi    yuan  chao  tuo   ding  mi    nai   ding  zi    gu    gu    dong  fen   tao   yuan  pi    chang gao   qi    yuan  tang  teng  shu   shu   fen   fei   wen   ba    diao  tuo   tong  qu    sheng shi   you   shi   ting  wu    nian  jing  hun   ju    yan   tu    si    xi    xian  yan   lei   bi    yao   yan   han   hui   wu    hou   xi    ge    zha   xiu   weng  zha   nong  nang  qi    zhai  ji    zi    ji    ji    qi    ji    chi   chen  chen  he    ya    ken   xie   bao   ze    shi   zi    chi   nian  ju    tiao  ling  ling  chu   quan  xie   yin   nie   jiu   nie   chuo  kun   yu    chu   yi    ni    cuo   chuo  qu    nian  xian  yu    e     wo    yi    chi   zou   dian  chu   jin   ya    chi   chen  he    yin   ju    ling  bao   tiao  zi    yin   yu    chuo  qu    wo    long  pang  gong  pang  yan   long  long  gong  kan   ta    ling  ta    long  gong  kan   gui   qiu   bie   gui   yue   chui  he    jue   ")
             .append("xie   yue   ").toString();
+    }
+    
+    /**
+     * 复姓数据
+     */
+    private static class RepeatSurname {
+        /**
+         * 首字母
+         */
+        String initials;
+        /**
+         * 拼音全拼
+         */
+        String pinyin;
+        
+        public RepeatSurname(String initials, String pinyin) {
+            this.initials = initials;
+            this.pinyin = pinyin;
+        }
     }
 }

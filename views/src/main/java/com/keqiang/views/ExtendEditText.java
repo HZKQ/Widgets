@@ -284,8 +284,7 @@ public class ExtendEditText extends AppCompatEditText {
             mClearButtonMarginLeft = SimpleUtil.getScaledValue(mClearButtonMarginLeft);
             mClearButtonMarginRight = SimpleUtil.getScaledValue(mClearButtonMarginRight);
             if (mHintTextSize != null && mHintTextSize != mTextSize) {
-                float scaledValue = SimpleUtil.getScaledValue(mHintTextSize, true);
-                mHintTextSize = scaledValue * 1f;
+                mHintTextSize = SimpleUtil.getScaledValue(mHintTextSize, true);
             }
             
             if (mClearButtonWidth != WRAP_CONTENT && mClearButtonWidth != MATCH_PARENT) {
@@ -1045,7 +1044,8 @@ public class ExtendEditText extends AppCompatEditText {
     
     /**
      * 设置当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
-     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,是否启用位数限制规则
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal},
+     * 通过{@link #setText(CharSequence)}相关方法设置文本时，是否启用位数限制规则
      */
     public void setSetTextUseNumberLimit(boolean setTextUseNumberLimit) {
         mSetTextUseNumberLimit = setTextUseNumberLimit;
@@ -1053,7 +1053,8 @@ public class ExtendEditText extends AppCompatEditText {
     
     /**
      * 当输入模式为{@linkplain EditorInfo#TYPE_CLASS_NUMBER Number}或
-     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal}时,是否启用位数限制规则
+     * {@linkplain EditorInfo#TYPE_NUMBER_FLAG_DECIMAL NumberDecimal},
+     * 通过{@link #setText(CharSequence)}相关方法设置文本时，是否启用位数限制规则
      */
     public boolean isSetTextUseNumberLimit() {
         return mSetTextUseNumberLimit;
@@ -1065,6 +1066,22 @@ public class ExtendEditText extends AppCompatEditText {
      */
     public void setNumberOverLimitListener(NumberOverLimitListener numberOverLimitListener) {
         mNumberOverLimitListener = numberOverLimitListener;
+    }
+    
+    /**
+     * 设置提示文本字体大小
+     *
+     * @param hintTextSize 为null时取{@link #getTextSize()}
+     */
+    public void setHintTextSize(Float hintTextSize) {
+        mHintTextSize = hintTextSize;
+        if (TextUtils.isEmpty(getText().toString().trim())) {
+            if (mHintTextSize == null) {
+                super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
+            } else {
+                super.setTextSize(TypedValue.COMPLEX_UNIT_PX, mHintTextSize);
+            }
+        }
     }
     
     /**

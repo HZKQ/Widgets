@@ -14,6 +14,118 @@
         <attr name="siv_text_padding_right" format="dimension|reference" />
     </declare-styleable>
 
+    <declare-styleable name="ChooseItemView">
+        <!--展示形式-->
+        <attr name="civ_show_style" format="flags">
+            <flag name="read" value="0" />
+            <flag name="edit" value="1" />
+        </attr>
+
+        <attr name="civ_could_edit" format="boolean" />
+
+        <attr name="civ_must_input_text" format="string|reference" />
+        <attr name="civ_must_input_textSize" format="dimension|reference" />
+        <attr name="civ_must_input_textColor" format="color|reference" />
+        <attr name="civ_must_input_padding_start" format="dimension|reference" />
+        <attr name="civ_must_input_padding_end" format="dimension|reference" />
+
+        <attr name="civ_title_text" format="string|reference" />
+        <attr name="civ_title_textSize" format="dimension|reference" />
+        <attr name="civ_title_textColor" format="color|reference" />
+        <attr name="civ_title_margin_start" format="dimension|reference" />
+        <attr name="civ_title_margin_end" format="dimension|reference" />
+        <attr name="civ_title_width" format="dimension|reference" />
+
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="android:hint" />
+        <attr name="civ_content_height" format="dimension|reference" />
+        <attr name="civ_content_min_height" format="dimension|reference" />
+        <attr name="civ_content_margin_start" format="dimension|reference" />
+        <attr name="civ_content_margin_end" format="dimension|reference" />
+        <attr name="civ_content_gone_margin_start" format="dimension|reference" />
+        <attr name="civ_content_gone_margin_end" format="dimension|reference" />
+        <attr name="civ_content_padding_top" format="dimension|reference" />
+        <attr name="civ_content_padding_bottom" format="dimension|reference" />
+
+        <attr name="civ_content_auto_wrap_by_width" format="boolean" />
+        <attr name="civ_content_auto_gravity_rtl" format="flags">
+            <flag name="none" value="0" />
+            <flag name="end" value="1" />
+            <flag name="center_horizontal" value="2" />
+        </attr>
+
+        <attr name="civ_right_image" format="reference" />
+        <attr name="civ_right_image_size" format="dimension|reference" />
+        <attr name="civ_right_image_padding" format="dimension|reference" />
+        <attr name="civ_right_image_margin_start" format="dimension|reference" />
+        <attr name="civ_right_image_margin_end" format="dimension|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="EditItemView">
+        <!--展示形式-->
+        <attr name="eiv_show_style" format="flags">
+            <flag name="read" value="0" />
+            <flag name="edit" value="1" />
+        </attr>
+
+        <attr name="eiv_could_edit" format="boolean" />
+
+        <attr name="eiv_must_input_text" format="string|reference" />
+        <attr name="eiv_must_input_textSize" format="dimension|reference" />
+        <attr name="eiv_must_input_textColor" format="color|reference" />
+        <attr name="eiv_must_input_padding_start" format="dimension|reference" />
+        <attr name="eiv_must_input_padding_end" format="dimension|reference" />
+
+        <attr name="eiv_title_text" format="string|reference" />
+        <attr name="eiv_title_textSize" format="dimension|reference" />
+        <attr name="eiv_title_textColor" format="color|reference" />
+        <attr name="eiv_title_margin_start" format="dimension|reference" />
+        <attr name="eiv_title_margin_end" format="dimension|reference" />
+        <attr name="eiv_title_width" format="dimension|reference" />
+
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="android:hint" />
+        <attr name="eiv_content_height" format="dimension|reference" />
+        <attr name="eiv_content_min_height" format="dimension|reference" />
+        <attr name="eiv_content_margin_start" format="dimension|reference" />
+        <attr name="eiv_content_margin_end" format="dimension|reference" />
+        <attr name="eiv_content_gone_margin_start" format="dimension|reference" />
+        <attr name="eiv_content_gone_margin_end" format="dimension|reference" />
+        <attr name="eiv_content_padding_top" format="dimension|reference" />
+        <attr name="eiv_content_padding_bottom" format="dimension|reference" />
+
+        <attr name="eiv_content_clearButtonEnabled" format="boolean" />
+        <attr name="eiv_content_clearButtonIcon" format="reference" />
+        <attr name="eiv_content_clearButtonSize" format="dimension" />
+        <attr name="eiv_content_clearButtonWidth" format="dimension" />
+        <attr name="eiv_content_clearButtonHeight" format="dimension" />
+        <attr name="eiv_content_hintTextSize" format="dimension" />
+        <attr name="eiv_content_onFocusShowClearButtonEnable" format="boolean" />
+        <attr name="eiv_content_decimalLimit" format="integer" />
+        <attr name="eiv_content_integerLimit" format="integer" />
+        <attr name="eiv_content_autoRemoveInValidZero" format="boolean" />
+        <attr name="eiv_content_setTextUseNumberLimit" format="boolean" />
+        <attr name="eiv_content_clearButtonPaddingStart" format="dimension" />
+        <attr name="eiv_content_clearButtonPaddingEnd" format="dimension" />
+        <attr name="eiv_content_clearButtonMarginStart" format="dimension" />
+        <attr name="eiv_content_clearButtonMarginEnd" format="dimension" />
+        <attr name="eiv_content_auto_wrap_by_width" format="boolean" />
+        <attr name="eiv_content_auto_gravity_rtl" format="flags">
+            <flag name="none" value="0" />
+            <flag name="end" value="1" />
+            <flag name="center_horizontal" value="2" />
+        </attr>
+
+        <attr name="eiv_unit_show" format="boolean" />
+        <attr name="eiv_unit_text" format="string|reference" />
+        <attr name="eiv_unit_textSize" format="dimension|reference" />
+        <attr name="eiv_unit_textColor" format="color|reference" />
+        <attr name="eiv_unit_margin_start" format="dimension|reference" />
+        <attr name="eiv_unit_margin_end" format="dimension|reference" />
+    </declare-styleable>
+
     <declare-styleable name="ExtendEditText">
         <attr name="ee_clearButtonEnabled" format="boolean" />
         <attr name="ee_clearButtonIcon" format="reference" />

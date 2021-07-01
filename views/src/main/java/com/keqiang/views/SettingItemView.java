@@ -88,7 +88,7 @@ public class SettingItemView extends RelativeLayout {
         }
         
         mImageViewLeft = new ImageView(context);
-        mImageViewLeft.setId(getResources().getInteger(R.integer.setting_item_view_left_image_view_id));
+        mImageViewLeft.setId(R.id.setting_item_view_left_image_view_id);
         mImageViewLeft.setImageDrawable(mLeftImage);
         LayoutParams params = new LayoutParams(mLeftImageSize, mLeftImageSize);
         params.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -100,7 +100,7 @@ public class SettingItemView extends RelativeLayout {
         }
         
         mImageViewRight = new ImageView(context);
-        mImageViewRight.setId(getResources().getInteger(R.integer.setting_item_view_right_image_view_id));
+        mImageViewRight.setId(R.id.setting_item_view_right_image_view_id);
         mImageViewRight.setImageDrawable(mRightImage);
         params = new LayoutParams(mRightImageSize, mRightImageSize);
         params.addRule(RelativeLayout.ALIGN_PARENT_END);
