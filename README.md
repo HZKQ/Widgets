@@ -14,6 +14,7 @@
 #### 9. [彩虹条](rainbowbar)
 #### 10. [滑动条](seekbar)
 #### 11. [定制的简单Views](views)
+#### 12. [RV适配器](brvah)
 
 
 ## 其它库
@@ -66,6 +67,9 @@ implementation 'com.github.HZKQ.Widgets:seekbar:latest.release.here'
 
 // 定制的简单Views
 implementation 'com.github.HZKQ.Widgets:views:latest.release.here'
+
+// RV适配器
+implementation 'com.github.HZKQ.Widgets:brvah:latest.release.here'
 ```
 
 ## 使用说明
