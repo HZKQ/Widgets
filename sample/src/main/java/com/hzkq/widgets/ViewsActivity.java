@@ -5,12 +5,12 @@ import android.text.Editable;
 import android.util.Log;
 
 import com.keqiang.views.ChooseItemView;
+import com.keqiang.views.DropItemView;
 import com.keqiang.views.EditItemView;
 import com.keqiang.views.ExtendEditText;
 import com.keqiang.views.edittext.SimpleTextWatcher;
 
 import androidx.annotation.Nullable;
-
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.utils.ToastUtil;
 
@@ -82,6 +82,11 @@ public class ViewsActivity extends BaseActivity {
                 civItem.setShowStyle(ChooseItemView.SHOW_STYLE_EDIT);
                 eivItem.setShowStyle(EditItemView.SHOW_STYLE_EDIT);
             }
+        });
+        
+        DropItemView divDevice = findViewById(R.id.div_device);
+        divDevice.setOnDropStatusChangeListener((div, isExpand) -> {
+            ToastUtil.showToast(isExpand ? "展开" : "收起");
         });
     }
 }

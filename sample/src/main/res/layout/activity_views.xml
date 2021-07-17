@@ -19,125 +19,174 @@
         app:ttb_textSizeTitle="@dimen/base_title_text_size"
         app:ttb_titleText="简单View集合" />
 
-    <com.keqiang.views.SettingItemView
-        android:id="@+id/rl_test"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="100px"
-        android:layout_marginTop="30px"
-        android:background="@drawable/item_bg_selector"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        android:text="点击改变以下文本框2和3状态或数据"
-        android:textSize="42px"
-        app:siv_left_image="@drawable/up_arrow"
-        app:siv_left_image_size="30px"
-        app:siv_right_image="@drawable/down_arrow"
-        app:siv_right_image_size="30px"
-        app:siv_text_padding_left="20px"
-        app:siv_text_padding_right="20px" />
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
-    <com.keqiang.views.ChooseItemView
-        android:id="@+id/civ_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:gravity="end|center_vertical"
-        android:text="点击切换不同的显示模式"
-        app:civ_content_gone_margin_end="30px"
-        app:civ_content_margin_end="20px"
-        app:civ_content_margin_start="20px"
-        app:civ_content_min_height="120px"
-        app:civ_content_padding_bottom="10px"
-        app:civ_content_padding_top="10px"
-        app:civ_must_input_padding_end="2px"
-        app:civ_must_input_text="*"
-        app:civ_must_input_textColor="@color/colorRed"
-        app:civ_right_image="@drawable/down_arrow"
-        app:civ_right_image_margin_end="30px"
-        app:civ_right_image_size="30px"
-        app:civ_title_margin_start="30px"
-        app:civ_title_text="必填项" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <com.keqiang.views.EditItemView
-        android:id="@+id/eiv_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_blue_dark"
-        android:gravity="end|center_vertical"
-        android:hint="请输入"
-        android:imeOptions="actionDone"
-        android:maxLines="1"
-        app:eiv_content_clearButtonEnabled="false"
-        app:eiv_content_gone_margin_end="30px"
-        app:eiv_content_margin_end="20px"
-        app:eiv_content_margin_start="20px"
-        app:eiv_content_min_height="120px"
-        app:eiv_content_padding_bottom="10px"
-        app:eiv_content_padding_top="10px"
-        app:eiv_must_input_padding_end="2px"
-        app:eiv_must_input_text="*"
-        app:eiv_must_input_textColor="@color/colorRed"
-        app:eiv_title_margin_start="30px"
-        app:eiv_title_text="必填项"
-        app:eiv_unit_margin_end="30px"
-        app:eiv_unit_show="true"
-        app:eiv_unit_text="g" />
 
-    <com.keqiang.views.ExtendEditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:drawableRight="@mipmap/ic_launcher"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        android:text="55555555555555555555555555544433333"
-        android:textCursorDrawable="@color/colorGreen"
-        app:ee_onFocusShowClearButtonEnable="true" />
+            <com.keqiang.views.SettingItemView
+                android:id="@+id/rl_test"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                android:layout_marginTop="30px"
+                android:background="@drawable/item_bg_selector"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                android:text="点击改变以下文本框2和3状态或数据"
+                android:textSize="42px"
+                app:siv_left_image="@drawable/up_arrow"
+                app:siv_left_image_size="30px"
+                app:siv_right_image="@drawable/down_arrow"
+                app:siv_right_image_size="30px"
+                app:siv_text_padding_left="20px"
+                app:siv_text_padding_right="20px" />
 
-    <com.keqiang.views.ExtendEditText
-        android:id="@+id/et_test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:gravity="end|center_vertical"
-        android:hint="超过一行自动从左到右布局"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        app:ee_onFocusShowClearButtonEnable="true" />
+            <com.keqiang.views.ChooseItemView
+                android:id="@+id/civ_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/darker_gray"
+                android:gravity="end|center_vertical"
+                android:text="点击切换不同的显示模式"
+                app:civ_content_gone_margin_end="30px"
+                app:civ_content_margin_end="20px"
+                app:civ_content_margin_start="20px"
+                app:civ_content_min_height="120px"
+                app:civ_content_padding_bottom="10px"
+                app:civ_content_padding_top="10px"
+                app:civ_must_input_padding_end="2px"
+                app:civ_must_input_text="*"
+                app:civ_must_input_textColor="@color/colorRed"
+                app:civ_right_image="@drawable/down_arrow"
+                app:civ_right_image_margin_end="30px"
+                app:civ_right_image_size="30px"
+                app:civ_title_margin_start="30px"
+                app:civ_title_text="必填项" />
 
-    <com.keqiang.views.ExtendEditText
-        android:id="@+id/et_test2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:gravity="end|center_vertical"
-        android:hint="限制整数最多5位，小数最多2位"
-        android:inputType="numberDecimal"
-        android:maxLines="1"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        app:ee_decimalLimit="2"
-        app:ee_integerLimit="5"
-        app:ee_onFocusShowClearButtonEnable="true"
-        app:ee_setTextUseNumberLimit="true" />
+            <com.keqiang.views.EditItemView
+                android:id="@+id/eiv_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_blue_dark"
+                android:gravity="end|center_vertical"
+                android:hint="请输入"
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                app:eiv_content_clearButtonEnabled="false"
+                app:eiv_content_gone_margin_end="30px"
+                app:eiv_content_margin_end="20px"
+                app:eiv_content_margin_start="20px"
+                app:eiv_content_min_height="120px"
+                app:eiv_content_padding_bottom="10px"
+                app:eiv_content_padding_top="10px"
+                app:eiv_must_input_padding_end="2px"
+                app:eiv_must_input_text="*"
+                app:eiv_must_input_textColor="@color/colorRed"
+                app:eiv_title_margin_start="30px"
+                app:eiv_title_text="必填项"
+                app:eiv_unit_margin_end="30px"
+                app:eiv_unit_show="true"
+                app:eiv_unit_text="g" />
 
-    <com.keqiang.views.ExtendTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:gravity="end|center_vertical"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week"
-        app:et_auto_wrap_by_width="true" />
+            <com.keqiang.views.ExtendEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:drawableRight="@mipmap/ic_launcher"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                android:text="55555555555555555555555555544433333"
+                android:textCursorDrawable="@color/colorGreen"
+                app:ee_onFocusShowClearButtonEnable="true" />
 
-    <com.keqiang.views.ExtendTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:gravity="end|center_vertical"
-        android:paddingLeft="30px"
-        android:paddingRight="30px"
-        android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week。此文本未开启自动裁剪"
-        app:et_auto_wrap_by_width="false" />
+            <com.keqiang.views.ExtendEditText
+                android:id="@+id/et_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:gravity="end|center_vertical"
+                android:hint="超过一行自动从左到右布局"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                app:ee_onFocusShowClearButtonEnable="true" />
+
+            <com.keqiang.views.ExtendEditText
+                android:id="@+id/et_test2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:gravity="end|center_vertical"
+                android:hint="限制整数最多5位，小数最多2位"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                app:ee_decimalLimit="2"
+                app:ee_integerLimit="5"
+                app:ee_onFocusShowClearButtonEnable="true"
+                app:ee_setTextUseNumberLimit="true" />
+
+            <com.keqiang.views.ExtendTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:gravity="end|center_vertical"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week"
+                app:et_auto_wrap_by_width="true" />
+
+            <com.keqiang.views.ExtendTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:gravity="end|center_vertical"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week。此文本未开启自动裁剪"
+                app:et_auto_wrap_by_width="false" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120px"
+                android:gravity="center_vertical"
+                android:layout_marginTop="100px"
+                android:orientation="horizontal">
+
+                <com.keqiang.views.DropItemView
+                    android:id="@+id/div_device"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/item_bg_selector"
+                    android:paddingLeft="30px"
+                    android:paddingRight="30px"
+                    app:div_icon="@drawable/ic_xiala_16_selected"
+                    app:div_text="全部设备全部设备全部设备全部设备" />
+
+                <View
+                    android:layout_width="1px"
+                    android:background="@drawable/bg_line_chart"
+                    android:layout_height="match_parent"/>
+
+                <com.keqiang.views.DropItemView
+                    android:id="@+id/div_mold"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/item_bg_selector"
+                    android:paddingLeft="30px"
+                    android:paddingRight="30px"
+                    app:div_icon="@drawable/ic_xiala_16_selected"
+                    app:div_text="全部模具" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -12,4 +12,7 @@
 
     <item type="id" name="setting_item_view_left_image_view_id"/>
     <item type="id" name="setting_item_view_right_image_view_id"/>
+
+    <item name="drop_item_view_id_1" type="id" />
+    <item name="drop_item_view_id_2" type="id" />
 </resources>

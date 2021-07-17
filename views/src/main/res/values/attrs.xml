@@ -170,4 +170,39 @@
             <flag name="center_horizontal" value="2" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="DropItemView">
+        <!-- 默认文字 -->
+        <attr name="div_text" format="string" />
+        <!-- 默认图标 -->
+        <attr name="div_icon" format="reference" />
+        <!-- 图标大小 -->
+        <attr name="div_icon_size" format="dimension" />
+        <!-- 文字大小 -->
+        <attr name="div_text_size" format="dimension" />
+        <!-- 文字和图标之间的间距 -->
+        <attr name="div_text_icon_spacing" format="dimension" />
+        <!-- 文字对齐方式 -->
+        <attr name="div_text_gravity" format="flags">
+            <flag name="center" value="0" />
+            <flag name="left" value="1" />
+            <flag name="right" value="2" />
+        </attr>
+        <!-- 文字最大行数 -->
+        <attr name="div_text_max_lines" format="integer" />
+        <!-- 收起时的文字颜色，默认：#333 -->
+        <attr name="div_text_color_collapse" format="color" />
+        <!-- 展开时的文字颜色，默认：#3A559B -->
+        <attr name="div_text_color_expand" format="color" />
+        <!-- 收起时的图标颜色，默认：#66000000 -->
+        <attr name="div_icon_color_collapse" format="color" />
+        <!-- 展开时的图标颜色，默认：#3A559B -->
+        <attr name="div_icon_color_expand" format="color" />
+        <!-- 收起时的图标角度，默认0度 -->
+        <attr name="div_icon_angle_collapse" format="integer" />
+        <!-- 展开时的图标角度，默认180度 -->
+        <attr name="div_icon_angle_expand" format="integer" />
+        <!-- 下拉状态，默认：false -->
+        <attr name="div_is_expand" format="boolean" />
+    </declare-styleable>
 </resources>
