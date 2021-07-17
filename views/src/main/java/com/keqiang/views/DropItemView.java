@@ -25,15 +25,6 @@ import me.zhouzhuo810.magpiex.utils.ColorUtil;
  */
 public class DropItemView extends ConstraintLayout {
     
-    /**
-     * 收起状态
-     */
-    public static final int STATUS_COLLAPSE = 0;
-    /**
-     * 展开状态
-     */
-    public static final int STATUS_EXPAND = 1;
-    
     private static final int DEFAULT_TEXT_SIZE_PX = 41;
     private static final int DEFAULT_ICON_SIZE_PX = 41;
     private static final int DEFAULT_SPACING_PX = 20;
@@ -41,7 +32,6 @@ public class DropItemView extends ConstraintLayout {
     private static final int DEFAULT_TEXT_COLOR_COLLAPSE = 0xff333333;
     private static final int DEFAULT_ICON_COLOR_EXPAND = 0xff3A559B;
     private static final int DEFAULT_ICON_COLOR_COLLAPSE = 0x66000000;
-    
     
     private int mTextSize;
     private int mIconSize;

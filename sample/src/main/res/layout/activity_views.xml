@@ -168,7 +168,7 @@
                     android:paddingLeft="30px"
                     android:paddingRight="30px"
                     app:div_icon="@drawable/ic_xiala_16_selected"
-                    app:div_text="全部设备全部设备全部设备全部设备" />
+                    app:div_text="全部设备" />
 
                 <View
                     android:layout_width="1px"
