@@ -92,7 +92,11 @@
                 app:eiv_title_text="必填项"
                 app:eiv_unit_margin_end="30px"
                 app:eiv_unit_show="true"
-                app:eiv_unit_text="g" />
+                app:eiv_unit_padding_horizontal="20px"
+                app:eiv_unit_padding_vertical="10px"
+                app:eiv_unit_textColor="@color/colorWhite"
+                app:eiv_unit_background="@drawable/btn_main_selector"
+                app:eiv_unit_text="自动获取" />
 
             <com.keqiang.views.ExtendEditText
                 android:layout_width="match_parent"

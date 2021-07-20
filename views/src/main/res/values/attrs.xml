@@ -206,6 +206,12 @@
 
         <!--右边单位/描述文本是否展示-->
         <attr name="eiv_unit_show" format="boolean" />
+        <!--右边单位/描述文本水平内边距-->
+        <attr name="eiv_unit_padding_horizontal" format="dimension" />
+        <!--右边单位/描述文本垂直内边距-->
+        <attr name="eiv_unit_padding_vertical" format="dimension" />
+        <!--右边单位/描述文本背景-->
+        <attr name="eiv_unit_background" format="reference" />
         <!--右边单位/描述文本-->
         <attr name="eiv_unit_text" format="string|reference" />
         <!--右边单位/描述文本字体大小-->

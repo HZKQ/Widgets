@@ -170,6 +170,10 @@ public class EditItemView extends ConstraintLayout {
                 
                 mTvUnit.setVisibility(t.getBoolean(R.styleable.EditItemView_eiv_unit_show, false) ? VISIBLE : GONE);
                 mTvUnit.setText(t.getString(R.styleable.EditItemView_eiv_unit_text));
+                int paddingHorizontal = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_unit_padding_horizontal, 0);
+                int paddingVertical = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_unit_padding_vertical, 0);
+                mTvUnit.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+                mTvUnit.setBackground(t.getDrawable(R.styleable.EditItemView_eiv_unit_background));
                 mTvUnit.setTextColor(t.getColor(R.styleable.EditItemView_eiv_unit_textColor, textColor));
                 mTvUnit.setTextSize(TypedValue.COMPLEX_UNIT_PX, t.getDimension(R.styleable.EditItemView_eiv_unit_textSize, textSize));
                 marginStart = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_unit_margin_start, 0);
