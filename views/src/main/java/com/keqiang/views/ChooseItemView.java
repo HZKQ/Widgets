@@ -16,6 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -37,10 +38,10 @@ public class ChooseItemView extends ConstraintLayout {
      */
     public static final int SHOW_STYLE_EDIT = 1;
     
-    @IntDef({SHOW_STYLE_READ, SHOW_STYLE_EDIT})
+    @IntDef(value = {SHOW_STYLE_READ, SHOW_STYLE_EDIT}, open = true)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface ShowStyle {}
+    public @interface ShowStyle {}
     
     protected ExtendTextView mTvMustInput;
     protected ExtendTextView mTvTitle;
@@ -72,7 +73,7 @@ public class ChooseItemView extends ConstraintLayout {
         init(context, attrs);
     }
     
-    private void init(Context context, AttributeSet attrs) {
+    protected void init(Context context, AttributeSet attrs) {
         mShowStyle = SHOW_STYLE_EDIT;
         mCouldEdit = true;
         float textSize = 32;
@@ -193,6 +194,8 @@ public class ChooseItemView extends ConstraintLayout {
                 marginStart = t.getDimensionPixelSize(R.styleable.ChooseItemView_civ_right_image_margin_start, 0);
                 marginEnd = t.getDimensionPixelSize(R.styleable.ChooseItemView_civ_right_image_margin_end, 0);
                 setViewMargin(mIvRight, marginStart, marginEnd);
+                
+                parseCustomAttrs(t);
             } finally {
                 if (t != null) {
                     t.recycle();
@@ -203,27 +206,28 @@ public class ChooseItemView extends ConstraintLayout {
         setShowStyle(mShowStyle, mCouldEdit);
     }
     
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        
+    /**
+     * 解析自定义属性，用于子类继承使用
+     */
+    protected void parseCustomAttrs(@NonNull TypedArray typedArray) {
+    
     }
     
-    private void setViewMargin(View view, int marginStart, int marginEnd) {
+    protected void setViewMargin(View view, int marginStart, int marginEnd) {
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         layoutParams.setMarginStart(marginStart);
         layoutParams.setMarginEnd(marginEnd);
         view.setLayoutParams(layoutParams);
     }
     
-    private void setViewGoneMargin(View view, int goneMarginStart, int goneMarginEnd) {
+    protected void setViewGoneMargin(View view, int goneMarginStart, int goneMarginEnd) {
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         layoutParams.goneStartMargin = goneMarginStart;
         layoutParams.goneEndMargin = goneMarginEnd;
         view.setLayoutParams(layoutParams);
     }
     
-    private void setViewSize(View view, int width, int height) {
+    protected void setViewSize(View view, int width, int height) {
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         layoutParams.width = width;
         layoutParams.height = height;
@@ -247,7 +251,7 @@ public class ChooseItemView extends ConstraintLayout {
     /**
      * 设置当前展示样式
      */
-    public void setShowStyle(int showStyle) {
+    public void setShowStyle(@ShowStyle int showStyle) {
         setShowStyle(showStyle, showStyle == SHOW_STYLE_EDIT);
     }
     
@@ -257,9 +261,14 @@ public class ChooseItemView extends ConstraintLayout {
      * @param couldEdit 是否可编辑，当showStyle == {@link #SHOW_STYLE_EDIT}时，
      *                  可通过couldEdit设置为仅显示编辑样式但是不可编辑
      */
-    public void setShowStyle(int showStyle, boolean couldEdit) {
+    public void setShowStyle(@ShowStyle int showStyle, boolean couldEdit) {
         mShowStyle = showStyle;
         mCouldEdit = couldEdit;
+        
+        if (isSetCustomShowStyle()) {
+            return;
+        }
+        
         if (mShowStyle == SHOW_STYLE_READ) {
             mTvMustInput.setText(null);
             mTvContent.setHint(null);
@@ -271,6 +280,15 @@ public class ChooseItemView extends ConstraintLayout {
             mIvRight.setVisibility(VISIBLE);
             setEnabled(couldEdit);
         }
+    }
+    
+    /**
+     * 是否处理自定义显示风格,此时{@link #mShowStyle}、{@link #mCouldEdit}已赋值，可直接使用
+     *
+     * @return {@code true}:处理自定义逻辑，则该类风格显示逻辑不调用
+     */
+    protected boolean isSetCustomShowStyle() {
+        return false;
     }
     
     /**

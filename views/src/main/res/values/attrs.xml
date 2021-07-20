@@ -21,44 +21,80 @@
             <flag name="edit" value="1" />
         </attr>
 
+        <!--项是否可编辑-->
         <attr name="civ_could_edit" format="boolean" />
 
+        <!--必选标识的文本-->
         <attr name="civ_must_input_text" format="string|reference" />
+        <!--必选标识文本字体大小-->
         <attr name="civ_must_input_textSize" format="dimension|reference" />
+        <!--必选标识文本字体颜色-->
         <attr name="civ_must_input_textColor" format="color|reference" />
+        <!--必选标识文本起始padding-->
         <attr name="civ_must_input_padding_start" format="dimension|reference" />
+        <!--必选标识文本结束padding-->
         <attr name="civ_must_input_padding_end" format="dimension|reference" />
 
+        <!--标题文本-->
         <attr name="civ_title_text" format="string|reference" />
+        <!--标题文本字体大小-->
         <attr name="civ_title_textSize" format="dimension|reference" />
+        <!--标题文本颜色-->
         <attr name="civ_title_textColor" format="color|reference" />
+        <!--标题文本起始margin-->
         <attr name="civ_title_margin_start" format="dimension|reference" />
+        <!--标题文本结束margin-->
         <attr name="civ_title_margin_end" format="dimension|reference" />
+        <!--标题控件宽度，如果未主动，则默认自适应-->
         <attr name="civ_title_width" format="dimension|reference" />
 
+        <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
+        <attr name="android:textColorHint" />
+        <attr name="android:gravity" />
+        <attr name="android:maxLines" />
+        <attr name="android:ellipsize" />
+
+        <!--内容文本大小，如果必选文本、标题文本字体大小未指定，则默认采用此属性指定字体大小-->
         <attr name="android:textSize" />
+        <!--内容文本颜色，如果必选文本、标题文本颜色未指定，则默认采用此属性指定字体颜色-->
         <attr name="android:textColor" />
+        <!--内容控件提示文本-->
         <attr name="android:hint" />
+        <!--内容控件高度，如果未指定，则默认自适应-->
         <attr name="civ_content_height" format="dimension|reference" />
+        <!--内容控件最小高度-->
         <attr name="civ_content_min_height" format="dimension|reference" />
+        <!--内容控件起始margin，如果未指定civ_content_gone_margin_start，则goneMarginStart采用此属性指定值-->
         <attr name="civ_content_margin_start" format="dimension|reference" />
+        <!--内容控件结束margin，如果未指定civ_content_gone_margin_end，则goneMarginEnd采用此属性指定值-->
         <attr name="civ_content_margin_end" format="dimension|reference" />
+        <!--内容控件依赖组件隐藏时起始margin-->
         <attr name="civ_content_gone_margin_start" format="dimension|reference" />
+        <!--内容控件依赖组件隐藏时结束margin-->
         <attr name="civ_content_gone_margin_end" format="dimension|reference" />
+        <!--内容控件顶部padding-->
         <attr name="civ_content_padding_top" format="dimension|reference" />
+        <!--内容控件底部padding-->
         <attr name="civ_content_padding_bottom" format="dimension|reference" />
 
+        <!--内容控件是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
         <attr name="civ_content_auto_wrap_by_width" format="boolean" />
+        <!--当文本行数超过1行时是否自动切换靠左排版-->
         <attr name="civ_content_auto_gravity_rtl" format="flags">
             <flag name="none" value="0" />
             <flag name="end" value="1" />
             <flag name="center_horizontal" value="2" />
         </attr>
 
+        <!--右边可编辑指示图标-->
         <attr name="civ_right_image" format="reference" />
+        <!--右边可编辑指示图标大小-->
         <attr name="civ_right_image_size" format="dimension|reference" />
+        <!--右边可编辑指示图标padding-->
         <attr name="civ_right_image_padding" format="dimension|reference" />
+        <!--右边可编辑指示图标起始margin-->
         <attr name="civ_right_image_margin_start" format="dimension|reference" />
+        <!--右边可编辑指示图标结束margin-->
         <attr name="civ_right_image_margin_end" format="dimension|reference" />
     </declare-styleable>
 
@@ -69,69 +105,131 @@
             <flag name="edit" value="1" />
         </attr>
 
+        <!--项是否可编辑-->
         <attr name="eiv_could_edit" format="boolean" />
 
+        <!--必选标识的文本-->
         <attr name="eiv_must_input_text" format="string|reference" />
+        <!--必选标识文本字体大小-->
         <attr name="eiv_must_input_textSize" format="dimension|reference" />
+        <!--必选标识文本字体颜色-->
         <attr name="eiv_must_input_textColor" format="color|reference" />
+        <!--必选标识文本起始padding-->
         <attr name="eiv_must_input_padding_start" format="dimension|reference" />
+        <!--必选标识文本结束padding-->
         <attr name="eiv_must_input_padding_end" format="dimension|reference" />
 
+        <!--标题文本-->
         <attr name="eiv_title_text" format="string|reference" />
+        <!--标题文本字体大小-->
         <attr name="eiv_title_textSize" format="dimension|reference" />
+        <!--标题文本颜色-->
         <attr name="eiv_title_textColor" format="color|reference" />
+        <!--标题文本起始margin-->
         <attr name="eiv_title_margin_start" format="dimension|reference" />
+        <!--标题文本结束margin-->
         <attr name="eiv_title_margin_end" format="dimension|reference" />
+        <!--标题控件宽度，如果未主动，则默认自适应-->
         <attr name="eiv_title_width" format="dimension|reference" />
 
+        <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
+        <attr name="android:textColorHint" />
+        <attr name="android:gravity" />
+        <attr name="android:maxLines" />
+        <attr name="android:imeOptions" />
+        <attr name="android:ellipsize" />
+        <attr name="android:textCursorDrawable" />
+        <attr name="android:cursorVisible" />
+        <attr name="android:inputType" />
+
+        <!--内容文本大小，如果必选文本、标题文本字体大小未指定，则默认采用此属性指定字体大小-->
         <attr name="android:textSize" />
+        <!--内容文本颜色，如果必选文本、标题文本颜色未指定，则默认采用此属性指定字体颜色-->
         <attr name="android:textColor" />
+        <!--内容控件提示文本-->
         <attr name="android:hint" />
+        <!--内容控件高度，如果未指定，则默认自适应-->
         <attr name="eiv_content_height" format="dimension|reference" />
+        <!--内容控件最小高度-->
         <attr name="eiv_content_min_height" format="dimension|reference" />
+        <!--内容控件起始margin，如果未指定civ_content_gone_margin_start，则goneMarginStart采用此属性指定值-->
         <attr name="eiv_content_margin_start" format="dimension|reference" />
+        <!--内容控件结束margin，如果未指定civ_content_gone_margin_end，则goneMarginEnd采用此属性指定值-->
         <attr name="eiv_content_margin_end" format="dimension|reference" />
+        <!--内容控件依赖组件隐藏时起始margin-->
         <attr name="eiv_content_gone_margin_start" format="dimension|reference" />
+        <!--内容控件依赖组件隐藏时结束margin-->
         <attr name="eiv_content_gone_margin_end" format="dimension|reference" />
+        <!--内容控件顶部padding-->
         <attr name="eiv_content_padding_top" format="dimension|reference" />
+        <!--内容控件底部padding-->
         <attr name="eiv_content_padding_bottom" format="dimension|reference" />
 
+        <!--输入框组件是否启用清除按钮-->
         <attr name="eiv_content_clearButtonEnabled" format="boolean" />
+        <!--输入框组件清除按钮图标-->
         <attr name="eiv_content_clearButtonIcon" format="reference" />
+        <!--输入框组件清除按钮大小-->
         <attr name="eiv_content_clearButtonSize" format="dimension" />
+        <!--输入框组件清除按钮宽度-->
         <attr name="eiv_content_clearButtonWidth" format="dimension" />
+        <!--输入框组件清除按钮高度-->
         <attr name="eiv_content_clearButtonHeight" format="dimension" />
+        <!--输入框组件提示文本字体大小-->
         <attr name="eiv_content_hintTextSize" format="dimension" />
+        <!--输入框组件是否获取焦点时才显示清除按钮-->
         <attr name="eiv_content_onFocusShowClearButtonEnable" format="boolean" />
+        <!--输入框组件小数位长度输入限制，仅输入类型为数字和浮点数-->
         <attr name="eiv_content_decimalLimit" format="integer" />
+        <!--输入框组件整数位长度输入限制，仅输入类型为数字和浮点数-->
         <attr name="eiv_content_integerLimit" format="integer" />
+        <!--输入框组件是否自动去除整数位前端无效0值，仅输入类型为数字和浮点数-->
         <attr name="eiv_content_autoRemoveInValidZero" format="boolean" />
+        <!--输入框组件使用setText方法设置文本时是否启用输入位数限制-->
         <attr name="eiv_content_setTextUseNumberLimit" format="boolean" />
+        <!--输入框组件清除按钮起始padding-->
         <attr name="eiv_content_clearButtonPaddingStart" format="dimension" />
+        <!--输入框组件清除按钮结束padding-->
         <attr name="eiv_content_clearButtonPaddingEnd" format="dimension" />
+        <!--输入框组件清除按钮起始margin-->
         <attr name="eiv_content_clearButtonMarginStart" format="dimension" />
+        <!--输入框组件清除按钮结束margin-->
         <attr name="eiv_content_clearButtonMarginEnd" format="dimension" />
+        <!--内容控件是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
         <attr name="eiv_content_auto_wrap_by_width" format="boolean" />
+        <!--当文本行数超过1行时是否自动切换靠左排版-->
         <attr name="eiv_content_auto_gravity_rtl" format="flags">
             <flag name="none" value="0" />
             <flag name="end" value="1" />
             <flag name="center_horizontal" value="2" />
         </attr>
 
+        <!--右边单位/描述文本是否展示-->
         <attr name="eiv_unit_show" format="boolean" />
+        <!--右边单位/描述文本-->
         <attr name="eiv_unit_text" format="string|reference" />
+        <!--右边单位/描述文本字体大小-->
         <attr name="eiv_unit_textSize" format="dimension|reference" />
+        <!--右边单位/描述文本字体颜色-->
         <attr name="eiv_unit_textColor" format="color|reference" />
+        <!--右边单位/描述文本起始margin-->
         <attr name="eiv_unit_margin_start" format="dimension|reference" />
+        <!--右边单位/描述文本结束margin-->
         <attr name="eiv_unit_margin_end" format="dimension|reference" />
     </declare-styleable>
 
     <declare-styleable name="ExtendEditText">
+        <!--是否启用清除按钮-->
         <attr name="ee_clearButtonEnabled" format="boolean" />
+        <!--输入框组件清除按钮图标-->
         <attr name="ee_clearButtonIcon" format="reference" />
+        <!--输入框组件清除按钮大小-->
         <attr name="ee_clearButtonSize" format="dimension" />
+        <!--输入框组件清除按钮宽度-->
         <attr name="ee_clearButtonWidth" format="dimension" />
+        <!--输入框组件清除按钮高度-->
         <attr name="ee_clearButtonHeight" format="dimension" />
+        <!--输入框组件提示文本字体大小-->
         <attr name="ee_hintTextSize" format="dimension" />
         <!--获取焦点时才展示清除按钮-->
         <attr name="ee_onFocusShowClearButtonEnable" format="boolean" />
@@ -143,11 +241,13 @@
         <attr name="ee_autoRemoveInValidZero" format="boolean" />
         <!--使用setText方法设置文本时，是否启用数字长度限制规则-->
         <attr name="ee_setTextUseNumberLimit" format="boolean" />
-
-        <!--始终绘制在右侧-->
+        <!--清除按钮左边padding-->
         <attr name="ee_clearButtonPaddingLeft" format="dimension" />
+        <!--清除按钮右边padding-->
         <attr name="ee_clearButtonPaddingRight" format="dimension" />
+        <!--清除按钮左边margin-->
         <attr name="ee_clearButtonMarginLeft" format="dimension" />
+        <!--清除按钮右边margin-->
         <attr name="ee_clearButtonMarginRight" format="dimension" />
 
         <!--是否自动根据宽度换行，解决原生汉字英文数字混合文本换行位置不尽如人意-->
