@@ -41,7 +41,7 @@ public class ChooseItemView extends ConstraintLayout {
     @IntDef(value = {SHOW_STYLE_READ, SHOW_STYLE_EDIT}, open = true)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ShowStyle {}
+    private  @interface ShowStyle {}
     
     protected ExtendTextView mTvMustInput;
     protected ExtendTextView mTvTitle;
