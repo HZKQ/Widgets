@@ -20,7 +20,7 @@ abstract class RvNodeAdapter<BH: BaseViewHolder> : BaseNodeAdapter<BH> {
     }
 
     private fun initClickIdsIfNeeded() {
-        nestViewIds?.forEach {
+        nestViewIds.forEach {
             addChildClickViewIds(it)
         }
     }
@@ -47,5 +47,5 @@ abstract class RvNodeAdapter<BH: BaseViewHolder> : BaseNodeAdapter<BH> {
      *
      * @return ids
      */
-    abstract val nestViewIds: IntArray?
+    abstract val nestViewIds: IntArray
 }

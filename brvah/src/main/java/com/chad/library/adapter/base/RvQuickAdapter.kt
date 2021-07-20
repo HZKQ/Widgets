@@ -10,6 +10,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  * @author zhouzhuo810
  */
 abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
+
     constructor(layoutResId: Int) : super(layoutResId) {
         initClickIdsIfNeeded()
     }
@@ -19,7 +20,7 @@ abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
     }
 
     private fun initClickIdsIfNeeded() {
-        nestViewIds?.forEach {
+        nestViewIds.forEach {
             addChildClickViewIds(it)
         }
     }
@@ -46,5 +47,5 @@ abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
      *
      * @return ids
      */
-    abstract val nestViewIds: IntArray?
+    abstract val nestViewIds: IntArray
 }

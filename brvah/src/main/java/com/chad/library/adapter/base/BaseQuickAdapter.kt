@@ -1358,4 +1358,8 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
     fun getOnItemChildClickListener(): OnItemChildClickListener? = mOnItemChildClickListener
 
     fun getOnItemChildLongClickListener(): OnItemChildLongClickListener? = mOnItemChildLongClickListener
+
+    fun getLayoutResId(): Int {
+        return layoutResId
+    }
 }
