@@ -144,6 +144,11 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         return this
     }
 
+    open fun setHintText(@IdRes viewId: Int, hint: CharSequence): BaseViewHolder {
+        getView<TextView>(viewId).hint = hint
+        return this
+    }
+
     open fun setTextSizePx(@IdRes viewId: Int, sizePx: Float): BaseViewHolder {
         getView<TextView>(viewId).setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
         return this
