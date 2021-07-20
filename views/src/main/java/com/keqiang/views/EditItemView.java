@@ -167,6 +167,10 @@ public class EditItemView extends ConstraintLayout {
                 if (width != ViewGroup.LayoutParams.WRAP_CONTENT) {
                     setViewSize(mTvTitle, width, ViewGroup.LayoutParams.WRAP_CONTENT);
                 }
+                int maxWidth = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_title_max_width, 0);
+                if (maxWidth != 0) {
+                    mTvTitle.setMaxWidth(maxWidth);
+                }
                 
                 mTvUnit.setVisibility(t.getBoolean(R.styleable.EditItemView_eiv_unit_show, false) ? VISIBLE : GONE);
                 mTvUnit.setText(t.getString(R.styleable.EditItemView_eiv_unit_text));

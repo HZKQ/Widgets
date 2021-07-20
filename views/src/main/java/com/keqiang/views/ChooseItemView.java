@@ -150,6 +150,10 @@ public class ChooseItemView extends ConstraintLayout {
                 if (marginStart != 0) {
                     setViewSize(mTvMustInput, marginStart, ViewGroup.LayoutParams.WRAP_CONTENT);
                 }
+                int maxWidth = t.getDimensionPixelSize(R.styleable.ChooseItemView_civ_title_max_width, 0);
+                if (maxWidth != 0) {
+                    mTvTitle.setMaxWidth(maxWidth);
+                }
                 
                 int width = t.getDimensionPixelSize(R.styleable.ChooseItemView_civ_title_width, ViewGroup.LayoutParams.WRAP_CONTENT);
                 if (width != ViewGroup.LayoutParams.WRAP_CONTENT) {

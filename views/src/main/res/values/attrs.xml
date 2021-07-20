@@ -47,6 +47,8 @@
         <attr name="civ_title_margin_end" format="dimension|reference" />
         <!--标题控件宽度，如果未主动，则默认自适应-->
         <attr name="civ_title_width" format="dimension|reference" />
+        <!--标题控件最大宽度，如果未主动，则默认自适应-->
+        <attr name="civ_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
         <attr name="android:textColorHint" />
@@ -131,6 +133,8 @@
         <attr name="eiv_title_margin_end" format="dimension|reference" />
         <!--标题控件宽度，如果未主动，则默认自适应-->
         <attr name="eiv_title_width" format="dimension|reference" />
+        <!--标题控件最大宽度，如果未主动，则默认自适应-->
+        <attr name="eiv_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
         <attr name="android:textColorHint" />
