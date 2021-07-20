@@ -7,6 +7,7 @@ import android.util.SparseArray
 import android.util.TypedValue
 import android.view.View
 import android.widget.Checkable
+import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
@@ -141,6 +142,11 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     open fun setOnTouchListener(@IdRes viewId: Int, onTouchListener: View.OnTouchListener): BaseViewHolder {
         getView<View>(viewId).setOnTouchListener(onTouchListener)
+        return this
+    }
+
+    open fun setOnCheckedChangeListener(@IdRes viewId: Int, onCheckedChangeListener: CompoundButton.OnCheckedChangeListener): BaseViewHolder {
+        getView<CompoundButton>(viewId).setOnCheckedChangeListener(onCheckedChangeListener)
         return this
     }
 
