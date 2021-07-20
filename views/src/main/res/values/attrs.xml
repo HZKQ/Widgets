@@ -41,7 +41,7 @@
         <attr name="civ_title_textSize" format="dimension|reference" />
         <!--标题文本颜色-->
         <attr name="civ_title_textColor" format="color|reference" />
-        <!--标题文本起始margin-->
+        <!--标题文本起始margin,如果设置此值，则必填标识控件的宽度为该值，否则自适应-->
         <attr name="civ_title_margin_start" format="dimension|reference" />
         <!--标题文本结束margin-->
         <attr name="civ_title_margin_end" format="dimension|reference" />
@@ -125,7 +125,7 @@
         <attr name="eiv_title_textSize" format="dimension|reference" />
         <!--标题文本颜色-->
         <attr name="eiv_title_textColor" format="color|reference" />
-        <!--标题文本起始margin-->
+        <!--标题文本起始margin,如果设置此值，则必填标识控件的宽度为该值，否则自适应-->
         <attr name="eiv_title_margin_start" format="dimension|reference" />
         <!--标题文本结束margin-->
         <attr name="eiv_title_margin_end" format="dimension|reference" />
