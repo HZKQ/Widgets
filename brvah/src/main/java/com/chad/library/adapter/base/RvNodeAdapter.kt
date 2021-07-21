@@ -1,6 +1,7 @@
 package com.chad.library.adapter.base
 
 import android.view.View
+import android.view.ViewGroup
 import com.chad.library.adapter.base.entity.node.BaseNode
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import me.zhouzhuo810.magpiex.utils.SimpleUtil
@@ -27,6 +28,14 @@ abstract class RvNodeAdapter<T: BaseNode, BH: BaseViewHolder> : BaseNodeAdapter<
 
     override fun createBaseViewHolder(view: View): BH {
         val baseViewHolder = super.createBaseViewHolder(view)
+        if (!disableScale()) {
+            SimpleUtil.scaleView(baseViewHolder.itemView)
+        }
+        return baseViewHolder
+    }
+
+    override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BH {
+        val baseViewHolder = super.onCreateDefViewHolder(parent, viewType)
         if (!disableScale()) {
             SimpleUtil.scaleView(baseViewHolder.itemView)
         }
