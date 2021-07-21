@@ -7,6 +7,6 @@ abstract class BaseNode {
      *
      * 如果返回 null，则无法对子节点的数据进行新增和删除等操作
      */
-    abstract val childNode: MutableList<BaseNode>?
+    abstract fun <T : BaseNode?> getChildNode(): MutableList<T>?
 
 }

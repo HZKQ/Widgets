@@ -9,8 +9,8 @@ import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.provider.BaseNodeProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
-abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNode>? = null)
-    : BaseProviderMultiAdapter<BaseNode, BH>(null) {
+abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: MutableList<T>? = null)
+    : BaseProviderMultiAdapter<T, BH>(null) {
 
     private val fullSpanNodeTypeSet = HashSet<Int>()
 
@@ -26,7 +26,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * 添加 node provider
      * @param provider BaseItemProvider
      */
-    fun addNodeProvider(provider: BaseNodeProvider<BH>) {
+    fun addNodeProvider(provider: BaseNodeProvider<T, BH>) {
         addItemProvider(provider)
     }
 
@@ -34,7 +34,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * 添加需要铺满的 node provider
      * @param provider BaseItemProvider
      */
-    fun addFullSpanNodeProvider(provider: BaseNodeProvider<BH>) {
+    fun addFullSpanNodeProvider(provider: BaseNodeProvider<T, BH>) {
         fullSpanNodeTypeSet.add(provider.itemViewType)
         addItemProvider(provider)
     }
@@ -44,7 +44,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * 铺满一行或者一列
      * @param provider BaseItemProvider
      */
-    fun addFooterNodeProvider(provider: BaseNodeProvider<BH>) {
+    fun addFooterNodeProvider(provider: BaseNodeProvider<T, BH>) {
         addFullSpanNodeProvider(provider)
     }
 
@@ -52,8 +52,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * 请勿直接通过此方法添加 node provider！
      * @param provider BaseItemProvider<BaseNode, VH>
      */
-    override fun addItemProvider(provider: BaseItemProvider<BaseNode, BH>) {
-        if (provider is BaseNodeProvider<BH>) {
+    override fun addItemProvider(provider: BaseItemProvider<T, BH>) {
+        if (provider is BaseNodeProvider<T, BH>) {
             super.addItemProvider(provider)
         } else {
             throw IllegalStateException("Please add BaseNodeProvider, no BaseItemProvider!")
@@ -64,14 +64,14 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
         return super.isFixedViewType(type) || fullSpanNodeTypeSet.contains(type)
     }
 
-    override fun setNewInstance(list: MutableList<BaseNode>?) {
+    override fun setNewInstance(list: MutableList<T>?) {
         super.setNewInstance(flatData(list ?: arrayListOf()))
     }
 
     /**
      * 替换整个列表数据，如果需要对某节点下的子节点进行替换，请使用[nodeReplaceChildData]！
      */
-    override fun setList(list: Collection<BaseNode>?) {
+    override fun setList(list: Collection<T>?) {
         super.setList(flatData(list ?: arrayListOf()))
     }
 
@@ -81,20 +81,20 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param position Int 整个 data 的 index
      * @param data BaseNode
      */
-    override fun addData(position: Int, data: BaseNode) {
+    override fun addData(position: Int, data: T) {
         addData(position, arrayListOf(data))
     }
 
-    override fun addData(data: BaseNode) {
+    override fun addData(data: T) {
         addData(arrayListOf(data))
     }
 
-    override fun addData(position: Int, newData: Collection<BaseNode>) {
+    override fun addData(position: Int, newData: Collection<T>) {
         val nodes = flatData(newData)
         super.addData(position, nodes)
     }
 
-    override fun addData(newData: Collection<BaseNode>) {
+    override fun addData(newData: Collection<T>) {
         val nodes = flatData(newData)
         super.addData(nodes)
     }
@@ -115,7 +115,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param index Int
      * @param data BaseNode
      */
-    override fun setData(index: Int, data: BaseNode) {
+    override fun setData(index: Int, data: T) {
         // 先移除，再添加
         val removeCount = removeNodesAt(index)
 
@@ -132,7 +132,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
         }
     }
 
-    override fun setDiffNewData(list: MutableList<BaseNode>?, commitCallback: Runnable?) {
+    override fun setDiffNewData(list: MutableList<T>?, commitCallback: Runnable?) {
         if (hasEmptyView()) {
             setNewInstance(list)
             return
@@ -140,7 +140,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
         super.setDiffNewData(flatData(list ?: arrayListOf()), commitCallback)
     }
 
-    override fun setDiffNewData(diffResult: DiffUtil.DiffResult, list: MutableList<BaseNode>) {
+    override fun setDiffNewData(diffResult: DiffUtil.DiffResult, list: MutableList<T>) {
         if (hasEmptyView()) {
             setNewInstance(list)
             return
@@ -169,7 +169,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
 
         val node = this.data[position]
         // 移除脚部
-        if (node is NodeFooterImp && node.footerNode != null) {
+        if (node is NodeFooterImp && node.getFooterNode<T>() != null) {
             this.data.removeAt(position)
             removeCount += 1
         }
@@ -185,15 +185,15 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
 
         val node = this.data[position]
         // 移除子项
-        if (!node.childNode.isNullOrEmpty()) {
+        if (!node.getChildNode<T>().isNullOrEmpty()) {
             if (node is BaseExpandNode) {
                 if (node.isExpanded) {
-                    val items = flatData(node.childNode!!)
+                    val items = flatData(node.getChildNode<T>()!!)
                     this.data.removeAll(items)
                     removeCount = items.size
                 }
             } else {
-                val items = flatData(node.childNode!!)
+                val items = flatData(node.getChildNode<T>()!!)
                 this.data.removeAll(items)
                 removeCount = items.size
             }
@@ -211,8 +211,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param parentNode BaseNode 父node
      * @param data BaseNode 子node
      */
-    fun nodeAddData(parentNode: BaseNode, data: BaseNode) {
-        parentNode.childNode?.let {
+    fun nodeAddData(parentNode: T, data: T) {
+        parentNode.getChildNode<T>()?.let {
             it.add(data)
 
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
@@ -231,8 +231,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param childIndex Int 此位置是相对于其childNodes数据的位置！并不是整个data
      * @param data BaseNode 添加的数据
      */
-    fun nodeAddData(parentNode: BaseNode, childIndex: Int, data: BaseNode) {
-        parentNode.childNode?.let {
+    fun nodeAddData(parentNode: T, childIndex: Int, data: T) {
+        parentNode.getChildNode<T>()?.let {
             it.add(childIndex, data)
 
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
@@ -251,8 +251,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param childIndex Int 此位置是相对于其childNodes数据的位置！并不是整个data
      * @param newData 添加的数据集合
      */
-    fun nodeAddData(parentNode: BaseNode, childIndex: Int, newData: Collection<BaseNode>) {
-        parentNode.childNode?.let {
+    fun nodeAddData(parentNode: T, childIndex: Int, newData: Collection<T>) {
+        parentNode.getChildNode<T>()?.let {
             it.addAll(childIndex, newData)
 
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
@@ -269,8 +269,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param parentNode BaseNode 父node
      * @param childIndex Int 此位置是相对于其childNodes数据的位置！并不是整个data
      */
-    fun nodeRemoveData(parentNode: BaseNode, childIndex: Int) {
-        parentNode.childNode?.let {
+    fun nodeRemoveData(parentNode: T, childIndex: Int) {
+        parentNode.getChildNode<T>()?.let {
             if (childIndex >= it.size) {
                 return
             }
@@ -293,8 +293,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param parentNode BaseNode 父node
      * @param childNode BaseNode 子node
      */
-    fun nodeRemoveData(parentNode: BaseNode, childNode: BaseNode) {
-        parentNode.childNode?.let {
+    fun nodeRemoveData(parentNode: T, childNode: T) {
+        parentNode.getChildNode<T>()?.let {
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
                 it.remove(childNode)
                 return
@@ -311,8 +311,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param childIndex Int 此位置是相对于其childNodes数据的位置！并不是整个data
      * @param data BaseNode 新数据
      */
-    fun nodeSetData(parentNode: BaseNode, childIndex: Int, data: BaseNode) {
-        parentNode.childNode?.let {
+    fun nodeSetData(parentNode: T, childIndex: Int, data: T) {
+        parentNode.getChildNode<T>()?.let {
             if (childIndex >= it.size) {
                 return
             }
@@ -335,8 +335,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param parentNode BaseNode
      * @param newData Collection<BaseNode>
      */
-    fun nodeReplaceChildData(parentNode: BaseNode, newData: Collection<BaseNode>) {
-        parentNode.childNode?.let {
+    fun nodeReplaceChildData(parentNode: T, newData: Collection<T>) {
+        parentNode.getChildNode<T>()?.let {
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
                 it.clear()
                 it.addAll(newData)
@@ -371,8 +371,8 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
      * @param isExpanded Boolean? 如果不需要改变状态，设置为null。true 为展开，false 为收起
      * @return MutableList<BaseNode>
      */
-    private fun flatData(list: Collection<BaseNode>, isExpanded: Boolean? = null): MutableList<BaseNode> {
-        val newList = ArrayList<BaseNode>()
+    private fun flatData(list: Collection<T>, isExpanded: Boolean? = null): MutableList<T> {
+        val newList = ArrayList<T>()
 
         for (element in list) {
             newList.add(element)
@@ -380,7 +380,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
             if (element is BaseExpandNode) {
                 // 如果是展开状态 或者需要设置为展开状态
                 if (isExpanded == true || element.isExpanded) {
-                    val childNode = element.childNode
+                    val childNode = element.getChildNode<T>()
                     if (!childNode.isNullOrEmpty()) {
                         val items = flatData(childNode, isExpanded)
                         newList.addAll(items)
@@ -390,7 +390,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
                     element.isExpanded = it
                 }
             } else {
-                val childNode = element.childNode
+                val childNode = element.getChildNode<T>()
                 if (!childNode.isNullOrEmpty()) {
                     val items = flatData(childNode, isExpanded)
                     newList.addAll(items)
@@ -398,7 +398,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
             }
 
             if (element is NodeFooterImp) {
-                element.footerNode?.let {
+                element.getFooterNode<T>()?.let {
                     newList.add(it)
                 }
             }
@@ -427,11 +427,11 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
             val adapterPosition = position + headerLayoutCount
 
             node.isExpanded = false
-            if (node.childNode.isNullOrEmpty()) {
+            if (node.getChildNode<T>().isNullOrEmpty()) {
                 notifyItemChanged(adapterPosition, parentPayload)
                 return 0
             }
-            val items = flatData(node.childNode!!, if (isChangeChildCollapse) false else null)
+            val items = flatData(node.getChildNode<T>()!!, if (isChangeChildCollapse) false else null)
             val size = items.size
             this.data.removeAll(items)
             if (notify) {
@@ -467,11 +467,11 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
             val adapterPosition = position + headerLayoutCount
 
             node.isExpanded = true
-            if (node.childNode.isNullOrEmpty()) {
+            if (node.getChildNode<T>().isNullOrEmpty()) {
                 notifyItemChanged(adapterPosition, parentPayload)
                 return 0
             }
-            val items = flatData(node.childNode!!, if (isChangeChildExpand) true else null)
+            val items = flatData(node.getChildNode<T>()!!, if (isChangeChildExpand) true else null)
             val size = items.size
             this.data.addAll(position + 1, items)
             if (notify) {
@@ -604,7 +604,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
         var lastPosition: Int = if (parentPosition == -1) {
             data.size - 1 // 如果没有父节点，则为最外层
         } else {
-            val dataSize = data[parentPosition].childNode?.size ?: 0
+            val dataSize = data[parentPosition].getChildNode<T>()?.size ?: 0
             parentPosition + dataSize + expandCount // 如果有父节点，则为子节点，父节点 + 子节点数量 + 展开的数量
         }
 
@@ -635,7 +635,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
 
         for (i in pos - 1 downTo 0) {
             val tempNode = this.data[i]
-            if (tempNode.childNode?.contains(node) == true) {
+            if (tempNode.getChildNode<T>()?.contains(node) == true) {
                 return i
             }
         }
@@ -649,7 +649,7 @@ abstract class BaseNodeAdapter<BH: BaseViewHolder>(nodeList: MutableList<BaseNod
         val node = this.data[position]
         for (i in position - 1 downTo 0) {
             val tempNode = this.data[i]
-            if (tempNode.childNode?.contains(node) == true) {
+            if (tempNode.getChildNode<T>()?.contains(node) == true) {
                 return i
             }
         }
