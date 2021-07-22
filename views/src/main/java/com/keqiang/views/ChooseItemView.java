@@ -283,7 +283,7 @@ public class ChooseItemView extends ConstraintLayout {
         } else {
             mTvMustInput.setText(mustInputText);
             mTvContent.setHint(mHint);
-            mIvRight.setVisibility(VISIBLE);
+            mIvRight.setVisibility(couldEdit ? VISIBLE : GONE);
             setEnabled(couldEdit);
         }
     }
