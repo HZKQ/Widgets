@@ -1190,13 +1190,13 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param position the insert position
      * @param newData  the new data collection
      */
-    open fun addData(@IntRange(from = 0) position: Int, newData: MutableList<T>) {
+    open fun addData(@IntRange(from = 0) position: Int, newData: MutableList<out T>) {
         this.data.addAll(position, newData)
         notifyItemRangeInserted(position + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)
     }
 
-    open fun addData(@NonNull newData: MutableList<T>) {
+    open fun addData(@NonNull newData: MutableList<out T>) {
         this.data.addAll(newData)
         notifyItemRangeInserted(this.data.size - newData.size + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)

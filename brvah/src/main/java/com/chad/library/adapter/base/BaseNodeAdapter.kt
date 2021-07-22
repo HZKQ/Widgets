@@ -89,12 +89,12 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
         addData(arrayListOf(data))
     }
 
-    override fun addData(position: Int, newData: MutableList<T>) {
+    override fun addData(position: Int, newData: MutableList<out T>) {
         val nodes = flatData(newData)
         super.addData(position, nodes)
     }
 
-    override fun addData(newData: MutableList<T>) {
+    override fun addData(newData: MutableList<out T>) {
         val nodes = flatData(newData)
         super.addData(nodes)
     }
@@ -371,7 +371,7 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
      * @param isExpanded Boolean? 如果不需要改变状态，设置为null。true 为展开，false 为收起
      * @return MutableList<BaseNode>
      */
-    private fun flatData(list: MutableList<T>, isExpanded: Boolean? = null): MutableList<T> {
+    private fun flatData(list: Collection<T>, isExpanded: Boolean? = null): MutableList<T> {
         val newList = ArrayList<T>()
 
         for (element in list) {
