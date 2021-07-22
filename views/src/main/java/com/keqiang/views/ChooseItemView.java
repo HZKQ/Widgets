@@ -41,7 +41,7 @@ public class ChooseItemView extends ConstraintLayout {
     @IntDef(value = {SHOW_STYLE_READ, SHOW_STYLE_EDIT}, open = true)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    private  @interface ShowStyle {}
+    private @interface ShowStyle {}
     
     protected ExtendTextView mTvMustInput;
     protected ExtendTextView mTvTitle;
@@ -114,6 +114,8 @@ public class ChooseItemView extends ConstraintLayout {
         
         mTvContent = new ExtendTextView(context, attrs);
         mTvContent.setId(R.id.choose_item_view_id_3);
+        mTvContent.setVisibility(VISIBLE);
+        mTvContent.setPadding(0, 0, 0, 0);
         mTvContent.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         mTvContent.setTextColor(textColor);
         params = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);

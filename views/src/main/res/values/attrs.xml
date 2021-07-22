@@ -51,6 +51,7 @@
         <attr name="civ_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在ChooseItemView解析，仅用于xml配置时android studio有提示-->
+        <attr name="android:text"/>
         <attr name="android:textColorHint" />
         <attr name="android:gravity" />
         <attr name="android:maxLines" />
@@ -137,6 +138,7 @@
         <attr name="eiv_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
+        <attr name="android:text"/>
         <attr name="android:textColorHint" />
         <attr name="android:gravity" />
         <attr name="android:maxLines" />

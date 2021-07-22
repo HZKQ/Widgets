@@ -42,7 +42,7 @@ public class EditItemView extends ConstraintLayout {
     @IntDef(value = {SHOW_STYLE_READ, SHOW_STYLE_EDIT}, open = true)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    private  @interface ShowStyle {}
+    private @interface ShowStyle {}
     
     protected ExtendTextView mTvMustInput;
     protected ExtendTextView mTvTitle;
@@ -54,6 +54,10 @@ public class EditItemView extends ConstraintLayout {
     protected String mustInputText;
     // 是否可编辑，有时候虽然以编辑样式显示，但是不可编辑
     protected boolean mCouldEdit;
+    /**
+     * xml配置是否展示单位控件
+     */
+    protected boolean mShowUnit;
     
     public EditItemView(Context context) {
         this(context, null);
@@ -113,11 +117,14 @@ public class EditItemView extends ConstraintLayout {
         params.bottomToBottom = LayoutParams.PARENT_ID;
         params.endToEnd = LayoutParams.PARENT_ID;
         mTvUnit.setLayoutParams(params);
+        mTvUnit.setVisibility(GONE);
         addView(mTvUnit);
         
         mEtContent = new ExtendEditText(context, attrs);
         mEtContent.setId(R.id.edit_item_view_id_3);
         mEtContent.setBackground(null);
+        mEtContent.setVisibility(VISIBLE);
+        mEtContent.setPadding(0, 0, 0, 0);
         params = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.topToTop = LayoutParams.PARENT_ID;
         params.bottomToBottom = LayoutParams.PARENT_ID;
@@ -172,7 +179,8 @@ public class EditItemView extends ConstraintLayout {
                     mTvTitle.setMaxWidth(maxWidth);
                 }
                 
-                mTvUnit.setVisibility(t.getBoolean(R.styleable.EditItemView_eiv_unit_show, false) ? VISIBLE : GONE);
+                mShowUnit = t.getBoolean(R.styleable.EditItemView_eiv_unit_show, false);
+                mTvUnit.setVisibility(mShowUnit ? VISIBLE : GONE);
                 mTvUnit.setText(t.getString(R.styleable.EditItemView_eiv_unit_text));
                 int paddingHorizontal = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_unit_padding_horizontal, 0);
                 int paddingVertical = t.getDimensionPixelSize(R.styleable.EditItemView_eiv_unit_padding_vertical, 0);
@@ -414,7 +422,7 @@ public class EditItemView extends ConstraintLayout {
     /**
      * 返回内容控件
      */
-    public ExtendEditText getTvContent() {
+    public ExtendEditText getEtContent() {
         return mEtContent;
     }
     
