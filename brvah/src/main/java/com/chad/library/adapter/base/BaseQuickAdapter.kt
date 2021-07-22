@@ -1093,17 +1093,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
 
     /**
      * setting up a new instance to data;
-     * 设置新的数据实例
-     *
-     * @param data
-     */
-    @Deprecated("Please use setNewInstance(), This method will be removed in the next version", replaceWith = ReplaceWith("setNewInstance(data)"))
-    open fun setNewData(data: MutableList<T>?) {
-        setNewInstance(data)
-    }
-
-    /**
-     * setting up a new instance to data;
      * 设置新的数据实例，替换原有内存引用。
      * 通常情况下，如非必要，请使用[setList]修改内容
      *
@@ -1129,7 +1118,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param newData data collection
      */
     @Deprecated("Please use setData()", replaceWith = ReplaceWith("setList(newData)"))
-    open fun replaceData(newData: Collection<T>) {
+    open fun replaceData(newData: MutableList<T>) {
         setList(newData)
     }
 
@@ -1137,9 +1126,9 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * 使用新的数据集合，改变原有数据集合内容。
      * 注意：不会替换原有的内存引用，只是替换内容
      *
-     * @param list Collection<T>?
+     * @param list MutableList<T>?
      */
-    open fun setList(list: Collection<T>?) {
+    open fun setList(list: MutableList<T>?) {
         if (list !== this.data) {
             this.data.clear()
             if (!list.isNullOrEmpty()) {
@@ -1201,13 +1190,13 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param position the insert position
      * @param newData  the new data collection
      */
-    open fun addData(@IntRange(from = 0) position: Int, newData: Collection<T>) {
+    open fun addData(@IntRange(from = 0) position: Int, newData: MutableList<T>) {
         this.data.addAll(position, newData)
         notifyItemRangeInserted(position + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)
     }
 
-    open fun addData(@NonNull newData: Collection<T>) {
+    open fun addData(@NonNull newData: MutableList<T>) {
         this.data.addAll(newData)
         notifyItemRangeInserted(this.data.size - newData.size + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)

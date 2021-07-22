@@ -20,7 +20,7 @@ abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
     }
 
     private fun initClickIdsIfNeeded() {
-        nestViewIds.forEach {
+        nestViewIds?.forEach {
             addChildClickViewIds(it)
         }
     }
@@ -47,5 +47,5 @@ abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
      *
      * @return ids
      */
-    abstract val nestViewIds: IntArray
+    abstract val nestViewIds: IntArray?
 }

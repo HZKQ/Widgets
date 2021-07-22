@@ -71,7 +71,7 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
     /**
      * 替换整个列表数据，如果需要对某节点下的子节点进行替换，请使用[nodeReplaceChildData]！
      */
-    override fun setList(list: Collection<T>?) {
+    override fun setList(list: MutableList<T>?) {
         super.setList(flatData(list ?: arrayListOf()))
     }
 
@@ -89,12 +89,12 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
         addData(arrayListOf(data))
     }
 
-    override fun addData(position: Int, newData: Collection<T>) {
+    override fun addData(position: Int, newData: MutableList<T>) {
         val nodes = flatData(newData)
         super.addData(position, nodes)
     }
 
-    override fun addData(newData: Collection<T>) {
+    override fun addData(newData: MutableList<T>) {
         val nodes = flatData(newData)
         super.addData(nodes)
     }
@@ -251,7 +251,7 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
      * @param childIndex Int 此位置是相对于其childNodes数据的位置！并不是整个data
      * @param newData 添加的数据集合
      */
-    fun nodeAddData(parentNode: T, childIndex: Int, newData: Collection<T>) {
+    fun nodeAddData(parentNode: T, childIndex: Int, newData: MutableList<T>) {
         parentNode.getChildNode<T>()?.let {
             it.addAll(childIndex, newData)
 
@@ -333,9 +333,9 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
     /**
      * 替换父节点下的子节点集合
      * @param parentNode BaseNode
-     * @param newData Collection<BaseNode>
+     * @param newData MutableList<BaseNode>
      */
-    fun nodeReplaceChildData(parentNode: T, newData: Collection<T>) {
+    fun nodeReplaceChildData(parentNode: T, newData: MutableList<T>) {
         parentNode.getChildNode<T>()?.let {
             if (parentNode is BaseExpandNode && !parentNode.isExpanded) {
                 it.clear()
@@ -367,11 +367,11 @@ abstract class BaseNodeAdapter<T: BaseNode, BH: BaseViewHolder>(nodeList: Mutabl
 
     /**
      * 将输入的嵌套类型数组循环递归，在扁平化数据的同时，设置展开状态
-     * @param list Collection<BaseNode>
+     * @param list MutableList<BaseNode>
      * @param isExpanded Boolean? 如果不需要改变状态，设置为null。true 为展开，false 为收起
      * @return MutableList<BaseNode>
      */
-    private fun flatData(list: Collection<T>, isExpanded: Boolean? = null): MutableList<T> {
+    private fun flatData(list: MutableList<T>, isExpanded: Boolean? = null): MutableList<T> {
         val newList = ArrayList<T>()
 
         for (element in list) {

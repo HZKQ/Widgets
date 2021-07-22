@@ -26,7 +26,7 @@ abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder> 
     }
 
     private fun initClickIdsIfNeeded() {
-        nestViewIds.forEach {
+        nestViewIds?.forEach {
             addChildClickViewIds(it)
         }
     }
@@ -53,5 +53,5 @@ abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder> 
      *
      * @return ids
      */
-    abstract val nestViewIds: IntArray
+    abstract val nestViewIds: IntArray?
 }

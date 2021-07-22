@@ -110,7 +110,7 @@ public class IndexBarActivity extends BaseActivity {
             runOnUiThread(() -> {
                 mIndexBar.setLetters(sectionIndexer.getSections());
                 mUserAdapter.setSectionIndexer(sectionIndexer);
-                mUserAdapter.setNewData(sectionIndexer.getData());
+                mUserAdapter.setList(sectionIndexer.getData());
             });
         }).start();
     }
