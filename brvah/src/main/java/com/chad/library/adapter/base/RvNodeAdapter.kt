@@ -11,12 +11,10 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  *
  * @author zhouzhuo810
  */
-abstract class RvNodeAdapter<T: BaseNode, BH: BaseViewHolder> : BaseNodeAdapter<T, BH> {
-    constructor() : super() {
-        initClickIdsIfNeeded()
-    }
+abstract class RvNodeAdapter<T : BaseNode, BH : BaseViewHolder> @JvmOverloads constructor(nodeList: MutableList<T>? = null)
+    : BaseNodeAdapter<T, BH>(nodeList) {
 
-    constructor(nodeList: MutableList<T>?) : super(nodeList) {
+    init {
         initClickIdsIfNeeded()
     }
 

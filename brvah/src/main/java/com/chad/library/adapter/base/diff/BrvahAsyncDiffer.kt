@@ -2,6 +2,7 @@ package com.chad.library.adapter.base.diff
 
 import android.os.Handler
 import android.os.Looper
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DiffUtil.DiffResult
 import androidx.recyclerview.widget.ListUpdateCallback
@@ -9,23 +10,23 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 
+/**
+ * Helper for computing the difference between two lists via [DiffUtil] on a background thread.
+ * 该类参考[AsyncListDiffer]定制
+ */
 class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
-                          private val config: BrvahAsyncDifferConfig<T>) : DifferImp<T> {
-    private val mUpdateCallback: ListUpdateCallback = BrvahListUpdateCallback(adapter)
-    private var mMainThreadExecutor: Executor
+                          private val config: BrvahAsyncDifferConfig<T>) {
 
-    private class MainThreadExecutor internal constructor() : Executor {
+    private val mUpdateCallback: ListUpdateCallback = BrvahListUpdateCallback(adapter)
+
+    private class MainThreadExecutor : Executor {
         val mHandler = Handler(Looper.getMainLooper())
         override fun execute(command: Runnable) {
             mHandler.post(command)
         }
     }
 
-    private val sMainThreadExecutor: Executor = MainThreadExecutor()
-
-    init {
-        mMainThreadExecutor = config.mainThreadExecutor ?: sMainThreadExecutor
-    }
+    private var mMainThreadExecutor: Executor = config.mainThreadExecutor ?: sMainThreadExecutor
 
     private val mListeners: MutableList<ListChangeListener<T>> = CopyOnWriteArrayList()
 
@@ -34,8 +35,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     fun addData(index: Int, data: T) {
         val previousList: List<T> = adapter.data
         adapter.data.add(index, data)
-        //        final List<T> previousList = mReadOnlyList;
-//        mReadOnlyList = Collections.unmodifiableList(adapterData);
         mUpdateCallback.onInserted(index, 1)
         onCurrentListChanged(previousList, null)
     }
@@ -43,7 +42,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     fun addData(data: T) {
         val previousList: List<T> = adapter.data
         adapter.data.add(data)
-
         mUpdateCallback.onInserted(previousList.size, 1)
         onCurrentListChanged(previousList, null)
     }
@@ -52,8 +50,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
         if (list == null) return
         val previousList: List<T> = adapter.data
         adapter.data.addAll(list)
-        //        final List<T> previousList = mReadOnlyList;
-//        mReadOnlyList = Collections.unmodifiableList(adapterData);
         mUpdateCallback.onInserted(previousList.size, list.size)
         onCurrentListChanged(previousList, null)
     }
@@ -64,8 +60,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     fun changeData(index: Int, newData: T, payload: T?) {
         val previousList: List<T> = adapter.data
         adapter.data[index] = newData
-        //        final List<T> previousList = mReadOnlyList;
-//        mReadOnlyList = Collections.unmodifiableList(adapterData);
         mUpdateCallback.onChanged(index, 1, payload)
         onCurrentListChanged(previousList, null)
     }
@@ -76,9 +70,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     fun removeAt(index: Int) {
         val previousList: List<T> = adapter.data
         adapter.data.removeAt(index)
-
-//        final List<T> previousList = mReadOnlyList;
-//        mReadOnlyList = Collections.unmodifiableList(adapterData);
         mUpdateCallback.onRemoved(index, 1)
         onCurrentListChanged(previousList, null)
     }
@@ -88,9 +79,6 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
         val index = adapter.data.indexOf(t)
         if (index == -1) return
         adapter.data.removeAt(index)
-
-//        final List<T> previousList = mReadOnlyList;
-//        mReadOnlyList = Collections.unmodifiableList(adapterData);
         mUpdateCallback.onRemoved(index, 1)
         onCurrentListChanged(previousList, null)
     }
@@ -105,6 +93,7 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
             commitCallback?.run()
             return
         }
+
         val oldList: List<T> = adapter.data
         // fast simple remove all
         if (newList == null) {
@@ -173,9 +162,9 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     }
 
     private fun latchList(
-            newList: MutableList<T>,
-            diffResult: DiffResult,
-            commitCallback: Runnable?) {
+        newList: MutableList<T>,
+        diffResult: DiffResult,
+        commitCallback: Runnable?) {
         val previousList: List<T> = adapter.data
         adapter.data = newList
 
@@ -196,10 +185,9 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
      *
      * @param listener Listener to receive updates.
      *
-     * @see .getCurrentList
-     * @see .removeListListener
+     * @see [removeListListener]
      */
-    override fun addListListener(listener: ListChangeListener<T>) {
+    fun addListListener(listener: ListChangeListener<T>) {
         mListeners.add(listener)
     }
 
@@ -207,14 +195,23 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
      * Remove a previously registered ListListener.
      *
      * @param listener Previously registered listener.
-     * @see .getCurrentList
-     * @see .addListListener
+     * @see [addListListener]
      */
     fun removeListListener(listener: ListChangeListener<T>) {
         mListeners.remove(listener)
     }
 
+    /**
+     * Remove all previously registered ListListener.
+     * @see [addListListener]
+     * @see [removeListListener]
+     */
     fun clearAllListListener() {
         mListeners.clear()
+    }
+
+    companion object {
+        // TODO: use MainThreadExecutor from supportlib once one exists
+        private val sMainThreadExecutor: Executor = MainThreadExecutor()
     }
 }

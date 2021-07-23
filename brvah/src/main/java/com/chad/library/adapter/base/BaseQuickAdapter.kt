@@ -729,8 +729,8 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
     fun getViewByPosition(position: Int, @IdRes viewId: Int): View? {
         val recyclerView = recyclerViewOrNull ?: return null
         val viewHolder = recyclerView.findViewHolderForLayoutPosition(position) as BaseViewHolder?
-                ?: return null
-        return viewHolder.getViewOrNull(viewId)
+            ?: return null
+        return viewHolder.getView(viewId)
     }
 
     /********************************************************************************************/
@@ -960,7 +960,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
     /********************************************************************************************/
     /**
      * 设置空布局视图，注意：[data]必须为空数组
-     * @param emptyView View
      */
     fun setEmptyView(emptyView: View) {
         val oldItemCount = itemCount
@@ -995,13 +994,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
             } else {
                 notifyDataSetChanged()
             }
-        }
-    }
-
-    fun setEmptyView(layoutResId: Int) {
-        recyclerViewOrNull?.let {
-            val view = LayoutInflater.from(it.context).inflate(layoutResId, it, false)
-            setEmptyView(view)
         }
     }
 
@@ -1111,18 +1103,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
     }
 
     /**
-     * use data to replace all item in mData. this method is different [setList],
-     * it doesn't change the [BaseQuickAdapter.data] reference
-     * Deprecated, Please use [setList]
-     *
-     * @param newData data collection
-     */
-    @Deprecated("Please use setData()", replaceWith = ReplaceWith("setList(newData)"))
-    open fun replaceData(newData: MutableList<T>) {
-        setList(newData)
-    }
-
-    /**
      * 使用新的数据集合，改变原有数据集合内容。
      * 注意：不会替换原有的内存引用，只是替换内容
      *
@@ -1208,17 +1188,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      *
      * @param position
      */
-    @Deprecated("Please use removeAt()", replaceWith = ReplaceWith("removeAt(position)"))
-    open fun remove(@IntRange(from = 0) position: Int) {
-        removeAt(position)
-    }
-
-    /**
-     * remove the item associated with the specified position of adapter
-     * 删除指定位置的数据
-     *
-     * @param position
-     */
     open fun removeAt(@IntRange(from = 0) position: Int) {
         if (position >= data.size) {
             return
@@ -1266,11 +1235,6 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      */
     fun setDiffConfig(config: BrvahAsyncDifferConfig<T>) {
         mDiffHelper = BrvahAsyncDiffer(this, config)
-    }
-
-    @Deprecated("User getDiffer()", replaceWith = ReplaceWith("getDiffer()"))
-    fun getDiffHelper(): BrvahAsyncDiffer<T> {
-        return getDiffer()
     }
 
     fun getDiffer(): BrvahAsyncDiffer<T> {

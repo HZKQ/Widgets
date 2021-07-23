@@ -90,13 +90,13 @@
                 app:eiv_must_input_textColor="@color/colorRed"
                 app:eiv_title_margin_start="30px"
                 app:eiv_title_text="必填项"
+                app:eiv_unit_background="@drawable/btn_main_selector"
                 app:eiv_unit_margin_end="30px"
-                app:eiv_unit_show="true"
                 app:eiv_unit_padding_horizontal="20px"
                 app:eiv_unit_padding_vertical="10px"
-                app:eiv_unit_textColor="@color/colorWhite"
-                app:eiv_unit_background="@drawable/btn_main_selector"
-                app:eiv_unit_text="自动获取" />
+                app:eiv_unit_show="true"
+                app:eiv_unit_text="自动获取"
+                app:eiv_unit_textColor="@color/colorWhite" />
 
             <com.keqiang.views.ExtendEditText
                 android:layout_width="match_parent"
@@ -159,15 +159,15 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="120px"
-                android:gravity="center_vertical"
                 android:layout_marginTop="100px"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <com.keqiang.views.DropItemView
                     android:id="@+id/div_device"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:background="@drawable/item_bg_selector"
                     android:paddingLeft="30px"
                     android:paddingRight="30px"
@@ -176,18 +176,19 @@
 
                 <View
                     android:layout_width="1px"
-                    android:background="@drawable/bg_line_chart"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_line_chart" />
 
                 <com.keqiang.views.DropItemView
                     android:id="@+id/div_mold"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:background="@drawable/item_bg_selector"
                     android:paddingLeft="30px"
                     android:paddingRight="30px"
                     app:div_icon="@drawable/ic_xiala_16_selected"
+                    app:div_show_style="end"
                     app:div_text="全部模具" />
             </LinearLayout>
 

@@ -1,8 +1,13 @@
 package com.chad.library.adapter.base.diff
 
+import androidx.recyclerview.widget.AdapterListUpdateCallback
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.chad.library.adapter.base.BaseQuickAdapter
 
+/**
+ * 该类参考[AdapterListUpdateCallback]定制，用于配合[BrvahAsyncDiffer]
+ */
 class BrvahListUpdateCallback(private val mAdapter: BaseQuickAdapter<*, *>) : ListUpdateCallback {
 
     override fun onInserted(position: Int, count: Int) {

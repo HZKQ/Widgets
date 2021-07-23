@@ -147,7 +147,7 @@ public class EditItemView extends ConstraintLayout {
             TypedArray t = null;
             try {
                 t = context.obtainStyledAttributes(attrs, R.styleable.EditItemView);
-                mShowStyle = t.getInteger(R.styleable.EditItemView_eiv_show_style, SHOW_STYLE_EDIT);
+                mShowStyle = t.getInt(R.styleable.EditItemView_eiv_show_style, SHOW_STYLE_EDIT);
                 mCouldEdit = t.getBoolean(R.styleable.EditItemView_eiv_could_edit, true);
                 textColor = t.getColor(R.styleable.EditItemView_android_textColor, Color.BLACK);
                 textSize = t.getDimensionPixelSize(R.styleable.EditItemView_android_textSize, 32);

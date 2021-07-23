@@ -16,9 +16,9 @@
 
     <declare-styleable name="ChooseItemView">
         <!--展示形式-->
-        <attr name="civ_show_style" format="flags">
-            <flag name="read" value="0" />
-            <flag name="edit" value="1" />
+        <attr name="civ_show_style">
+            <enum name="read" value="0" />
+            <enum name="edit" value="1" />
         </attr>
 
         <!--项是否可编辑-->
@@ -51,7 +51,7 @@
         <attr name="civ_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在ChooseItemView解析，仅用于xml配置时android studio有提示-->
-        <attr name="android:text"/>
+        <attr name="android:text" />
         <attr name="android:textColorHint" />
         <attr name="android:gravity" />
         <attr name="android:maxLines" />
@@ -103,9 +103,9 @@
 
     <declare-styleable name="EditItemView">
         <!--展示形式-->
-        <attr name="eiv_show_style" format="flags">
-            <flag name="read" value="0" />
-            <flag name="edit" value="1" />
+        <attr name="eiv_show_style">
+            <enum name="read" value="0" />
+            <enum name="edit" value="1" />
         </attr>
 
         <!--项是否可编辑-->
@@ -138,7 +138,7 @@
         <attr name="eiv_title_max_width" format="dimension|reference" />
 
         <!--以下属性都不需要在EditItemView解析，仅用于xml配置时android studio有提示-->
-        <attr name="android:text"/>
+        <attr name="android:text" />
         <attr name="android:textColorHint" />
         <attr name="android:gravity" />
         <attr name="android:maxLines" />
@@ -286,6 +286,8 @@
     <declare-styleable name="DropItemView">
         <!-- 默认文字 -->
         <attr name="div_text" format="string" />
+        <!--是否展示下拉图标-->
+        <attr name="div_show_icon" format="boolean" />
         <!-- 默认图标 -->
         <attr name="div_icon" format="reference" />
         <!-- 图标大小 -->
@@ -294,11 +296,11 @@
         <attr name="div_text_size" format="dimension" />
         <!-- 文字和图标之间的间距 -->
         <attr name="div_text_icon_spacing" format="dimension" />
-        <!-- 文字对齐方式 -->
-        <attr name="div_text_gravity" format="flags">
+        <!-- 文字对齐方式-->
+        <attr name="div_text_gravity">
             <flag name="center" value="0" />
-            <flag name="left" value="1" />
-            <flag name="right" value="2" />
+            <flag name="start" value="1" />
+            <flag name="end" value="2" />
         </attr>
         <!-- 文字最大行数 -->
         <attr name="div_text_max_lines" format="integer" />
@@ -316,5 +318,14 @@
         <attr name="div_icon_angle_expand" format="integer" />
         <!-- 下拉状态，默认：false -->
         <attr name="div_is_expand" format="boolean" />
+        <!--文本和图标显示方式.
+        start：图标紧挨文本靠左显示，当文本超出控件宽度时，图标紧靠右边.
+        center：图标紧挨文本居中显示，当文本超出控件宽度时，图标紧靠右边.
+        end：图标紧靠右边展示，文本靠左展示 -->
+        <attr name="div_show_style">
+            <enum name="start" value="0" />
+            <enum name="center" value="1" />
+            <enum name="end" value="2" />
+        </attr>
     </declare-styleable>
 </resources>

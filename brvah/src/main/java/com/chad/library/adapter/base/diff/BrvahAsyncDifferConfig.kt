@@ -1,24 +1,29 @@
 package com.chad.library.adapter.base.diff
 
 import androidx.annotation.RestrictTo
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
+/**
+ * 该类参考[AsyncDifferConfig]定制，用于配合[BrvahAsyncDiffer]
+ */
 class BrvahAsyncDifferConfig<T>(
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        val mainThreadExecutor: Executor?,
-        val backgroundThreadExecutor: Executor,
-        val diffCallback: DiffUtil.ItemCallback<T>) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val mainThreadExecutor: Executor?,
+    val backgroundThreadExecutor: Executor,
+    val diffCallback: DiffUtil.ItemCallback<T>) {
 
     /**
      * Builder class for [BrvahAsyncDifferConfig].
      *
      * @param <T>
-    </T> */
+     **/
     class Builder<T>(private val mDiffCallback: DiffUtil.ItemCallback<T>) {
         private var mMainThreadExecutor: Executor? = null
         private var mBackgroundThreadExecutor: Executor? = null
+
         /**
          * If provided, defines the main thread executor used to dispatch adapter update
          * notifications on the main thread.
@@ -31,6 +36,7 @@ class BrvahAsyncDifferConfig<T>(
          *
          * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun setMainThreadExecutor(executor: Executor?): Builder<T> {
             mMainThreadExecutor = executor
             return this
@@ -66,9 +72,9 @@ class BrvahAsyncDifferConfig<T>(
                 mBackgroundThreadExecutor = sDiffExecutor
             }
             return BrvahAsyncDifferConfig(
-                    mMainThreadExecutor,
-                    mBackgroundThreadExecutor!!,
-                    mDiffCallback)
+                mMainThreadExecutor,
+                mBackgroundThreadExecutor!!,
+                mDiffCallback)
         }
 
         companion object {
@@ -76,6 +82,5 @@ class BrvahAsyncDifferConfig<T>(
             private val sExecutorLock = Any()
             private var sDiffExecutor: Executor? = null
         }
-
     }
 }

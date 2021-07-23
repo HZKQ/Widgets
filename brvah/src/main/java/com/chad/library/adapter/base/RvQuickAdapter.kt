@@ -1,6 +1,7 @@
 package com.chad.library.adapter.base
 
 import android.view.View
+import androidx.annotation.LayoutRes
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import me.zhouzhuo810.magpiex.utils.SimpleUtil
 
@@ -9,13 +10,12 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  *
  * @author zhouzhuo810
  */
-abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
+abstract class RvQuickAdapter<T, K : BaseViewHolder>
+@JvmOverloads constructor(@LayoutRes layoutResId: Int,
+                          data: MutableList<T>? = null)
+    : BaseQuickAdapter<T, K>(layoutResId, data) {
 
-    constructor(layoutResId: Int) : super(layoutResId) {
-        initClickIdsIfNeeded()
-    }
-
-    constructor(layoutResId: Int, data: MutableList<T>?) : super(layoutResId, data) {
+    init {
         initClickIdsIfNeeded()
     }
 
@@ -28,7 +28,7 @@ abstract class RvQuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
     override fun createBaseViewHolder(view: View): K {
         val baseViewHolder = super.createBaseViewHolder(view)
         if (!disableScale()) {
-            SimpleUtil.scaleView(baseViewHolder!!.itemView)
+            SimpleUtil.scaleView(baseViewHolder.itemView)
         }
         return baseViewHolder
     }

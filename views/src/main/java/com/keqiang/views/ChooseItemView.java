@@ -130,7 +130,7 @@ public class ChooseItemView extends ConstraintLayout {
             TypedArray t = null;
             try {
                 t = context.obtainStyledAttributes(attrs, R.styleable.ChooseItemView);
-                mShowStyle = t.getInteger(R.styleable.ChooseItemView_civ_show_style, SHOW_STYLE_EDIT);
+                mShowStyle = t.getInt(R.styleable.ChooseItemView_civ_show_style, SHOW_STYLE_EDIT);
                 mCouldEdit = t.getBoolean(R.styleable.ChooseItemView_civ_could_edit, true);
                 textColor = t.getColor(R.styleable.ChooseItemView_android_textColor, Color.BLACK);
                 textSize = t.getDimensionPixelSize(R.styleable.ChooseItemView_android_textSize, 32);

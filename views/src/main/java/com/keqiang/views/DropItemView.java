@@ -10,7 +10,13 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -25,28 +31,48 @@ import me.zhouzhuo810.magpiex.utils.ColorUtil;
  */
 public class DropItemView extends ConstraintLayout {
     
-    private static final int DEFAULT_TEXT_SIZE_PX = 41;
-    private static final int DEFAULT_ICON_SIZE_PX = 41;
-    private static final int DEFAULT_SPACING_PX = 20;
-    private static final int DEFAULT_TEXT_COLOR_EXPAND = 0xff3A559B;
-    private static final int DEFAULT_TEXT_COLOR_COLLAPSE = 0xff333333;
-    private static final int DEFAULT_ICON_COLOR_EXPAND = 0xff3A559B;
-    private static final int DEFAULT_ICON_COLOR_COLLAPSE = 0x66000000;
+    /**
+     * 图标紧挨文本靠左显示，当文本超出控件宽度时，图标紧靠右边
+     */
+    public static final int SHOW_STYLE_START = 0;
     
-    private int mTextSize;
-    private int mIconSize;
-    private int mTextColorExpand;
-    private int mTextColorCollapse;
-    private int mIconColorExpand;
-    private int mIconColorCollapse;
-    private boolean mExpand;
-    private int mAngleExpand;
-    private int mAngleCollapse;
-    private int mSpacing;
-    private int mMaxLines;
+    /**
+     * 图标紧挨文本居中显示，当文本超出控件宽度时，图标紧靠右边
+     */
+    public static final int SHOW_STYLE_CENTER = 1;
     
-    private TextView mTvTitle;
-    private AppCompatImageView mIvArrow;
+    /**
+     * 图标紧靠右边展示，文本靠左展示
+     */
+    public static final int SHOW_STYLE_END = 2;
+    
+    @IntDef({SHOW_STYLE_START, SHOW_STYLE_CENTER, SHOW_STYLE_END})
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ShowStyle {}
+    
+    protected static final int DEFAULT_TEXT_SIZE_PX = 41;
+    protected static final int DEFAULT_ICON_SIZE_PX = 41;
+    protected static final int DEFAULT_SPACING_PX = 20;
+    protected static final int DEFAULT_TEXT_COLOR_EXPAND = 0xff3A559B;
+    protected static final int DEFAULT_TEXT_COLOR_COLLAPSE = 0xff333333;
+    protected static final int DEFAULT_ICON_COLOR_EXPAND = 0xff3A559B;
+    protected static final int DEFAULT_ICON_COLOR_COLLAPSE = 0x66000000;
+    
+    protected int mTextSize;
+    protected int mIconSize;
+    protected int mTextColorExpand;
+    protected int mTextColorCollapse;
+    protected int mIconColorExpand;
+    protected int mIconColorCollapse;
+    protected boolean mExpand;
+    protected int mAngleExpand;
+    protected int mAngleCollapse;
+    protected int mSpacing;
+    protected int mMaxLines;
+    
+    protected TextView mTvTitle;
+    protected AppCompatImageView mIvArrow;
     
     private OnDropStatusChangeListener mOnDropStatusChangeListener;
     
@@ -68,10 +94,11 @@ public class DropItemView extends ConstraintLayout {
         init(context, attrs, defStyleAttr);
     }
     
-    
-    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+    protected void init(Context context, AttributeSet attrs, int defStyleAttr) {
         String title = null;
         Drawable icon = null;
+        int showStyle = SHOW_STYLE_CENTER;
+        boolean showIcon = true;
         int gravity = 0;
         if (attrs != null) {
             TypedArray typedArray = null;
@@ -91,6 +118,8 @@ public class DropItemView extends ConstraintLayout {
                 mIconColorExpand = typedArray.getColor(R.styleable.DropItemView_div_icon_color_expand, DEFAULT_ICON_COLOR_EXPAND);
                 mIconColorCollapse = typedArray.getColor(R.styleable.DropItemView_div_icon_color_collapse, DEFAULT_ICON_COLOR_COLLAPSE);
                 gravity = typedArray.getInt(R.styleable.DropItemView_div_text_gravity, 0);
+                showIcon = typedArray.getBoolean(R.styleable.DropItemView_div_show_icon, true);
+                showStyle = typedArray.getInt(R.styleable.DropItemView_div_show_style, SHOW_STYLE_CENTER);
             } finally {
                 if (typedArray != null) {
                     typedArray.recycle();
@@ -116,9 +145,19 @@ public class DropItemView extends ConstraintLayout {
         }
         
         mTvTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams params;
+        if (showStyle == SHOW_STYLE_START) {
+            params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.horizontalBias = 0;
+        } else if (showStyle == SHOW_STYLE_END) {
+            params = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.horizontalBias = 1;
+        } else {
+            params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.horizontalBias = 0.5f;
+        }
+        
         params.constrainedWidth = true;
-        params.horizontalBias = 0.5f;
         params.horizontalChainStyle = LayoutParams.CHAIN_PACKED;
         params.topToTop = LayoutParams.PARENT_ID;
         params.bottomToBottom = LayoutParams.PARENT_ID;
@@ -134,6 +173,7 @@ public class DropItemView extends ConstraintLayout {
         paramsIcon.endToEnd = LayoutParams.PARENT_ID;
         paramsIcon.startToEnd = R.id.drop_item_view_id_1;
         paramsIcon.leftMargin = mSpacing;
+        mIvArrow.setVisibility(showIcon ? VISIBLE : GONE);
         
         addView(mTvTitle, params);
         addView(mIvArrow, paramsIcon);
@@ -181,6 +221,7 @@ public class DropItemView extends ConstraintLayout {
             mIvArrow.setRotation(mAngleExpand);
             ColorUtil.setIconColor(mIvArrow, mIconColorExpand);
         }
+        
         if (mTvTitle != null) {
             mTvTitle.setTextColor(mTextColorExpand);
         }
@@ -209,9 +250,11 @@ public class DropItemView extends ConstraintLayout {
             mIvArrow.setRotation(mAngleCollapse);
             ColorUtil.setIconColor(mIvArrow, mIconColorCollapse);
         }
+        
         if (mTvTitle != null) {
             mTvTitle.setTextColor(mTextColorCollapse);
         }
+        
         if (mOnDropStatusChangeListener != null && notify) {
             mOnDropStatusChangeListener.onStatusChange(this, false);
         }
@@ -260,6 +303,29 @@ public class DropItemView extends ConstraintLayout {
         return this;
     }
     
+    /**
+     * 设置展示方式
+     *
+     * @param showStyle 参考{@link ShowStyle}
+     */
+    public DropItemView showStyle(@ShowStyle int showStyle) {
+        if (mTvTitle.getLayoutParams() == null) {
+            return this;
+        }
+        
+        LayoutParams params = (LayoutParams) mTvTitle.getLayoutParams();
+        if (showStyle == SHOW_STYLE_START) {
+            params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.horizontalBias = 0;
+        } else if (showStyle == SHOW_STYLE_END) {
+            params.width = 0;
+            params.horizontalBias = 1;
+        } else {
+            params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.horizontalBias = 0.5f;
+        }
+        return this;
+    }
     
     public TextView getTvTitle() {
         return mTvTitle;
