@@ -4,6 +4,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.chad.library.adapter.base.entity.node.BaseNode
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
@@ -15,13 +16,12 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  *
  * ViewHolder 由 [BaseItemProvider] 实现，并且每个[BaseItemProvider]可以拥有自己类型的ViewHolder类型。
  *
- * @param T data 数据类型
  * @constructor
  */
-abstract class BaseProviderMultiAdapter<T, BH: BaseViewHolder>(data: MutableList<T>? = null) :
-        BaseQuickAdapter<T, BH>(0, data) {
+abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<BaseNode>? = null) :
+    BaseQuickAdapter<BaseNode, BH>(0, data) {
 
-    private val mItemProviders by lazy(LazyThreadSafetyMode.NONE) { SparseArray<BaseItemProvider<T, BH>>() }
+    private val mItemProviders by lazy(LazyThreadSafetyMode.NONE) { SparseArray<BaseItemProvider<*, BH>>() }
 
     /**
      * 返回 item 类型
@@ -29,19 +29,19 @@ abstract class BaseProviderMultiAdapter<T, BH: BaseViewHolder>(data: MutableList
      * @param position Int
      * @return Int
      */
-    protected abstract fun getItemType(data: List<T>, position: Int): Int
+    protected abstract fun getItemType(data: List<BaseNode>, position: Int): Int
 
     /**
      * 必须通过此方法，添加 provider
      * @param provider BaseItemProvider
      */
-    open fun addItemProvider(provider: BaseItemProvider<T, BH>) {
+    open fun <T : BaseNode> addItemProvider(provider: BaseItemProvider<T, BH>) {
         provider.setAdapter(this)
         mItemProviders.put(provider.itemViewType, provider)
     }
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BH {
-        val provider = getItemProvider(viewType)
+        val provider = getItemProvider<BaseNode>(viewType)
         checkNotNull(provider) { "ViewType: $viewType no such provider found，please use addItemProvider() first!" }
         provider.context = parent.context
         return provider.onCreateViewHolder(parent, viewType).apply {
@@ -53,12 +53,12 @@ abstract class BaseProviderMultiAdapter<T, BH: BaseViewHolder>(data: MutableList
         return getItemType(data, position)
     }
 
-    override fun convert(holder: BH, item: T) {
-        getItemProvider(holder.itemViewType)!!.convert(holder, item)
+    override fun convert(holder: BH, item: BaseNode) {
+        getItemProvider<BaseNode>(holder.itemViewType)!!.convert(holder, item)
     }
 
-    override fun convert(holder: BH, item: T, payloads: List<Any>) {
-        getItemProvider(holder.itemViewType)!!.convert(holder, item, payloads)
+    override fun convert(holder: BH, item: BaseNode, payloads: List<Any>) {
+        getItemProvider<BaseNode>(holder.itemViewType)!!.convert(holder, item, payloads)
     }
 
     override fun bindViewClickListener(viewHolder: BH, viewType: Int) {
@@ -75,57 +75,59 @@ abstract class BaseProviderMultiAdapter<T, BH: BaseViewHolder>(data: MutableList
      * @param viewType Int
      * @return BaseItemProvider
      */
-    protected open fun getItemProvider(viewType: Int): BaseItemProvider<T, BH>? {
-        return mItemProviders.get(viewType)
+    @Suppress("UNCHECKED_CAST")
+    protected open fun <T : BaseNode> getItemProvider(viewType: Int): BaseItemProvider<T, BH>? {
+        return mItemProviders.get(viewType) as BaseItemProvider<T, BH>?
     }
 
     override fun onViewAttachedToWindow(holder: BH) {
         super.onViewAttachedToWindow(holder)
-        getItemProvider(holder.itemViewType)?.onViewAttachedToWindow(holder)
+        getItemProvider<BaseNode>(holder.itemViewType)?.onViewAttachedToWindow(holder)
     }
 
     override fun onViewDetachedFromWindow(holder: BH) {
         super.onViewDetachedFromWindow(holder)
-        getItemProvider(holder.itemViewType)?.onViewDetachedFromWindow(holder)
+        getItemProvider<BaseNode>(holder.itemViewType)?.onViewDetachedFromWindow(holder)
     }
 
+    @Suppress("UNCHECKED_CAST")
     protected open fun bindClick(viewHolder: BH) {
         if (getOnItemClickListener() == null) {
             //如果没有设置点击监听，则回调给 itemProvider
             //Callback to itemProvider if no click listener is set
-            viewHolder.itemView.setOnClickListener {
-                var position = viewHolder.adapterPosition
-                if (position == RecyclerView.NO_POSITION) {
-                    return@setOnClickListener
+            val provider = mItemProviders.get(viewHolder.itemViewType) as BaseItemProvider<BaseNode, BH>
+            if (provider.itemCouldClick) {
+                viewHolder.itemView.setOnClickListener {
+                    var position = viewHolder.adapterPosition
+                    if (position == RecyclerView.NO_POSITION) {
+                        return@setOnClickListener
+                    }
+                    position -= headerLayoutCount
+                    provider.onClick(viewHolder, it, data[position], position)
                 }
-                position -= headerLayoutCount
-
-                val itemViewType = viewHolder.itemViewType
-                val provider = mItemProviders.get(itemViewType)
-
-                provider.onClick(viewHolder, it, data[position], position)
             }
         }
+
         if (getOnItemLongClickListener() == null) {
             //如果没有设置长按监听，则回调给itemProvider
             // If you do not set a long press listener, callback to the itemProvider
-            viewHolder.itemView.setOnLongClickListener {
-                var position = viewHolder.adapterPosition
-                if (position == RecyclerView.NO_POSITION) {
-                    return@setOnLongClickListener false
+            val provider = mItemProviders.get(viewHolder.itemViewType) as BaseItemProvider<BaseNode, BH>
+            if (provider.itemCouldLongClick) {
+                viewHolder.itemView.setOnLongClickListener {
+                    var position = viewHolder.adapterPosition
+                    if (position == RecyclerView.NO_POSITION) {
+                        return@setOnLongClickListener false
+                    }
+                    position -= headerLayoutCount
+                    provider.onLongClick(viewHolder, it, data[position], position)
                 }
-                position -= headerLayoutCount
-
-                val itemViewType = viewHolder.itemViewType
-                val provider = mItemProviders.get(itemViewType)
-                provider.onLongClick(viewHolder, it, data[position], position)
             }
         }
     }
 
     protected open fun bindChildClick(viewHolder: BH, viewType: Int) {
         if (getOnItemChildClickListener() == null) {
-            val provider = getItemProvider(viewType) ?: return
+            val provider = getItemProvider<BaseNode>(viewType) ?: return
             val ids = provider.getChildClickViewIds()
             ids.forEach { id ->
                 viewHolder.itemView.findViewById<View>(id)?.let {
@@ -144,7 +146,7 @@ abstract class BaseProviderMultiAdapter<T, BH: BaseViewHolder>(data: MutableList
             }
         }
         if (getOnItemChildLongClickListener() == null) {
-            val provider = getItemProvider(viewType) ?: return
+            val provider = getItemProvider<BaseNode>(viewType) ?: return
             val ids = provider.getChildLongClickViewIds()
             ids.forEach { id ->
                 viewHolder.itemView.findViewById<View>(id)?.let {

@@ -8,5 +8,5 @@ interface NodeFooterImp {
      * 返回脚部节点
      * @return BaseNode? 如果返回 null，则代表没有脚部节点
      */
-    fun <T : BaseNode?> getFooterNode(): T?
+    fun <T : BaseNode> getFooterNode(): T?
 }

@@ -1,5 +1,6 @@
 package com.chad.library.adapter.base.module
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.view.MotionEvent
 import android.view.View
@@ -92,6 +93,7 @@ open class BaseDraggableModule(private val baseQuickAdapter: BaseQuickAdapter<*,
      *
      */
     open var isDragOnLongPressEnabled = true
+        @SuppressLint("ClickableViewAccessibility")
         set(value) {
             field = value
             if (value) {

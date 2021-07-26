@@ -1,16 +1,11 @@
 package com.chad.library.adapter.base
 
-import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import com.chad.library.adapter.base.entity.SectionEntity
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
 /**
  * 快速实现带头部的 Adapter，由于本质属于多布局，所以继承自[BaseMultiItemQuickAdapter]
- * @param T : SectionEntity
- * @param VH : BaseViewHolder
- * @property sectionHeadResId Int
- * @constructor
  */
 abstract class BaseSectionQuickAdapter<T : SectionEntity, VH : BaseViewHolder>
 @JvmOverloads constructor(@LayoutRes private val sectionHeadResId: Int,
@@ -57,7 +52,7 @@ abstract class BaseSectionQuickAdapter<T : SectionEntity, VH : BaseViewHolder>
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         if (holder.itemViewType == SectionEntity.HEADER_TYPE) {
-//            setFullSpan(holder)
+            //            setFullSpan(holder)
             convertHeader(holder, getItem(position - headerLayoutCount))
         } else {
             super.onBindViewHolder(holder, position)

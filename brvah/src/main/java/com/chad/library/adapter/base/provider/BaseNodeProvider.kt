@@ -6,8 +6,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
 abstract class BaseNodeProvider<T: BaseNode,BH: BaseViewHolder> : BaseItemProvider<T, BH>() {
 
-    override fun getAdapter(): BaseNodeAdapter<T, BH>? {
-        return super.getAdapter() as? BaseNodeAdapter<T, BH>
+    override fun getAdapter(): BaseNodeAdapter<BH>? {
+        return super.getAdapter() as? BaseNodeAdapter<BH>
     }
-
 }

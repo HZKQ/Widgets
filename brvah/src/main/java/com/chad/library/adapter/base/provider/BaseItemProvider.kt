@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import com.chad.library.adapter.base.BaseProviderMultiAdapter
+import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import java.lang.ref.WeakReference
@@ -18,19 +19,19 @@ import java.lang.reflect.ParameterizedType
  * [BaseProviderMultiAdapter] 的Provider基类
  * @param T 数据类型
  */
-abstract class BaseItemProvider<T, BH: BaseViewHolder> {
+abstract class BaseItemProvider<T, BH : BaseViewHolder> {
 
     lateinit var context: Context
 
-    private var weakAdapter: WeakReference<BaseProviderMultiAdapter<T, BH>>? = null
+    private var weakAdapter: WeakReference<BaseProviderMultiAdapter<BH>>? = null
     private val clickViewIds by lazy(LazyThreadSafetyMode.NONE) { ArrayList<Int>() }
     private val longClickViewIds by lazy(LazyThreadSafetyMode.NONE) { ArrayList<Int>() }
 
-    internal fun setAdapter(adapter: BaseProviderMultiAdapter<T, BH>) {
+    internal fun setAdapter(adapter: BaseProviderMultiAdapter<BH>) {
         weakAdapter = WeakReference(adapter)
     }
 
-    open fun getAdapter(): BaseProviderMultiAdapter<T, BH>? {
+    open fun getAdapter(): BaseProviderMultiAdapter<BH>? {
         return weakAdapter?.get()
     }
 
@@ -39,6 +40,16 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
     abstract val layoutId: Int
         @LayoutRes
         get
+
+    /**
+     * 当前Item是否可以点击
+     */
+    var itemCouldClick: Boolean = false
+
+    /**
+     * 当前Item是否可以长按
+     */
+    var itemCouldLongClick: Boolean = false
 
     abstract fun convert(helper: BH, item: T)
 
@@ -50,8 +61,9 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
      *
      * @param parent
      */
+    @Suppress("UNCHECKED_CAST")
     open fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BH {
-        var view = parent.getItemView(layoutId);
+        val view = parent.getItemView(layoutId)
         var temp: Class<*>? = javaClass
         var z: Class<*>? = null
         while (z == null && null != temp) {
@@ -66,7 +78,6 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
         }
         return vh ?: BaseViewHolder(view) as BH
     }
-
 
     /**
      * try to create Generic VH instance
@@ -169,30 +180,36 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
     open fun onViewDetachedFromWindow(holder: BH) {}
 
     /**
-     * item 若想实现条目点击事件则重写该方法
-     * @param helper VH
-     * @param data T
-     * @param position Int
+     * item 若想实现条目点击事件则重写该方法。如果设置[itemCouldClick]为false或[weakAdapter]设置了
+     * [BaseQuickAdapter.setOnItemChildClick],则此点击事件无效
      */
     open fun onClick(helper: BH, view: View, data: T, position: Int) {}
 
     /**
-     * item 若想实现条目长按事件则重写该方法
-     * @param helper VH
-     * @param data T
-     * @param position Int
-     * @return Boolean
+     * item 若想实现条目长按事件则重写该方法，如果不消耗此事件，则返回false,此时[onClick]接收此事件。
+     * 如果设置[itemCouldLongClick]为false或[weakAdapter]设置了[BaseQuickAdapter.setOnItemLongClickListener],则此长按事件无效
      */
     open fun onLongClick(helper: BH, view: View, data: T, position: Int): Boolean {
         return false
     }
 
+    /**
+     * item 子视图若想实现条目点击事件则重写该方法。如果[weakAdapter]设置了[BaseQuickAdapter.setOnItemChildClickListener],
+     * 则此点击事件无效
+     */
     open fun onChildClick(helper: BH, view: View, data: T, position: Int) {}
 
+    /**
+     * item 子视图若想实现条目长按事件则重写该方法，如果不消耗此事件，则返回false,此时[onChildClick]接收此事件。
+     * 如果[weakAdapter]设置了[BaseQuickAdapter.setOnItemLongClickListener],则此长按事件无效
+     */
     open fun onChildLongClick(helper: BH, view: View, data: T, position: Int): Boolean {
         return false
     }
 
+    /**
+     * 新增需要实现点击事件子View Id
+     */
     fun addChildClickViewIds(@IdRes vararg ids: Int) {
         ids.forEach {
             this.clickViewIds.add(it)
@@ -201,6 +218,9 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
 
     fun getChildClickViewIds() = this.clickViewIds
 
+    /**
+     * 新增需要实现长按事件子View Id
+     */
     fun addChildLongClickViewIds(@IdRes vararg ids: Int) {
         ids.forEach {
             this.longClickViewIds.add(it)
@@ -208,6 +228,4 @@ abstract class BaseItemProvider<T, BH: BaseViewHolder> {
     }
 
     fun getChildLongClickViewIds() = this.longClickViewIds
-
-
 }

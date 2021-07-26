@@ -84,6 +84,8 @@
         <activity android:name=".progress.HProgressBarActivity" />
 
         <activity android:name=".chart.RadarChartActivity" />
+
+        <activity android:name=".GroupActivity" />
     </application>
 
 </manifest>

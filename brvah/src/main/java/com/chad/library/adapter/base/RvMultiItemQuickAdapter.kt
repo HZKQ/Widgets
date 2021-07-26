@@ -10,18 +10,11 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  *
  * @author zhouzhuo810
  */
-abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder> : BaseMultiItemQuickAdapter<T, K> {
-    constructor() : super() {
-        initClickIdsIfNeeded()
-    }
+abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder>
+@JvmOverloads constructor(nodeList: MutableList<T>? = null)
+    : BaseMultiItemQuickAdapter<T, K>(nodeList) {
 
-    /**
-     * Same as QuickAdapter#QuickAdapter(Context,int) but with
-     * some initialization data.
-     *
-     * @param data A new list is created out of this one to avoid mutable list
-     */
-    constructor(data: MutableList<T>?) : super(data) {
+    init {
         initClickIdsIfNeeded()
     }
 
@@ -34,7 +27,7 @@ abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder> 
     override fun createBaseViewHolder(view: View): K {
         val baseViewHolder = super.createBaseViewHolder(view)
         if (!disableScale()) {
-            SimpleUtil.scaleView(baseViewHolder!!.itemView)
+            SimpleUtil.scaleView(baseViewHolder.itemView)
         }
         return baseViewHolder
     }

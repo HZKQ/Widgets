@@ -1,5 +1,6 @@
 package com.hzkq.widgets;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.hzkq.widgets.adapter.UserAdapter;
@@ -118,6 +119,11 @@ public class IndexBarActivity extends BaseActivity {
     @Override
     public void initEvent() {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
+        
+        mTitleBar.getLlRight().setOnClickListener(v -> {
+            Intent intent = new Intent(this, GroupActivity.class);
+            startActWithIntent(intent);
+        });
         
         mIndexBar.setOnLetterChosenListener((letter, position) -> {
             int pos = mUserAdapter.getSectionIndexer().getPositionForIndexLetter(letter);

@@ -13,10 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/base_title_height"
         android:background="@color/colorPrimary"
+        app:ttb_rightText="分组列表"
         app:ttb_showLeftImg="false"
         app:ttb_showLeftLayout="false"
+        app:ttb_showRightLayout="true"
+        app:ttb_showRightText="true"
         app:ttb_textColorAll="@color/colorWhite"
         app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_textSizeTwoSide="36px"
         app:ttb_titleText="索引" />
 
     <RelativeLayout

@@ -99,7 +99,7 @@
                 android:background="@drawable/btn_main_selector"
                 android:gravity="center"
                 android:onClick="onIndexBarClick"
-                android:text="索引"
+                android:text="索引&amp;列表"
                 android:textColor="@color/colorWhite"
                 android:textSize="40px" />
 
