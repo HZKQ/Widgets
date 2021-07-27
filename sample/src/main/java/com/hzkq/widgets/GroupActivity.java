@@ -2,6 +2,8 @@ package com.hzkq.widgets;
 
 import android.os.Bundle;
 
+import com.chad.library.adapter.base.entity.node.BaseExpandNode;
+import com.chad.library.adapter.base.entity.node.BaseNode;
 import com.hzkq.widgets.adapter.UserGroupAdapter;
 import com.hzkq.widgets.entity.User;
 import com.hzkq.widgets.entity.UserGroup;
@@ -108,15 +110,15 @@ public class GroupActivity extends BaseActivity {
     
         findViewById(R.id.tv_collapse_all).setOnClickListener(v -> mAdapter.collapseAll());
         
-        // mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
-        //     BaseNode baseNode = mAdapter.getData().get(position);
-        //     if (baseNode instanceof BaseExpandNode) {
-        //         if (((BaseExpandNode<?>) baseNode).isExpanded()) {
-        //             mAdapter.collapse(position);
-        //         } else {
-        //             mAdapter.expand(position);
-        //         }
-        //     }
-        // });
+        mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
+            BaseNode baseNode = mAdapter.getData().get(position);
+            if (baseNode instanceof BaseExpandNode) {
+                if (((BaseExpandNode<?>) baseNode).isExpanded()) {
+                    mAdapter.collapse(position);
+                } else {
+                    mAdapter.expand(position);
+                }
+            }
+        });
     }
 }

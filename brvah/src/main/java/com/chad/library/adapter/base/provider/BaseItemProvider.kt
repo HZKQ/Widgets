@@ -44,12 +44,12 @@ abstract class BaseItemProvider<T, BH : BaseViewHolder> {
     /**
      * 当前Item是否可以点击
      */
-    var itemCouldClick: Boolean = false
+    open var itemCouldClick: Boolean = false
 
     /**
      * 当前Item是否可以长按
      */
-    var itemCouldLongClick: Boolean = false
+    open var itemCouldLongClick: Boolean = false
 
     abstract fun convert(helper: BH, item: T)
 

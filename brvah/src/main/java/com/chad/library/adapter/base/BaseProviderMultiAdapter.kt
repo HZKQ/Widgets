@@ -63,7 +63,7 @@ abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<B
 
     override fun bindViewClickListener(viewHolder: BH, viewType: Int) {
         super.bindViewClickListener(viewHolder, viewType)
-        bindClick(viewHolder)
+        bindClick(viewHolder, viewType)
         bindChildClick(viewHolder, viewType)
     }
 
@@ -77,7 +77,7 @@ abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<B
      */
     @Suppress("UNCHECKED_CAST")
     protected open fun <T : BaseNode> getItemProvider(viewType: Int): BaseItemProvider<T, BH>? {
-        return mItemProviders.get(viewType) as BaseItemProvider<T, BH>?
+        return mItemProviders.get(viewType) as? BaseItemProvider<T, BH>
     }
 
     override fun onViewAttachedToWindow(holder: BH) {
@@ -90,13 +90,12 @@ abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<B
         getItemProvider<BaseNode>(holder.itemViewType)?.onViewDetachedFromWindow(holder)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    protected open fun bindClick(viewHolder: BH) {
+    protected open fun bindClick(viewHolder: BH, viewType: Int) {
         if (getOnItemClickListener() == null) {
             //如果没有设置点击监听，则回调给 itemProvider
             //Callback to itemProvider if no click listener is set
-            val provider = mItemProviders.get(viewHolder.itemViewType) as BaseItemProvider<BaseNode, BH>
-            if (provider.itemCouldClick) {
+            val provider = getItemProvider<BaseNode>(viewType)
+            if (provider != null && provider.itemCouldClick) {
                 viewHolder.itemView.setOnClickListener {
                     var position = viewHolder.adapterPosition
                     if (position == RecyclerView.NO_POSITION) {
@@ -111,8 +110,8 @@ abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<B
         if (getOnItemLongClickListener() == null) {
             //如果没有设置长按监听，则回调给itemProvider
             // If you do not set a long press listener, callback to the itemProvider
-            val provider = mItemProviders.get(viewHolder.itemViewType) as BaseItemProvider<BaseNode, BH>
-            if (provider.itemCouldLongClick) {
+            val provider = getItemProvider<BaseNode>(viewType)
+            if (provider != null && provider.itemCouldLongClick) {
                 viewHolder.itemView.setOnLongClickListener {
                     var position = viewHolder.adapterPosition
                     if (position == RecyclerView.NO_POSITION) {
