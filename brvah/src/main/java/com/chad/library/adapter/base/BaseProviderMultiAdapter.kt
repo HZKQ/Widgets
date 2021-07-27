@@ -18,7 +18,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  *
  * @constructor
  */
-abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: MutableList<BaseNode>? = null) :
+abstract class BaseProviderMultiAdapter<BH : BaseViewHolder>(data: List<BaseNode>? = null) :
     BaseQuickAdapter<BaseNode, BH>(0, data) {
 
     private val mItemProviders by lazy(LazyThreadSafetyMode.NONE) { SparseArray<BaseItemProvider<*, BH>>() }

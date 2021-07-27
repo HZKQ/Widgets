@@ -85,7 +85,7 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
 
 
     @JvmOverloads
-    fun submitList(newList: MutableList<T>?, commitCallback: Runnable? = null) {
+    fun submitList(newList: List<T>?, commitCallback: Runnable? = null) {
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration: Int = ++mMaxScheduledGeneration
         if (newList === adapter.data) {
@@ -106,7 +106,7 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
         }
         // fast simple first insert
         if (adapter.data.isEmpty()) {
-            adapter.data = newList
+            adapter.data = newList.toMutableList()
             // notify last, after list is updated
             mUpdateCallback.onInserted(0, newList.size)
             onCurrentListChanged(oldList, commitCallback)
@@ -162,11 +162,11 @@ class BrvahAsyncDiffer<T>(private val adapter: BaseQuickAdapter<T, *>,
     }
 
     private fun latchList(
-        newList: MutableList<T>,
+        newList: List<T>,
         diffResult: DiffResult,
         commitCallback: Runnable?) {
         val previousList: List<T> = adapter.data
-        adapter.data = newList
+        adapter.data = newList.toMutableList()
 
         diffResult.dispatchUpdatesTo(mUpdateCallback)
         onCurrentListChanged(previousList, commitCallback)

@@ -9,7 +9,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  */
 abstract class BaseSectionQuickAdapter<T : SectionEntity, VH : BaseViewHolder>
 @JvmOverloads constructor(@LayoutRes private val sectionHeadResId: Int,
-                          data: MutableList<T>? = null)
+                          data: List<T>? = null)
     : BaseMultiItemQuickAdapter<T, VH>(data) {
 
     constructor(@LayoutRes sectionHeadResId: Int,

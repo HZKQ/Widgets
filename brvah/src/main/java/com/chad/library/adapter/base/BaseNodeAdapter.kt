@@ -1,6 +1,5 @@
 package com.chad.library.adapter.base
 
-import android.util.Log
 import androidx.annotation.IntRange
 import androidx.recyclerview.widget.DiffUtil
 import com.chad.library.adapter.base.entity.node.BaseExpandNode
@@ -10,7 +9,7 @@ import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.provider.BaseNodeProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
-abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: MutableList<out BaseNode>? = null)
+abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: List<BaseNode>? = null)
     : BaseProviderMultiAdapter<BH>() {
 
     private val fullSpanNodeTypeSet = HashSet<Int>()
@@ -66,29 +65,14 @@ abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: MutableList<out Ba
 
     // <editor-fold desc="重写数据设置方法">
 
-    /**
-     * 设置新的数据实例，替换原有内存引用。
-     * 通常情况下，如非必要，请使用[setList2]修改内容
-     */
-    fun setNewInstance2(list: MutableList<out BaseNode>?) {
+    override fun setNewInstance(list: List<BaseNode>?) {
         super.setNewInstance(flatData(list ?: arrayListOf()))
     }
 
     /**
      * 替换整个列表数据，如果需要对某节点下的子节点进行替换，请使用[nodeReplaceChildData]！
      */
-    fun setList2(list: MutableList<out BaseNode>?) {
-        super.setList(flatData(list ?: arrayListOf()))
-    }
-
-    override fun setNewInstance(list: MutableList<BaseNode>?) {
-        super.setNewInstance(flatData(list ?: arrayListOf()))
-    }
-
-    /**
-     * 替换整个列表数据，如果需要对某节点下的子节点进行替换，请使用[nodeReplaceChildData]！
-     */
-    override fun setList(list: MutableList<BaseNode>?) {
+    override fun setList(list: List<BaseNode>?) {
         super.setList(flatData(list ?: arrayListOf()))
     }
 
@@ -106,12 +90,12 @@ abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: MutableList<out Ba
         addData(arrayListOf(data))
     }
 
-    override fun addData(position: Int, newData: MutableList<out BaseNode>) {
+    override fun addData(position: Int, newData: List<BaseNode>) {
         val nodes = flatData(newData)
         super.addData(position, nodes)
     }
 
-    override fun addData(newData: MutableList<out BaseNode>) {
+    override fun addData(newData: List<BaseNode>) {
         val nodes = flatData(newData)
         super.addData(nodes)
     }
@@ -147,23 +131,7 @@ abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: MutableList<out Ba
         }
     }
 
-    fun setDiffNewData2(list: MutableList<out BaseNode>?, commitCallback: Runnable?) {
-        if (hasEmptyView()) {
-            setNewInstance2(list)
-            return
-        }
-        super.setDiffNewData(flatData(list ?: arrayListOf()), commitCallback)
-    }
-
-    fun setDiffNewData2(diffResult: DiffUtil.DiffResult, list: MutableList<out BaseNode>) {
-        if (hasEmptyView()) {
-            setNewInstance2(list)
-            return
-        }
-        super.setDiffNewData(diffResult, flatData(list))
-    }
-
-    override fun setDiffNewData(list: MutableList<BaseNode>?, commitCallback: Runnable?) {
+    override fun setDiffNewData(list: List<BaseNode>?, commitCallback: Runnable?) {
         if (hasEmptyView()) {
             setNewInstance(list)
             return
@@ -171,7 +139,7 @@ abstract class BaseNodeAdapter<BH : BaseViewHolder>(nodeList: MutableList<out Ba
         super.setDiffNewData(flatData(list ?: arrayListOf()), commitCallback)
     }
 
-    override fun setDiffNewData(diffResult: DiffUtil.DiffResult, list: MutableList<BaseNode>) {
+    override fun setDiffNewData(diffResult: DiffUtil.DiffResult, list: List<BaseNode>) {
         if (hasEmptyView()) {
             setNewInstance(list)
             return

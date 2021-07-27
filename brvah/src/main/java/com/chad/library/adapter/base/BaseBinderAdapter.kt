@@ -22,7 +22,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  *
  * 数据类型为Any
  */
-open class BaseBinderAdapter(list: MutableList<Any>? = null) : BaseQuickAdapter<Any, BaseViewHolder>(0, list) {
+open class BaseBinderAdapter(list: List<Any>? = null) : BaseQuickAdapter<Any, BaseViewHolder>(0, list) {
 
     /**
      * 用于存储每个 Binder 类型对应的 Diff

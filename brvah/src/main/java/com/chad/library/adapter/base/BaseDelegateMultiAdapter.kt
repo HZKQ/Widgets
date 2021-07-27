@@ -16,7 +16,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  * @property mMultiTypeDelegate BaseMultiTypeDelegate<T>?
  * @constructor
  */
-abstract class BaseDelegateMultiAdapter<T, VH : BaseViewHolder>(data: MutableList<T>? = null) :
+abstract class BaseDelegateMultiAdapter<T, VH : BaseViewHolder>(data: List<T>? = null) :
         BaseQuickAdapter<T, VH>(0, data) {
 
     private var mMultiTypeDelegate: BaseMultiTypeDelegate<T>? = null

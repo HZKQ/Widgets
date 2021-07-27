@@ -12,7 +12,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  */
 abstract class RvQuickAdapter<T, K : BaseViewHolder>
 @JvmOverloads constructor(@LayoutRes layoutResId: Int,
-                          data: MutableList<T>? = null)
+                          data: List<T>? = null)
     : BaseQuickAdapter<T, K>(layoutResId, data) {
 
     init {

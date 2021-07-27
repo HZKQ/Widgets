@@ -41,7 +41,7 @@ import kotlin.collections.ArrayList
  */
 abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
 @JvmOverloads constructor(@LayoutRes private val layoutResId: Int,
-                          data: MutableList<T>? = null)
+                          data: List<T>? = null)
     : RecyclerView.Adapter<VH>() {
 
     companion object {
@@ -56,7 +56,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * data, Only allowed to get.
      * 数据, 只允许 get。
      */
-    var data: MutableList<T> = data ?: arrayListOf()
+    var data: MutableList<T> = data?.toMutableList() ?: arrayListOf()
         internal set
 
     /**
@@ -1090,12 +1090,12 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      *
      * @param list
      */
-    open fun setNewInstance(list: MutableList<T>?) {
+    open fun setNewInstance(list: List<T>?) {
         if (list === this.data) {
             return
         }
 
-        this.data = list ?: arrayListOf()
+        this.data = list?.toMutableList() ?: arrayListOf()
         mLoadMoreModule?.reset()
         mLastPosition = -1
         notifyDataSetChanged()
@@ -1108,7 +1108,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      *
      * @param list MutableList<T>?
      */
-    open fun setList(list: MutableList<T>?) {
+    open fun setList(list: List<T>?) {
         if (list !== this.data) {
             this.data.clear()
             if (!list.isNullOrEmpty()) {
@@ -1170,13 +1170,13 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param position the insert position
      * @param newData  the new data collection
      */
-    open fun addData(@IntRange(from = 0) position: Int, newData: MutableList<out T>) {
+    open fun addData(@IntRange(from = 0) position: Int, newData: List<T>) {
         this.data.addAll(position, newData)
         notifyItemRangeInserted(position + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)
     }
 
-    open fun addData(@NonNull newData: MutableList<out T>) {
+    open fun addData(@NonNull newData: List<T>) {
         this.data.addAll(newData)
         notifyItemRangeInserted(this.data.size - newData.size + headerLayoutCount, newData.size)
         compatibilityDataSizeChanged(newData.size)
@@ -1255,7 +1255,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param list MutableList<T>?
      */
     @JvmOverloads
-    open fun setDiffNewData(list: MutableList<T>?, commitCallback: Runnable? = null) {
+    open fun setDiffNewData(list: List<T>?, commitCallback: Runnable? = null) {
         if (hasEmptyView()) {
             // If the current view is an empty view, set the new data directly without diff
             setNewInstance(list)
@@ -1272,14 +1272,14 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
      * @param diffResult DiffResult
      * @param list New Data
      */
-    open fun setDiffNewData(@NonNull diffResult: DiffUtil.DiffResult, list: MutableList<T>) {
+    open fun setDiffNewData(@NonNull diffResult: DiffUtil.DiffResult, list: List<T>) {
         if (hasEmptyView()) {
             // If the current view is an empty view, set the new data directly without diff
             setNewInstance(list)
             return
         }
         diffResult.dispatchUpdatesTo(BrvahListUpdateCallback(this))
-        this.data = list
+        this.data = list.toMutableList()
     }
 
     /************************************** Set Listener ****************************************/

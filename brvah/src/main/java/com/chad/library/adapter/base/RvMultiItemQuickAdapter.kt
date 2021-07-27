@@ -11,8 +11,8 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  * @author zhouzhuo810
  */
 abstract class RvMultiItemQuickAdapter<T : MultiItemEntity, K : BaseViewHolder>
-@JvmOverloads constructor(nodeList: MutableList<T>? = null)
-    : BaseMultiItemQuickAdapter<T, K>(nodeList) {
+@JvmOverloads constructor(data: List<T>? = null)
+    : BaseMultiItemQuickAdapter<T, K>(data) {
 
     init {
         initClickIdsIfNeeded()

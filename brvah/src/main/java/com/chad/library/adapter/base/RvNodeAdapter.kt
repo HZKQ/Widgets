@@ -11,7 +11,7 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil
  *
  * @author zhouzhuo810
  */
-abstract class RvNodeAdapter<BH : BaseViewHolder> @JvmOverloads constructor(nodeList: MutableList<BaseNode>? = null)
+abstract class RvNodeAdapter<BH : BaseViewHolder> @JvmOverloads constructor(nodeList: List<BaseNode>? = null)
     : BaseNodeAdapter<BH>(nodeList) {
 
     init {
