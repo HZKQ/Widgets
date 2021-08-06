@@ -26,6 +26,11 @@ public class MyApp extends BaseApplication {
     }
     
     @Override
+    public boolean isDebugEnable() {
+        return BuildConfig.DEBUG;
+    }
+    
+    @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);

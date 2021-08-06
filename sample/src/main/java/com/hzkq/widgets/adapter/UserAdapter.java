@@ -1,11 +1,6 @@
 package com.hzkq.widgets.adapter;
 
-import android.os.Handler;
-import android.text.TextUtils;
 import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
@@ -15,6 +10,8 @@ import com.keqiang.indexbar.SectionIndexer;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
 
 /**

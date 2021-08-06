@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.chad.library.BuildConfig
 import com.chad.library.adapter.base.animation.*
 import com.chad.library.adapter.base.diff.BrvahAsyncDiffer
 import com.chad.library.adapter.base.diff.BrvahAsyncDifferConfig
@@ -27,6 +26,7 @@ import com.chad.library.adapter.base.listener.*
 import com.chad.library.adapter.base.module.*
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import me.zhouzhuo810.magpiex.utils.BaseUtil
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
@@ -162,7 +162,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
 
     init {
         checkModule()
-        if (BuildConfig.DEBUG) {
+        if (BaseUtil.isLogEnable()) {
             Log.d("PrintAdapterName", "("+javaClass.simpleName+".java:1)")
         }
     }
