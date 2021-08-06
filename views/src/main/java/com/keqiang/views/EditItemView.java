@@ -125,6 +125,8 @@ public class EditItemView extends ConstraintLayout {
         mEtContent.setBackground(null);
         mEtContent.setVisibility(VISIBLE);
         mEtContent.setPadding(0, 0, 0, 0);
+        mEtContent.setEnabled(true);
+        mEtContent.setClickable(false);
         params = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.topToTop = LayoutParams.PARENT_ID;
         params.bottomToBottom = LayoutParams.PARENT_ID;
@@ -361,7 +363,7 @@ public class EditItemView extends ConstraintLayout {
         mShowStyle = showStyle;
         mCouldEdit = couldEdit;
         
-        if (isSetCustomShowStyle()) {
+        if (setCustomShowStyle()) {
             return;
         }
         
@@ -381,7 +383,7 @@ public class EditItemView extends ConstraintLayout {
      *
      * @return {@code true}:处理自定义逻辑，则该类风格显示逻辑不调用
      */
-    protected boolean isSetCustomShowStyle() {
+    protected boolean setCustomShowStyle() {
         return false;
     }
     
@@ -403,6 +405,20 @@ public class EditItemView extends ConstraintLayout {
         if (mShowStyle == SHOW_STYLE_EDIT) {
             mEtContent.setHint(mHint);
         }
+    }
+    
+    /**
+     * 设置内容控件文本
+     */
+    public void setText(CharSequence charSequence) {
+        getEtContent().setText(charSequence);
+    }
+    
+    /**
+     * 获取内容控件文本
+     */
+    public String getText() {
+        return getEtContent().getText().toString();
     }
     
     /**

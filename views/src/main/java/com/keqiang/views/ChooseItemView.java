@@ -118,6 +118,8 @@ public class ChooseItemView extends ConstraintLayout {
         mTvContent.setPadding(0, 0, 0, 0);
         mTvContent.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         mTvContent.setTextColor(textColor);
+        mTvContent.setEnabled(true);
+        mTvContent.setClickable(false);
         params = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.topToTop = LayoutParams.PARENT_ID;
         params.bottomToBottom = LayoutParams.PARENT_ID;
@@ -271,7 +273,7 @@ public class ChooseItemView extends ConstraintLayout {
         mShowStyle = showStyle;
         mCouldEdit = couldEdit;
         
-        if (isSetCustomShowStyle()) {
+        if (setCustomShowStyle()) {
             return;
         }
         
@@ -293,7 +295,7 @@ public class ChooseItemView extends ConstraintLayout {
      *
      * @return {@code true}:处理自定义逻辑，则该类风格显示逻辑不调用
      */
-    protected boolean isSetCustomShowStyle() {
+    protected boolean setCustomShowStyle() {
         return false;
     }
     
@@ -315,6 +317,20 @@ public class ChooseItemView extends ConstraintLayout {
         if (mShowStyle == SHOW_STYLE_EDIT) {
             mTvContent.setHint(mHint);
         }
+    }
+    
+    /**
+     * 设置内容控件文本
+     */
+    public void setText(CharSequence charSequence) {
+        getTvContent().setText(charSequence);
+    }
+    
+    /**
+     * 获取内容控件文本
+     */
+    public String getText() {
+        return getTvContent().getText().toString();
     }
     
     /**
