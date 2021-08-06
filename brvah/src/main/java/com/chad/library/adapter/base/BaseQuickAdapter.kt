@@ -163,7 +163,7 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
     init {
         checkModule()
         if (BuildConfig.DEBUG) {
-            Log.d("PrintAdapterName", javaClass.simpleName)
+            Log.d("PrintAdapterName", "("+javaClass.simpleName+".java:1)")
         }
     }
 

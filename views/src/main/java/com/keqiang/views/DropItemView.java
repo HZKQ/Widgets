@@ -49,7 +49,8 @@ public class DropItemView extends ConstraintLayout {
     @IntDef({SHOW_STYLE_START, SHOW_STYLE_CENTER, SHOW_STYLE_END})
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface ShowStyle {}
+    private @interface ShowStyle {
+    }
     
     protected static final int DEFAULT_TEXT_SIZE_PX = 41;
     protected static final int DEFAULT_ICON_SIZE_PX = 41;
@@ -325,6 +326,28 @@ public class DropItemView extends ConstraintLayout {
             params.horizontalBias = 0.5f;
         }
         return this;
+    }
+    
+    /**
+     * 设置标题文字
+     *
+     * @param title CharSequence
+     */
+    public void setTitle(CharSequence title) {
+        if (mTvTitle != null) {
+            mTvTitle.setText(title);
+        }
+    }
+    
+    /**
+     * 设置图片资源
+     *
+     * @param res DrawableRes
+     */
+    public void setImageResource(@DrawableRes int res) {
+        if (mIvArrow != null) {
+            mIvArrow.setImageResource(res);
+        }
     }
     
     public TextView getTvTitle() {
