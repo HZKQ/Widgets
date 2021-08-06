@@ -2,7 +2,7 @@ package com.chad.library.adapter.base
 
 import android.animation.Animator
 import android.content.Context
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.chad.library.BuildConfig
 import com.chad.library.adapter.base.animation.*
 import com.chad.library.adapter.base.diff.BrvahAsyncDiffer
 import com.chad.library.adapter.base.diff.BrvahAsyncDifferConfig
@@ -161,6 +162,9 @@ abstract class BaseQuickAdapter<T, VH : BaseViewHolder>
 
     init {
         checkModule()
+        if (BuildConfig.DEBUG) {
+            Log.d("PrintAdapterName", javaClass.simpleName)
+        }
     }
 
     /**
