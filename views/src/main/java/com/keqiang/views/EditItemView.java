@@ -267,6 +267,11 @@ public class EditItemView extends ConstraintLayout {
                 boolean setTextUseNumberLimit = t.getBoolean(R.styleable.EditItemView_eiv_content_setTextUseNumberLimit, false);
                 mEtContent.setSetTextUseNumberLimit(setTextUseNumberLimit);
                 
+                if (t.hasValue(R.styleable.EditItemView_eiv_content_disableMaxLines)) {
+                    int disableMaxLines = t.getInteger(R.styleable.ExtendEditText_ee_disableMaxLines, -1);
+                    mEtContent.setDisableMaxLines(disableMaxLines);
+                }
+                
                 parseCustomAttrs(t);
             } finally {
                 if (t != null) {

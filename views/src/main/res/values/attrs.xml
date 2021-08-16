@@ -170,6 +170,8 @@
         <attr name="eiv_content_padding_top" format="dimension|reference" />
         <!--内容控件底部padding-->
         <attr name="eiv_content_padding_bottom" format="dimension|reference" />
+        <!--enable为false模式下显示的最大行数，不设置则和android:maxLines一致-->
+        <attr name="eiv_content_disableMaxLines" format="integer" />
 
         <!--输入框组件是否启用清除按钮-->
         <attr name="eiv_content_clearButtonEnabled" format="boolean" />
@@ -270,6 +272,9 @@
             <flag name="end" value="1" />
             <flag name="center_horizontal" value="2" />
         </attr>
+
+        <!--enable为false模式下显示的最大行数，不设置则和android:maxLines一致-->
+        <attr name="ee_disableMaxLines" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="ExtendTextView">

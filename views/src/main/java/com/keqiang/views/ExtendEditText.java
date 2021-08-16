@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -54,6 +53,8 @@ import me.zhouzhuo810.magpiex.utils.SimpleUtil;
  *     <li>当输入类型为Number、NumberDecimal时，支持配置整数最大位数，小数最大位数以及自动去除整数位无效0值</li>
  *     <li>支持配置文本超出一行时，是否自动靠左排版</li>
  *     <li>支持配置文本仅根据控件宽度自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题</li>
+ *     <li>支持配置非编辑模式下最大行数</li>
+ *     <li>修复原生控件设置最大为一行时，未设置InputType，当内容超出一行时，第二行部分可见Bug</li>
  * </ul>
  *
  * @author Created by 汪高皖 on 2018-05-28 14:29
@@ -126,9 +127,13 @@ public class ExtendEditText extends AppCompatEditText {
     private int originalEditTextHeight = 0;
     
     /**
-     * 记录当单行文本且文字超出控件宽度时，用户滑动文字的距离
+     * 记录当单行文本且文字超出控件宽度时，用户水平滑动文字的距离
      */
     private int scrollXLength = 0;
+    /**
+     * 记录当多行文本且文字超出控件高度时，用户垂直滑动文字的距离
+     */
+    private int scrollYLength = 0;
     
     /**
      * EditText获取焦点时系统软键盘是否弹出
@@ -152,7 +157,7 @@ public class ExtendEditText extends AppCompatEditText {
     private Editable mEmptyEditable;
     
     private int mDefGravity;
-    private CharSequence mDefText;
+    private CharSequence mOriginalText;
     
     /**
      * 是否根据文本内容行数自动进行左右排版方式调整
@@ -163,7 +168,7 @@ public class ExtendEditText extends AppCompatEditText {
      * 是否自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题
      */
     private boolean mAutoWrapByWidth = false;
-    private String mAutoWrapText;
+    private CharSequence mAutoWrapText;
     
     private NumberLimitTextWatcherInner mNumberLimitTextWatcher;
     private int mDecimalLimit = Integer.MAX_VALUE;
@@ -171,6 +176,18 @@ public class ExtendEditText extends AppCompatEditText {
     private boolean mAutoRemoveInValidZero = true;
     private NumberOverLimitListener mNumberOverLimitListener;
     private boolean mSetTextUseNumberLimit;
+    
+    @Nullable
+    private Integer mOriginalMaxLines;
+    /**
+     * enable为false时最大行数,默认和{@link #getMaxLines()}一致
+     */
+    @Nullable
+    private Integer mDisableMaxLines;
+    
+    // 原生默认值
+    private int mOriginalInputType = EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE;
+    private boolean mNotChangeOriginalInputType;
     
     public ExtendEditText(Context context) {
         this(context, null);
@@ -199,10 +216,32 @@ public class ExtendEditText extends AppCompatEditText {
             setCompoundDrawables(drawables[0], drawables[1], null, drawables[3]);
         }
         
+        mOriginalMaxLines = getMaxLines();
+        mOriginalInputType = getInputType();
+        if (!isEnabled() && mDisableMaxLines != null) {
+            super.setMaxLines(mDisableMaxLines);
+        }
+        
+        if (isNeedFixSingleLineBug(getMaxLines(), mOriginalInputType)) {
+            setSuperInputType(mOriginalInputType & ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+        }
+        
         mNumberLimitTextWatcher = new NumberLimitTextWatcherInner(this, mDecimalLimit, mIntegerLimit, mAutoRemoveInValidZero);
         super.addTextChangedListener(mNumberLimitTextWatcher);
         super.addTextChangedListener(mTextWatcherInner);
         super.setOnFocusChangeListener(mFocusChangeListener);
+    }
+    
+    /**
+     * 是否需要修复原生控件设置最大为一行时，未设置InputType，当内容超出一行时，第二行部分可见Bug
+     */
+    private boolean isNeedFixSingleLineBug(int maxLines, int inputType) {
+        if (maxLines != 1) {
+            return false;
+        }
+        
+        return (inputType & EditorInfo.TYPE_MASK_CLASS) == EditorInfo.TYPE_CLASS_TEXT
+            && (inputType & EditorInfo.TYPE_MASK_FLAGS) == EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE;
     }
     
     /**
@@ -222,6 +261,7 @@ public class ExtendEditText extends AppCompatEditText {
             mHintTextSize = null;
             mAutoGravityRtl = GRAVITY_RTL_END | GRAVITY_RTL_CENTER_HORIZONTAL;
             mAutoWrapByWidth = false;
+            mDisableMaxLines = null;
             
             if (!isInEditMode()) {
                 mClearButtonWidth = SimpleUtil.getScaledValue(mClearButtonWidth);
@@ -272,6 +312,10 @@ public class ExtendEditText extends AppCompatEditText {
             mIntegerLimit = typedArray.getInt(R.styleable.ExtendEditText_ee_integerLimit, Integer.MAX_VALUE);
             mAutoRemoveInValidZero = typedArray.getBoolean(R.styleable.ExtendEditText_ee_autoRemoveInValidZero, true);
             mSetTextUseNumberLimit = typedArray.getBoolean(R.styleable.ExtendEditText_ee_setTextUseNumberLimit, false);
+            
+            if (typedArray.hasValue(R.styleable.ExtendEditText_ee_disableMaxLines)) {
+                mDisableMaxLines = typedArray.getInteger(R.styleable.ExtendEditText_ee_disableMaxLines, -1);
+            }
         } finally {
             if (typedArray != null) {
                 typedArray.recycle();
@@ -305,26 +349,6 @@ public class ExtendEditText extends AppCompatEditText {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         autoGravityRtl(false);
-    }
-    
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (!isAutoWrapByWidth()) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            autoGravityRtl(false);
-            return;
-        }
-        
-        int mode = MeasureSpec.getMode(widthMeasureSpec);
-        if (mode == MeasureSpec.UNSPECIFIED) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            autoGravityRtl(false);
-            return;
-        }
-        
-        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-        reDrawText(parentWidth);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
     @Override
@@ -453,7 +477,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     private void drawClearButton(Canvas canvas) {
         //计算清除按钮绘制起点x,y的坐标
-        float canvasYOffset = mClearButtonClickRange.height() / 2f - mClearButton.getBounds().height() / 2f;
+        float canvasYOffset = mClearButtonClickRange.height() / 2f - mClearButton.getBounds().height() / 2f + scrollYLength;
         float canvasXOffset = mClearButtonClickRange.left + mClearButtonPaddingLeft + scrollXLength;
         
         canvas.save();
@@ -468,6 +492,10 @@ public class ExtendEditText extends AppCompatEditText {
         super.onScrollChanged(horiz, vert, oldHoriz, oldVert);
         if (horiz != oldHoriz) {
             scrollXLength = horiz;
+        }
+        
+        if (vert != oldVert) {
+            scrollYLength = vert;
         }
     }
     
@@ -553,9 +581,9 @@ public class ExtendEditText extends AppCompatEditText {
                 result = super.onTouchEvent(event);
             } else {
                 int type = getInputType();
-                setInputType(InputType.TYPE_NULL);
+                setSuperInputType(InputType.TYPE_NULL);
                 result = super.onTouchEvent(event);
-                setInputType(type);
+                setSuperInputType(type);
             }
             return result && isEnabled();
         }
@@ -600,7 +628,7 @@ public class ExtendEditText extends AppCompatEditText {
             mNumberLimitTextWatcher.setCallListener(true);
         }
         
-        mDefText = text;
+        mOriginalText = text;
         mUserEnterContent--;
         if (mUserEnterContent < 0) {
             mUserEnterContent = 0;
@@ -683,14 +711,15 @@ public class ExtendEditText extends AppCompatEditText {
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
-        String newText = text.toString();
         if (isEnabled()) {
-            mDefText = newText;
+            mOriginalText = text;
             autoGravityRtl(false);
             return;
         }
         
-        if (!newText.equals(mAutoWrapText)) {
+        String newText = text == null ? "" : text.toString();
+        String oldText = mAutoWrapText == null ? "" : mAutoWrapText.toString();
+        if (!newText.equals(oldText)) {
             reDrawText(this.getWidth());
         } else {
             autoGravityRtl(true);
@@ -699,11 +728,42 @@ public class ExtendEditText extends AppCompatEditText {
     
     @Override
     public void setEnabled(boolean enabled) {
+        if (!enabled) {
+            // setInputType一定要在setMaxLines之前调用，否则setMaxLines调用后可能达不到预期效果
+            // setMaxLines需要使用的inputType可能并不是最新值
+            int inputType = mOriginalInputType & EditorInfo.TYPE_MASK_VARIATION;
+            if (inputType != EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                && inputType != EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
+                && inputType != EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD) {
+                if ((mDisableMaxLines == null ? getMaxLines() : mDisableMaxLines) == 1) {
+                    setSuperInputType(EditorInfo.TYPE_CLASS_TEXT);
+                } else {
+                    setSuperInputType(EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+                }
+            }
+            
+            if (mDisableMaxLines != null) {
+                super.setMaxLines(mDisableMaxLines);
+            }
+        } else {
+            // setInputType一定要在setMaxLines之前调用，否则setMaxLines调用后可能达不到预期效果
+            // setMaxLines需要使用的inputType可能并不是最新值
+            if (mOriginalMaxLines != null) {
+                if (isNeedFixSingleLineBug(mOriginalMaxLines, mOriginalInputType)) {
+                    setSuperInputType(mOriginalInputType & ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+                } else {
+                    setSuperInputType(mOriginalInputType);
+                }
+                super.setMaxLines(mOriginalMaxLines);
+            }
+        }
+        
         super.setEnabled(enabled);
+        
         if (mAutoWrapByWidth) {
-            super.setText(mDefText);
-            if (!TextUtils.isEmpty(mDefText)) {
-                setSelection(mDefText.length());
+            super.setText(mOriginalText);
+            if (!TextUtils.isEmpty(mOriginalText)) {
+                setSelection(mOriginalText.length());
             }
         } else if (needDrawClearButton()) {
             // 设置enable为true时，不会触发onPreDraw，因此手动调用
@@ -711,6 +771,113 @@ public class ExtendEditText extends AppCompatEditText {
         }
     }
     
+    @Override
+    public void setMaxLines(int maxLines) {
+        this.mOriginalMaxLines = maxLines;
+        if (isEnabled() || mDisableMaxLines == null) {
+            if (isNeedFixSingleLineBug(maxLines, mOriginalInputType)) {
+                setSuperInputType(mOriginalInputType & ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+            }
+            super.setMaxLines(maxLines);
+        }
+    }
+    
+    /**
+     * 设置 {@link #isEnabled()}为false时最大行数
+     *
+     * @param disableMaxLines 如果为null，则始终跟随{@link #setMaxLines(int)}设置的值
+     */
+    public void setDisableMaxLines(@Nullable Integer disableMaxLines) {
+        mDisableMaxLines = disableMaxLines;
+        if (!isEnabled() && disableMaxLines != null) {
+            super.setMaxLines(disableMaxLines);
+        } else if (mOriginalMaxLines != null && getMaxLines() != mOriginalMaxLines) {
+            if (isNeedFixSingleLineBug(mOriginalMaxLines, mOriginalInputType)) {
+                setSuperInputType(mOriginalInputType & ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+            }
+            super.setMaxLines(mOriginalMaxLines);
+        }
+    }
+    
+    /**
+     * 当前控件允许的最大行数，根据{@link #isEnabled()}返回不同值
+     *
+     * @return {@link #isEnabled()}为true，则返回{@link #getOriginalMaxLines()}<br/>
+     * {@link #isEnabled()}为false：如果{@link #getDisableMaxLines()}为null，则返回{@link #getOriginalMaxLines()}，否则返回该值
+     */
+    @Override
+    public int getMaxLines() {
+        return super.getMaxLines();
+    }
+    
+    /**
+     * {@link #isEnabled()}为true时可显示的最大行数
+     */
+    public int getOriginalMaxLines() {
+        return mOriginalMaxLines == null ? getMaxLines() : mOriginalMaxLines;
+    }
+    
+    /**
+     * {@link #isEnabled()}为false时可显示的最大行数
+     */
+    @Nullable
+    public Integer getDisableMaxLines() {
+        return mDisableMaxLines;
+    }
+    
+    @Override
+    public void setInputType(int type) {
+        mOriginalInputType = type;
+        if (isNeedFixSingleLineBug(getMaxLines(), type)) {
+            type &= ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE;
+        }
+        setSuperInputType(type);
+    }
+    
+    private void setSuperInputType(int type) {
+        mNotChangeOriginalInputType = true;
+        super.setInputType(type);
+    }
+    
+    @Override
+    public void setRawInputType(int type) {
+        if (!mNotChangeOriginalInputType) {
+            // 此时是直接调用当前方法，而不是调用setRawInputType是被setInputType调用
+            mOriginalInputType = type;
+            if (isNeedFixSingleLineBug(getMaxLines(), type)) {
+                type &= ~EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE;
+            }
+        }
+        
+        mNotChangeOriginalInputType = false;
+        super.setRawInputType(type);
+    }
+    
+    /**
+     * 当前控件输入类型，根据{@link #isEnabled()}返回不同值
+     *
+     * @return {@link #isEnabled()}为true，如果{@link #getMaxLines()} 为1且{@link #getOriginalInputType()}多行文本，
+     * 则返回{@link #getOriginalInputType()}但移除{@link EditorInfo#TYPE_TEXT_FLAG_MULTI_LINE}，否则返回{@link #getOriginalInputType()}<br/>
+     * {@link #isEnabled()}为false：如果{@link #getOriginalInputType()}为密码输入类型，则返回{@link #getOriginalInputType()}。
+     * 如果{@link #getMaxLines()} 为1则返回{@link EditorInfo#TYPE_CLASS_TEXT}，否则返回{@link EditorInfo#TYPE_CLASS_TEXT} | {@link EditorInfo#TYPE_TEXT_FLAG_MULTI_LINE}
+     */
+    @Override
+    public int getInputType() {
+        return super.getInputType();
+    }
+    
+    /**
+     * 获取用户设置的原始输入类型
+     */
+    public int getOriginalInputType() {
+        return mOriginalInputType;
+    }
+    
+    /**
+     * 如果{@link #isAutoWrapByWidth()}为true，则使用此方法得到的文本可能是裁剪后内容，
+     * 与调用{@link #setText(CharSequence, BufferType)}相关方法传递的原始文本不一致，
+     * 如果要得到原始文本，请调用{@link #getOriginalText()}
+     */
     @NonNull
     @Override
     public Editable getText() {
@@ -719,6 +886,13 @@ public class ExtendEditText extends AppCompatEditText {
             mEmptyEditable = new SpannableStringBuilder();
         }
         return text == null ? mEmptyEditable : text;
+    }
+    
+    /**
+     * 获取原始文本
+     */
+    public CharSequence getOriginalText() {
+        return mOriginalText;
     }
     
     @Override
@@ -962,7 +1136,7 @@ public class ExtendEditText extends AppCompatEditText {
             return;
         }
         mAutoWrapByWidth = autoWrapByWidth;
-        super.setText(mDefText);
+        super.setText(mOriginalText);
     }
     
     /**
@@ -1116,7 +1290,7 @@ public class ExtendEditText extends AppCompatEditText {
         int gravity = getGravity();
         int lineCount = getLineCount();
         if (lineCount == 0 && mAutoWrapText != null) {
-            lineCount = mAutoWrapText.split("\n").length;
+            lineCount = mAutoWrapText.toString().split("\n").length;
         }
         
         if ((mAutoGravityRtl & GRAVITY_RTL_END) == GRAVITY_RTL_END) {
@@ -1161,7 +1335,7 @@ public class ExtendEditText extends AppCompatEditText {
      */
     private void reDrawText(int viewWidth) {
         mAutoWrapText = null;
-        if (!isAutoWrapByWidth() || TextUtils.isEmpty(mDefText)) {
+        if (!isAutoWrapByWidth() || TextUtils.isEmpty(mOriginalText)) {
             autoGravityRtl(false);
             return;
         }
@@ -1178,64 +1352,19 @@ public class ExtendEditText extends AppCompatEditText {
         
         int height = getMeasuredHeight();
         if (width <= 0 || height <= 0) {
+            
             autoGravityRtl(false);
             return;
         }
         
-        String newText = autoSplitText(mDefText.toString(), width);
+        int maxLine = getMaxLines() == -1 ? Integer.MAX_VALUE : getMaxLines();
+        CharSequence newText = TextViewUtils.autoSplitText(mOriginalText, getPaint(), width, maxLine);
         if (!TextUtils.isEmpty(newText)) {
             mAutoWrapText = newText;
-            super.setText(newText, BufferType.NORMAL);
+            super.setText(newText);
         } else {
             autoGravityRtl(false);
         }
-    }
-    
-    /**
-     * 在超出View宽度的文本后面加上"\n"符
-     *
-     * @param rawText 需要处理的文本
-     * @param width   当前文本可绘制宽度
-     * @return 处理后的文本
-     */
-    private String autoSplitText(String rawText, int width) {
-        final Paint tvPaint = getPaint();
-        if (tvPaint.measureText(rawText) <= width) {
-            return rawText;
-        }
-        
-        String[] rawTextLines = rawText.replaceAll("\r", "").split("\n");
-        StringBuilder sbNewText = new StringBuilder();
-        
-        for (int i = 0; i < rawTextLines.length; i++) {
-            if (i > 0) {
-                sbNewText.append("\n");
-            }
-            
-            String rawTextLine = rawTextLines[i];
-            if (tvPaint.measureText(rawTextLine) <= width) {
-                // 如果整行宽度在控件可用宽度之内,就不处理了
-                sbNewText.append(rawTextLine);
-            } else {
-                // 如果整行宽度超过控件可用宽度,则按字符测量,在超过可用宽度的前一个字符处手动换行
-                float lineWidth = 0;
-                for (int cnt = 0; cnt != rawTextLine.length(); ++cnt) {
-                    String ch = rawTextLine.substring(cnt, cnt + 1);
-                    lineWidth += tvPaint.measureText(ch);
-                    if (lineWidth == width) {
-                        sbNewText.append(ch).append("\n");
-                        lineWidth = 0;
-                    } else if (lineWidth < width) {
-                        sbNewText.append(ch);
-                    } else {
-                        sbNewText.append("\n");
-                        lineWidth = 0;
-                        --cnt;
-                    }
-                }
-            }
-        }
-        return sbNewText.toString();
     }
     
     private final class NumberLimitTextWatcherInner extends NumberLimitTextWatcher {

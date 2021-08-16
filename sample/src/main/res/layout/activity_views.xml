@@ -27,25 +27,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <com.keqiang.views.SettingItemView
-                android:id="@+id/rl_test"
-                android:layout_width="match_parent"
-                android:layout_height="100px"
-                android:layout_marginTop="30px"
-                android:background="@drawable/item_bg_selector"
-                android:paddingLeft="30px"
-                android:paddingRight="30px"
-                android:text="点击改变以下文本框2和3状态或数据"
-                android:textSize="42px"
-                app:siv_left_image="@drawable/up_arrow"
-                app:siv_left_image_size="30px"
-                app:siv_right_image="@drawable/down_arrow"
-                app:siv_right_image_size="30px"
-                app:siv_text_padding_left="20px"
-                app:siv_text_padding_right="20px" />
+            android:orientation="vertical"
+            android:paddingBottom="100px">
 
             <com.keqiang.views.ChooseItemView
                 android:id="@+id/civ_item"
@@ -78,7 +61,7 @@
                 android:hint="请输入"
                 android:imeOptions="actionDone"
                 android:maxLines="1"
-                app:eiv_content_clearButtonEnabled="false"
+                app:ee_clearButtonEnabled="false"
                 app:eiv_content_gone_margin_end="30px"
                 app:eiv_content_margin_end="20px"
                 app:eiv_content_margin_start="20px"
@@ -98,15 +81,34 @@
                 app:eiv_unit_text="自动获取"
                 app:eiv_unit_textColor="@color/colorWhite" />
 
+            <com.keqiang.views.SettingItemView
+                android:id="@+id/rl_test"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                android:layout_marginTop="100px"
+                android:background="@drawable/item_bg_selector"
+                android:paddingLeft="30px"
+                android:paddingRight="30px"
+                android:text="点击改变以下两个文本框状态或数据"
+                android:textSize="42px"
+                app:siv_left_image="@drawable/up_arrow"
+                app:siv_left_image_size="30px"
+                app:siv_right_image="@drawable/down_arrow"
+                app:siv_right_image_size="30px"
+                app:siv_text_padding_left="20px"
+                app:siv_text_padding_right="20px" />
+
             <com.keqiang.views.ExtendEditText
+                android:id="@+id/et_test10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="100px"
+                android:layout_marginTop="30px"
                 android:drawableRight="@mipmap/ic_launcher"
+                android:maxLines="2"
                 android:paddingLeft="30px"
                 android:paddingRight="30px"
                 android:text="55555555555555555555555555544433333"
-                android:textCursorDrawable="@color/colorGreen"
+                app:ee_disableMaxLines="3"
                 app:ee_onFocusShowClearButtonEnable="true" />
 
             <com.keqiang.views.ExtendEditText
@@ -140,10 +142,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100px"
+                android:ellipsize="end"
                 android:gravity="end|center_vertical"
-                android:paddingLeft="30px"
-                android:paddingRight="30px"
-                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week"
+                android:maxLines="3"
+                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、English、数字(123456)混合的文本show time better late than never 测试数据 123456 last week 最多显示三行 最多显示三行 最多显示三行 最多显示三行"
+                android:textSize="14sp"
                 app:et_auto_wrap_by_width="true" />
 
             <com.keqiang.views.ExtendTextView
@@ -151,10 +154,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100px"
                 android:gravity="end|center_vertical"
-                android:paddingLeft="30px"
-                android:paddingRight="30px"
-                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、英文、数字混合的文本show time 123456 测试数据 lalala last week。此文本未开启自动裁剪"
+                android:text="超过一行自动从左到右布局，且根据中文环境自动裁剪中文、English、数字(123456)混合的文本 show time better late than never 测试数据 last week。此文本未开启自动裁剪"
                 app:et_auto_wrap_by_width="false" />
+
+            <com.keqiang.views.ExtendTextView
+                android:id="@+id/tv_test4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100px"
+                android:gravity="end|center_vertical"
+                android:text="点击查看富文本"
+                android:textColor="@color/colorBlack"
+                app:et_auto_wrap_by_width="true" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -193,5 +204,6 @@
             </LinearLayout>
 
         </LinearLayout>
+
     </ScrollView>
 </LinearLayout>

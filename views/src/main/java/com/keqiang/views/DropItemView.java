@@ -278,10 +278,15 @@ public class DropItemView extends ConstraintLayout {
      * @return DropItemView
      */
     public DropItemView text(CharSequence text) {
-        if (mTvTitle != null) {
-            mTvTitle.setText(text);
-        }
+        mTvTitle.setText(text);
         return this;
+    }
+    
+    /**
+     * 获取文本内容
+     */
+    public CharSequence getText() {
+        return mTvTitle.getText();
     }
     
     /**
@@ -326,28 +331,6 @@ public class DropItemView extends ConstraintLayout {
             params.horizontalBias = 0.5f;
         }
         return this;
-    }
-    
-    /**
-     * 设置标题文字
-     *
-     * @param title CharSequence
-     */
-    public void setTitle(CharSequence title) {
-        if (mTvTitle != null) {
-            mTvTitle.setText(title);
-        }
-    }
-    
-    /**
-     * 设置图片资源
-     *
-     * @param res DrawableRes
-     */
-    public void setImageResource(@DrawableRes int res) {
-        if (mIvArrow != null) {
-            mIvArrow.setImageResource(res);
-        }
     }
     
     public TextView getTvTitle() {

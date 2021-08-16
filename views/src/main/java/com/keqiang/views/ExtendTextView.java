@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Layout;
@@ -61,8 +60,8 @@ public class ExtendTextView extends AppCompatTextView {
     
     private final TextWatcherInner mTextWatcherInner;
     
-    private int mDefGravity;
-    private CharSequence mDefText;
+    private int mOriginalGravity;
+    private CharSequence mOriginalText;
     
     /**
      * 是否根据文本内容行数自动进行左右排版方式调整
@@ -73,7 +72,7 @@ public class ExtendTextView extends AppCompatTextView {
      * 是否自动换行，优化原生汉字、英文、数字混合文本换行位置大量留白问题
      */
     private boolean mAutoWrapByWidth = false;
-    private String mAutoWrapText;
+    private CharSequence mAutoWrapText;
     
     public ExtendTextView(@NonNull Context context) {
         this(context, null);
@@ -86,11 +85,9 @@ public class ExtendTextView extends AppCompatTextView {
     public ExtendTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mTextWatcherInner = new TextWatcherInner();
-        super.addTextChangedListener(mTextWatcherInner);
-        mDefGravity = getGravity();
+        mOriginalGravity = getGravity();
         parseAttrs(context, attrs, defStyleAttr);
     }
-    
     
     /**
      * 解析自定义属性
@@ -162,7 +159,7 @@ public class ExtendTextView extends AppCompatTextView {
         int gravity = getGravity();
         int lineCount = getLineCount();
         if (lineCount == 0 && mAutoWrapText != null) {
-            lineCount = mAutoWrapText.split("\n").length;
+            lineCount = mAutoWrapText.toString().split("\n").length;
         }
         
         if ((mAutoGravityRtl & GRAVITY_RTL_END) == GRAVITY_RTL_END) {
@@ -194,32 +191,12 @@ public class ExtendTextView extends AppCompatTextView {
             }
         }
         
-        if (lineCount <= 1 && gravity != mDefGravity) {
-            super.setGravity(mDefGravity);
+        if (lineCount <= 1 && gravity != mOriginalGravity) {
+            super.setGravity(mOriginalGravity);
             return true;
         } else {
             return false;
         }
-    }
-    
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (!mAutoWrapByWidth) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            autoGravityRtl(false);
-            return;
-        }
-        
-        int mode = MeasureSpec.getMode(widthMeasureSpec);
-        if (mode == MeasureSpec.UNSPECIFIED) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            autoGravityRtl(false);
-            return;
-        }
-        
-        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-        reDrawText(parentWidth);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
     @Override
@@ -234,8 +211,36 @@ public class ExtendTextView extends AppCompatTextView {
     
     @Override
     public void setText(CharSequence text, BufferType type) {
-        mDefText = text;
+        mOriginalText = text;
+        
+        // TextView只要调用addTextChangedListener()新增文本监听或调用setKeyListener()设置按键监听，
+        // 均视为编辑状态，此状态下setEllipsize()将无效，因此设置文本之前，如果外部未设置文本监听，则移除
+        if (mTextWatcherInner != null && mTextWatcherInner.isOutSideNotNeedListen()) {
+            super.removeTextChangedListener(mTextWatcherInner);
+        }
+        
         super.setText(text, type);
+        
+        if (mTextWatcherInner != null && mTextWatcherInner.isOutSideNotNeedListen()) {
+            super.addTextChangedListener(mTextWatcherInner);
+        }
+    }
+    
+    /**
+     * 如果{@link #isAutoWrapByWidth()}为true，则使用此方法得到的文本可能是裁剪后内容，
+     * 与调用{@link #setText(CharSequence, BufferType)}相关方法传递的原始文本不一致，
+     * 如果要得到原始文本，请调用{@link #getOriginalText()}
+     */
+    @Override
+    public CharSequence getText() {
+        return super.getText();
+    }
+    
+    /**
+     * 获取原始文本
+     */
+    public CharSequence getOriginalText() {
+        return mOriginalText;
     }
     
     /**
@@ -286,8 +291,9 @@ public class ExtendTextView extends AppCompatTextView {
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
-        String newText = text.toString();
-        if (!newText.equals(mAutoWrapText)) {
+        String newText = text == null ? "" : text.toString();
+        String oldText = mAutoWrapText == null ? "" : mAutoWrapText.toString();
+        if (!newText.equals(oldText)) {
             reDrawText(this.getWidth());
         } else {
             autoGravityRtl(true);
@@ -296,13 +302,13 @@ public class ExtendTextView extends AppCompatTextView {
     
     @Override
     public void setGravity(int gravity) {
-        mDefGravity = gravity;
+        mOriginalGravity = gravity;
         // super.setGravity(gravity)进行了重新赋值，因此此处需要重新赋值
-        if ((mDefGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK) == 0) {
-            mDefGravity |= Gravity.START;
+        if ((mOriginalGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK) == 0) {
+            mOriginalGravity |= Gravity.START;
         }
-        if ((mDefGravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
-            mDefGravity |= Gravity.TOP;
+        if ((mOriginalGravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
+            mOriginalGravity |= Gravity.TOP;
         }
         
         super.setGravity(gravity);
@@ -312,7 +318,13 @@ public class ExtendTextView extends AppCompatTextView {
      * 重新绘制字符
      */
     private void reDrawText(int viewWidth) {
-        int width = viewWidth - getPaddingLeft() - getPaddingRight();
+        mAutoWrapText = null;
+        if (!isAutoWrapByWidth() || TextUtils.isEmpty(mOriginalText)) {
+            autoGravityRtl(false);
+            return;
+        }
+        
+        int width = viewWidth - getPaddingStart() - getPaddingEnd();
         Drawable[] drawables = getCompoundDrawables();
         if (drawables[0] != null) {
             width -= getCompoundDrawablePadding();
@@ -322,68 +334,20 @@ public class ExtendTextView extends AppCompatTextView {
             width -= getCompoundDrawablePadding();
         }
         
-        
         int height = getMeasuredHeight();
-        mAutoWrapText = null;
-        if (!mAutoWrapByWidth || TextUtils.isEmpty(mDefText) || width <= 0 || height <= 0) {
+        if (width <= 0 || height <= 0) {
             autoGravityRtl(false);
             return;
         }
         
-        String newText = autoSplitText(mDefText.toString(), width);
+        int maxLine = getMaxLines() == -1 ? Integer.MAX_VALUE : getMaxLines();
+        CharSequence newText = TextViewUtils.autoSplitText(mOriginalText, getPaint(), width, maxLine);
         if (!TextUtils.isEmpty(newText)) {
             mAutoWrapText = newText;
-            super.setText(newText, BufferType.NORMAL);
+            super.setText(newText);
         } else {
             autoGravityRtl(false);
         }
-    }
-    
-    /**
-     * 在超出View宽度的文本后面加上"\n"符
-     *
-     * @param rawText 需要处理的文本
-     * @param width   当前文本可绘制宽度
-     * @return 处理后的文本
-     */
-    private String autoSplitText(String rawText, int width) {
-        final Paint tvPaint = getPaint();
-        if (tvPaint.measureText(rawText) <= width) {
-            return rawText;
-        }
-        
-        String[] rawTextLines = rawText.replaceAll("\r", "").split("\n");
-        StringBuilder sbNewText = new StringBuilder();
-        
-        for (int i = 0; i < rawTextLines.length; i++) {
-            if (i > 0) {
-                sbNewText.append("\n");
-            }
-            
-            String rawTextLine = rawTextLines[i];
-            if (tvPaint.measureText(rawTextLine) <= width) {
-                // 如果整行宽度在控件可用宽度之内,就不处理了
-                sbNewText.append(rawTextLine);
-            } else {
-                // 如果整行宽度超过控件可用宽度,则按字符测量,在超过可用宽度的前一个字符处手动换行
-                float lineWidth = 0;
-                for (int cnt = 0; cnt != rawTextLine.length(); ++cnt) {
-                    String ch = rawTextLine.substring(cnt, cnt + 1);
-                    lineWidth += tvPaint.measureText(ch);
-                    if (lineWidth == width) {
-                        sbNewText.append(ch).append("\n");
-                        lineWidth = 0;
-                    } else if (lineWidth < width) {
-                        sbNewText.append(ch);
-                    } else {
-                        sbNewText.append("\n");
-                        lineWidth = 0;
-                        --cnt;
-                    }
-                }
-            }
-        }
-        return sbNewText.toString();
     }
     
     /**
@@ -410,12 +374,18 @@ public class ExtendTextView extends AppCompatTextView {
         if (autoWrapByWidth == mAutoWrapByWidth) {
             return;
         }
+        
         mAutoWrapByWidth = autoWrapByWidth;
-        super.setText(mDefText);
+        
+        if (mAutoWrapByWidth == isAutoWrapByWidth()) {
+            return;
+        }
+        
+        super.setText(mOriginalText);
     }
     
     /**
-     * 文本是否自动按照宽度换行，而不是按照单词和宽度换行
+     * 文本是否自动按照控件宽度换行，而不是按照单词+宽度策略换行
      */
     public boolean isAutoWrapByWidth() {
         return mAutoWrapByWidth;
@@ -473,6 +443,20 @@ public class ExtendTextView extends AppCompatTextView {
         
         public void setCallListener(boolean callListener) {
             mCallListener = callListener;
+        }
+        
+        /**
+         * 外部设置的文本监听器是否为空
+         */
+        boolean isOutSideListenerEmpty() {
+            return mTextWatchers == null || mTextWatchers.size() == 0;
+        }
+        
+        /**
+         * 外部是否不需要监听内容变化
+         */
+        boolean isOutSideNotNeedListen() {
+            return isOutSideListenerEmpty() || !mCallListener;
         }
         
         public void addTextWatcher(TextWatcher textWatcher) {
