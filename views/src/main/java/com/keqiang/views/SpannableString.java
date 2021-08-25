@@ -105,8 +105,8 @@ public class SpannableString extends android.text.SpannableString {
         
         /**
          * 构建SpannableString，如果构建对象中有可点击Span，请确保应用该文本的{@link TextView}或子类设置了可点击的MovementMethod，
-         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}且始终
-         * 返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
+         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}
+         * 且{@link OnLongClickListener}始终返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
          */
         public SpannableString create() {
             if (mSpans.size() == 0) {
@@ -223,8 +223,8 @@ public class SpannableString extends android.text.SpannableString {
         
         /**
          * 构建SpannableString，如果构建对象中有可点击Span，请确保应用该文本的{@link TextView}或子类设置了可点击的MovementMethod，
-         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}且始终
-         * 返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
+         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}
+         * 且{@link OnLongClickListener}始终返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
          */
         public SpannableString create() {
             return builder.create();
@@ -281,7 +281,7 @@ public class SpannableString extends android.text.SpannableString {
         }
         
         /**
-         * 添加一个Span，描述{@link #string(String)} 或 {@link #Builder(String, Object...)}参数source中某一段文本应该怎么显示
+         * 添加一个Span，描述{@link #string(String)} 或 {@link #string(String, Object...)}参数source中某一段文本应该怎么显示
          *
          * @param start 文本在source中的开始位置，如果 < 0 || > （end || source.length()) 则不处理
          * @param end   文本在source中的结束位置，如果 < 0 || > (start || source.length()) 则不处理
@@ -300,19 +300,19 @@ public class SpannableString extends android.text.SpannableString {
         }
         
         /**
-         * 添加一个Span，描述{@link #string(String)} 或 {@link #Builder(String, Object...)}参数source中某一段文本应该怎么显示
+         * 添加一个Span，描述{@link #string(String)} 或 {@link #string(String, Object...)}参数source中某一段文本应该怎么显示
          *
-         * @param spanStr source文本中指定需要处理的片段文本内容，如果source中不存在spanStr，则不处理。
-         *                请确保source不会多次出现spanStr文本，否则请使用{@link #addSpan(int, int)}明确指明区间
+         * @param existStr source文本中指定需要处理的片段文本内容，如果source中不存在existStr，则不处理。
+         *                 请确保source不会多次出现existStr文本，否则请使用{@link #addSpan(int, int)}明确指明区间
          * @return 如果数据无效，则返回一个无效的Span节点，仅仅为了流式调用，实际执行时跳过
          */
         @Override
-        public Span addSpan(String spanStr) {
+        public Span addSpan(String existStr) {
             Span span;
-            if (isSourceValid() && !TextUtils.isEmpty(spanStr) && source.contains(spanStr)) {
-                int index = source.indexOf(spanStr);
-                span = new Span(this, spanStr, index, index + spanStr.length());
-                span.spanStr = spanStr;
+            if (isSourceValid() && !TextUtils.isEmpty(existStr) && source.contains(existStr)) {
+                int index = source.indexOf(existStr);
+                span = new Span(this, existStr, index, index + existStr.length());
+                span.spanStr = existStr;
                 mSpans.add(span);
             } else {
                 span = new Span(this, null, Span.INVALID_VALUE, Span.INVALID_VALUE);
@@ -364,8 +364,8 @@ public class SpannableString extends android.text.SpannableString {
         
         /**
          * 构建SpannableString，如果构建对象中有可点击Span，请确保应用该文本的{@link TextView}或子类设置了可点击的MovementMethod，
-         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}且始终
-         * 返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
+         * 否则无法点击。且确保{@link TextView#isTextSelectable()}为true或{@link TextView#setOnLongClickListener(OnLongClickListener)}
+         * 且{@link OnLongClickListener}始终返回true，否则长按ClickableSpan将抛出空指针异常，推荐使用{@link #apply(TextView)}
          */
         public SpannableString create() {
             if (!isSourceValid()) {
@@ -401,7 +401,7 @@ public class SpannableString extends android.text.SpannableString {
         }
         
         /**
-         * 添加一个Span，描述{@link Builder#string(String)} 或 {@link Builder#Builder(String, Object...)}参数source中某一段文本应该怎么显示
+         * 添加一个Span，描述{@link Builder#string(String)} 或 {@link Builder#string(String, Object...)}参数source中某一段文本应该怎么显示
          *
          * @param start 文本在source中的开始位置，如果 < 0 || > （end || source.length()) 则不处理
          * @param end   文本在source中的结束位置，如果 < 0 || > (start || source.length()) 则不处理
@@ -412,15 +412,15 @@ public class SpannableString extends android.text.SpannableString {
         }
         
         /**
-         * 添加一个Span，描述{@link Builder#string(String)} 或 {@link Builder#Builder(String, Object...)}参数source中某一段文本应该怎么显示
+         * 添加一个Span，描述{@link Builder#string(String)} 或 {@link Builder#string(String, Object...)}参数source中某一段文本应该怎么显示
          *
-         * @param spanStr source文本中指定需要处理的片段文本内容，如果source中不存在spanStr，则不处理.
-         *                请确保source不会多次出现spanStr文本，否则请使用{@link #addSpan(int, int)}明确指明区间
+         * @param existStr source文本中指定需要处理的片段文本内容，如果source中不存在existStr，则不处理.
+         *                 请确保source不会多次出现existStr文本，否则请使用{@link #addSpan(int, int)}明确指明区间
          * @return 如果数据无效，则返回一个无效的Span节点，仅仅为了流式调用，实际执行时跳过
          */
         @Override
-        public Span addSpan(String spanStr) {
-            return builder.addSpan(spanStr);
+        public Span addSpan(String existStr) {
+            return builder.addSpan(existStr);
         }
     }
     
