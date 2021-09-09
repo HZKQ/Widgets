@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bigkoo.pickerview.lib.WheelView;
-import com.bigkoo.pickerview.listener.CustomListener;
+import com.bigkoo.pickerview.listener.CustomLayoutCallback;
 import com.bigkoo.pickerview.view.BasePickerView;
 import com.bigkoo.pickerview.view.WheelTime;
 
@@ -25,76 +25,105 @@ import java.util.Date;
  * Updated by XiaoSong on 2017-2-22.
  */
 public class TimePickerView extends BasePickerView implements View.OnClickListener {
-    private int layoutRes;
-    private CustomListener customListener;
+    private final int layoutRes;
+    private final CustomLayoutCallback mCustomLayoutCallback;
     
-    WheelTime wheelTime; //自定义控件
-    private Button btnSubmit, btnCancel; //确定、取消按钮
-    private TextView tvTitle;//标题
-    private OnTimeSelectListener timeSelectListener;//回调接口
-    private int gravity = Gravity.CENTER;//内容显示位置 默认居中
-    private boolean[] type;// 显示类型
+    // 自定义控件
+    private WheelTime wheelTime;
+    // 回调接口
+    private final OnTimeSelectListener timeSelectListener;
+    // 内容显示位置 默认居中
+    private final int gravity;
+    // 显示类型
+    private final boolean[] type;
     
-    private String Str_Submit;//确定按钮字符串
-    private String Str_Cancel;//取消按钮字符串
-    private String Str_Title;//标题字符串
+    // 确定按钮字符串
+    private final String mStrSubmit;
+    // 取消按钮字符串
+    private final String mStrCancel;
+    // 标题字符串
+    private final String mStrTitle;
     
-    private int Color_Submit;//确定按钮颜色
-    private int Color_Cancel;//取消按钮颜色
-    private int Color_Title;//标题颜色
+    // 确定按钮颜色
+    private final int mColorSubmit;
+    // 取消按钮颜色
+    private final int mColorCancel;
+    // 标题颜色
+    private final int mColorTitle;
     
-    private int Color_Background_Wheel;//滚轮背景颜色
-    private int Color_Background_Title;//标题背景颜色
+    // 滚轮背景颜色
+    private final int mColorBackgroundWheel;
+    // 标题背景颜色
+    private final int mColorBackgroundTitle;
     
-    private int Size_Submit_Cancel;//确定取消按钮大小
-    private int Size_Title;//标题字体大小
-    private int Size_Content;//内容字体大小
-    private int Size_Out;//未选中内容字体大小
+    // 确定取消按钮大小
+    private final int mSizeSubmitCancel;
+    // 标题字体大小
+    private final int mSizeTitle;
+    // 内容字体大小
+    private final int mSizeContent;
+    // 未选中内容字体大小
+    private final int mSizeOut;
     
-    private Calendar date;//当前选中时间
-    private Calendar startDate;//开始时间
-    private Calendar endDate;//终止时间
-    private int startYear;//开始年份
-    private int endYear;//结尾年份
+    // 当前选中时间
+    private Calendar date;
+    // 开始时间
+    private final Calendar startDate;
+    // 终止时间
+    private final Calendar endDate;
+    // 开始年份
+    private final int startYear;
+    // 结尾年份
+    private final int endYear;
     
-    private boolean cyclic;//是否循环
-    private boolean cancelable;//是否能取消
-    private boolean isCenterLabel;//是否只显示中间的label
-    private boolean isLunarCalendar;//是否显示农历
+    // 是否循环
+    private final boolean cyclic;
+    // 是否能取消
+    private final boolean cancelable;
+    // 是否只显示中间的label
+    private final boolean isCenterLabel;
+    // 是否显示农历
+    private final boolean isLunarCalendar;
     
-    private int textColorOut; //分割线以外的文字颜色
-    private int textColorCenter; //分割线之间的文字颜色
-    private int dividerColor; //分割线的颜色
-    private int backgroundId; //显示时的外部背景色颜色,默认是灰色
+    // 分割线以外的文字颜色
+    private final int textColorOut;
+    // 分割线之间的文字颜色
+    private final int textColorCenter;
+    // 分割线的颜色
+    private final int dividerColor;
+    // 显示时的外部背景色颜色,默认是灰色
+    private final int backgroundId;
     
     // 条目间距倍数 默认1.6
-    private float lineSpacingMultiplier = 1.6F;
-    private boolean isDialog;//是否是对话框模式
-    private String label_year, label_month, label_day, label_hours, label_mins, label_seconds;
-    private int xoffset_year, xoffset_month, xoffset_day, xoffset_hours, xoffset_mins, xoffset_seconds;
-    private WheelView.DividerType dividerType;//分隔线类型
+    private final float lineSpacingMultiplier;
+    // 是否是对话框模式
+    private final boolean isDialog;
+    private final String mLabelYear, mLabelMonth, mLabelDay, mLabelHours, mLabelMins, mLabelSeconds;
+    private final int mXOffsetYear, mXOffsetMonth, mXOffsetDay, mXOffsetHours, mXOffsetMins, mXOffsetSeconds;
+    // 分隔线类型
+    private final WheelView.DividerType dividerType;
     
     private static final String TAG_SUBMIT = "submit";
     private static final String TAG_CANCEL = "cancel";
     
-    //构造方法
+    // 构造方法
     public TimePickerView(Builder builder) {
         super(builder.context);
         this.timeSelectListener = builder.timeSelectListener;
         this.gravity = builder.gravity;
         this.type = builder.type;
-        this.Str_Submit = builder.Str_Submit;
-        this.Str_Cancel = builder.Str_Cancel;
-        this.Str_Title = builder.Str_Title;
-        this.Color_Submit = builder.Color_Submit;
-        this.Color_Cancel = builder.Color_Cancel;
-        this.Color_Title = builder.Color_Title;
-        this.Color_Background_Wheel = builder.Color_Background_Wheel;
-        this.Color_Background_Title = builder.Color_Background_Title;
-        this.Size_Submit_Cancel = builder.Size_Submit_Cancel;
-        this.Size_Title = builder.Size_Title;
-        this.Size_Content = builder.Size_Content;
-        this.Size_Out = builder.Size_Out;
+        this.mStrSubmit = builder.Str_Submit;
+        this.mStrCancel = builder.Str_Cancel;
+        this.mStrTitle = builder.Str_Title;
+        this.mColorSubmit = builder.Color_Submit;
+        this.mColorCancel = builder.Color_Cancel;
+        this.mColorTitle = builder.Color_Title;
+        this.mColorBackgroundWheel = builder.Color_Background_Wheel;
+        this.mColorBackgroundTitle = builder.Color_Background_Title;
+        this.mSizeSubmitCancel = builder.Size_Submit_Cancel;
+        this.mSizeTitle = builder.Size_Title;
+        this.mSizeContent = builder.Size_Content;
+        this.mSizeOut = builder.Size_Out;
         this.startYear = builder.startYear;
         this.endYear = builder.endYear;
         this.startDate = builder.startDate;
@@ -104,22 +133,22 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         this.isCenterLabel = builder.isCenterLabel;
         this.isLunarCalendar = builder.isLunarCalendar;
         this.cancelable = builder.cancelable;
-        this.label_year = builder.label_year;
-        this.label_month = builder.label_month;
-        this.label_day = builder.label_day;
-        this.label_hours = builder.label_hours;
-        this.label_mins = builder.label_mins;
-        this.label_seconds = builder.label_seconds;
-        this.xoffset_year = builder.xoffset_year;
-        this.xoffset_month = builder.xoffset_month;
-        this.xoffset_day = builder.xoffset_day;
-        this.xoffset_hours = builder.xoffset_hours;
-        this.xoffset_mins = builder.xoffset_mins;
-        this.xoffset_seconds = builder.xoffset_seconds;
+        this.mLabelYear = builder.label_year;
+        this.mLabelMonth = builder.label_month;
+        this.mLabelDay = builder.label_day;
+        this.mLabelHours = builder.label_hours;
+        this.mLabelMins = builder.label_mins;
+        this.mLabelSeconds = builder.label_seconds;
+        this.mXOffsetYear = builder.xoffset_year;
+        this.mXOffsetMonth = builder.xoffset_month;
+        this.mXOffsetDay = builder.xoffset_day;
+        this.mXOffsetHours = builder.xoffset_hours;
+        this.mXOffsetMins = builder.xoffset_mins;
+        this.mXOffsetSeconds = builder.xoffset_seconds;
         this.textColorCenter = builder.textColorCenter;
         this.textColorOut = builder.textColorOut;
         this.dividerColor = builder.dividerColor;
-        this.customListener = builder.customListener;
+        this.mCustomLayoutCallback = builder.mCustomLayoutCallback;
         this.layoutRes = builder.layoutRes;
         this.lineSpacingMultiplier = builder.lineSpacingMultiplier;
         this.isDialog = builder.isDialog;
@@ -129,64 +158,65 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         initView(builder.context);
     }
     
-    
-    //建造器
+    // 建造器
     public static class Builder {
         private int layoutRes = R.layout.pickerview_time;
-        private CustomListener customListener;
-        private Context context;
-        private OnTimeSelectListener timeSelectListener;
-        private boolean[] type = new boolean[]{true, true, true, true, true, true};//显示类型 默认全部显示
-        private int gravity = Gravity.CENTER;//内容显示位置 默认居中
+        private CustomLayoutCallback mCustomLayoutCallback;
+        private final Context context;
+        private final OnTimeSelectListener timeSelectListener;
+        // 显示类型 默认全部显示
+        private boolean[] type = new boolean[]{true, true, true, true, true, true};
+        // 内容显示位置 默认居中
+        private int gravity = Gravity.CENTER;
         
-        private String Str_Submit;//确定按钮文字
-        private String Str_Cancel;//取消按钮文字
-        private String Str_Title;//标题文字
+        private String Str_Submit;// 确定按钮文字
+        private String Str_Cancel;// 取消按钮文字
+        private String Str_Title;// 标题文字
         
-        private int Color_Submit;//确定按钮颜色
-        private int Color_Cancel;//取消按钮颜色
-        private int Color_Title;//标题颜色
+        private int Color_Submit;// 确定按钮颜色
+        private int Color_Cancel;// 取消按钮颜色
+        private int Color_Title;// 标题颜色
         
-        private int Color_Background_Wheel;//滚轮背景颜色
-        private int Color_Background_Title;//标题背景颜色
+        private int Color_Background_Wheel;// 滚轮背景颜色
+        private int Color_Background_Title;// 标题背景颜色
         
-        private int Size_Submit_Cancel = 17;//确定取消按钮大小
-        private int Size_Title = 18;//标题字体大小
-        private int Size_Content = 12;//内容字体大小
-        private int Size_Out = 12;//未选中内容字体大小
-        private Calendar date;//当前选中时间
-        private Calendar startDate;//开始时间
-        private Calendar endDate;//终止时间
-        private int startYear;//开始年份
-        private int endYear;//结尾年份
+        private int Size_Submit_Cancel = 17;// 确定取消按钮大小
+        private int Size_Title = 18;// 标题字体大小
+        private int Size_Content = 12;// 内容字体大小
+        private int Size_Out = 12;// 未选中内容字体大小
+        private Calendar date;// 当前选中时间
+        private Calendar startDate;// 开始时间
+        private Calendar endDate;// 终止时间
+        private int startYear;// 开始年份
+        private int endYear;// 结尾年份
         
-        private boolean cyclic = true;//是否循环
-        private boolean cancelable = true;//是否能取消
+        private boolean cyclic = true;// 是否循环
+        private boolean cancelable = true;// 是否能取消
         
-        private boolean isCenterLabel = true;//是否只显示中间的label
-        private boolean isLunarCalendar = false;//是否显示农历
-        public ViewGroup decorView;//显示pickerview的根View,默认是activity的根view
+        private boolean isCenterLabel = true;// 是否只显示中间的label
+        private boolean isLunarCalendar = false;// 是否显示农历
+        public ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
         
-        private int textColorOut; //分割线以外的文字颜色
-        private int textColorCenter; //分割线之间的文字颜色
-        private int dividerColor; //分割线的颜色
-        private int backgroundId; //显示时的外部背景色颜色,默认是灰色
+        private int textColorOut; // 分割线以外的文字颜色
+        private int textColorCenter; // 分割线之间的文字颜色
+        private int dividerColor; // 分割线的颜色
+        private int backgroundId; // 显示时的外部背景色颜色,默认是灰色
         private WheelView.DividerType dividerType;//分隔线类型
         // 条目间距倍数 默认1.6
         private float lineSpacingMultiplier = 1.6F;
         
-        private boolean isDialog;//是否是对话框模式
+        private boolean isDialog;// 是否是对话框模式
         
         private String label_year, label_month, label_day, label_hours, label_mins, label_seconds;//单位
         private int xoffset_year, xoffset_month, xoffset_day, xoffset_hours, xoffset_mins, xoffset_seconds;//单位
         
-        //Required
+        // Required
         public Builder(Context context, OnTimeSelectListener listener) {
             this.context = context;
             this.timeSelectListener = listener;
         }
         
-        //Option
+        // Option
         public Builder setType(boolean[] type) {
             this.type = type;
             return this;
@@ -228,8 +258,8 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         }
         
         /**
-         * 必须是viewgroup
-         * 设置要将pickerview显示到的容器id
+         * 必须是{@link ViewGroup}
+         * 设置要将PickerView显示到的容器id
          */
         public Builder setDecorView(ViewGroup decorView) {
             this.decorView = decorView;
@@ -279,9 +309,9 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
             return this;
         }
         
-        public Builder setLayoutRes(int res, CustomListener customListener) {
+        public Builder setLayoutRes(int res, CustomLayoutCallback customLayoutCallback) {
             this.layoutRes = res;
-            this.customListener = customListener;
+            this.mCustomLayoutCallback = customLayoutCallback;
             return this;
         }
         
@@ -295,7 +325,6 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
          * 设置起始时间
          * 因为系统Calendar的月份是从0-11的,所以如果是调用Calendar的set方法来设置时间,月份的范围也要是从0-11
          */
-        
         public Builder setRangDate(Calendar startDate, Calendar endDate) {
             this.startDate = startDate;
             this.endDate = endDate;
@@ -402,7 +431,6 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
             return this;
         }
         
-        
         public TimePickerView build() {
             return new TimePickerView(this);
         }
@@ -414,15 +442,14 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         initViews(backgroundId);
         init();
         initEvents();
-        if (customListener == null) {
+        if (mCustomLayoutCallback == null) {
             LayoutInflater.from(context).inflate(R.layout.pickerview_time, contentContainer);
-            
-            //顶部标题
-            tvTitle = (TextView) findViewById(R.id.tvTitle);
-            
-            //确定和取消按钮
-            btnSubmit = (Button) findViewById(R.id.btnSubmit);
-            btnCancel = (Button) findViewById(R.id.btnCancel);
+            // 标题
+            TextView tvTitle = (TextView) findViewById(R.id.tvTitle);
+            // 确定和取消按钮
+            Button btnSubmit = (Button) findViewById(R.id.btnSubmit);
+            // 确定、取消按钮
+            Button btnCancel = (Button) findViewById(R.id.btnCancel);
             
             btnSubmit.setTag(TAG_SUBMIT);
             btnCancel.setTag(TAG_CANCEL);
@@ -430,31 +457,32 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
             btnSubmit.setOnClickListener(this);
             btnCancel.setOnClickListener(this);
             
-            //设置文字
-            btnSubmit.setText(TextUtils.isEmpty(Str_Submit) ? context.getResources().getString(R.string.ok_text) : Str_Submit);
-            btnCancel.setText(TextUtils.isEmpty(Str_Cancel) ? context.getResources().getString(R.string.cancel_text) : Str_Cancel);
-            tvTitle.setText(TextUtils.isEmpty(Str_Title) ? "" : Str_Title);//默认为空
+            // 设置文字
+            btnSubmit.setText(TextUtils.isEmpty(mStrSubmit) ? context.getResources().getString(R.string.ok_text) : mStrSubmit);
+            btnCancel.setText(TextUtils.isEmpty(mStrCancel) ? context.getResources().getString(R.string.cancel_text) : mStrCancel);
+            tvTitle.setText(TextUtils.isEmpty(mStrTitle) ? "" : mStrTitle);//默认为空
             
-            //设置文字颜色
-            btnSubmit.setTextColor(Color_Submit == 0 ? pickerview_timebtn_nor : Color_Submit);
-            btnCancel.setTextColor(Color_Cancel == 0 ? pickerview_timebtn_nor : Color_Cancel);
-            tvTitle.setTextColor(Color_Title == 0 ? pickerview_topbar_title : Color_Title);
+            // 设置文字颜色
+            btnSubmit.setTextColor(mColorSubmit == 0 ? pickerview_timebtn_nor : mColorSubmit);
+            btnCancel.setTextColor(mColorCancel == 0 ? pickerview_timebtn_nor : mColorCancel);
+            tvTitle.setTextColor(mColorTitle == 0 ? pickerview_topbar_title : mColorTitle);
             
-            //设置文字大小
-            btnSubmit.setTextSize(Size_Submit_Cancel);
-            btnCancel.setTextSize(Size_Submit_Cancel);
-            tvTitle.setTextSize(Size_Title);
+            // 设置文字大小
+            btnSubmit.setTextSize(mSizeSubmitCancel);
+            btnCancel.setTextSize(mSizeSubmitCancel);
+            tvTitle.setTextSize(mSizeTitle);
             RelativeLayout rv_top_bar = (RelativeLayout) findViewById(R.id.rv_topbar);
-            rv_top_bar.setBackgroundColor(Color_Background_Title == 0 ? pickerview_bg_topbar : Color_Background_Title);
+            rv_top_bar.setBackgroundColor(mColorBackgroundTitle == 0 ? pickerview_bg_topbar : mColorBackgroundTitle);
         } else {
-            customListener.customLayout(LayoutInflater.from(context).inflate(layoutRes, contentContainer));
+            mCustomLayoutCallback.initLayout(this, LayoutInflater.from(context).inflate(layoutRes, contentContainer));
         }
+        
         // 时间转轮 自定义控件
         LinearLayout timePickerView = (LinearLayout) findViewById(R.id.timepicker);
         
-        timePickerView.setBackgroundColor(Color_Background_Wheel == 0 ? bgColor_default : Color_Background_Wheel);
+        timePickerView.setBackgroundColor(mColorBackgroundWheel == 0 ? bgColor_default : mColorBackgroundWheel);
         
-        wheelTime = new WheelTime(timePickerView, type, gravity, Size_Content, Size_Out);
+        wheelTime = new WheelTime(timePickerView, type, gravity, mSizeContent, mSizeOut);
         wheelTime.setLunarCalendar(isLunarCalendar);
         
         if (startYear != 0 && endYear != 0 && startYear <= endYear) {
@@ -463,18 +491,17 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         
         if (startDate != null && endDate != null) {
             if (startDate.getTimeInMillis() <= endDate.getTimeInMillis()) {
-                
                 setRangDate();
             }
-        } else if (startDate != null && endDate == null) {
+        } else if (startDate != null) {
             setRangDate();
-        } else if (startDate == null && endDate != null) {
+        } else if (endDate != null) {
             setRangDate();
         }
         
         setTime();
-        wheelTime.setLabels(label_year, label_month, label_day, label_hours, label_mins, label_seconds);
-        wheelTime.setTextXOffset(xoffset_year, xoffset_month, xoffset_day, xoffset_hours, xoffset_mins, xoffset_seconds);
+        wheelTime.setLabels(mLabelYear, mLabelMonth, mLabelDay, mLabelHours, mLabelMins, mLabelSeconds);
+        wheelTime.setTextXOffset(mXOffsetYear, mXOffsetMonth, mXOffsetDay, mXOffsetHours, mXOffsetMins, mXOffsetSeconds);
         
         setOutSideCancelable(cancelable);
         wheelTime.setCyclic(cyclic);
@@ -552,7 +579,6 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         wheelTime.setPicker(year, month, day, hours, minute, seconds);
     }
     
-    
     @Override
     public void onClick(View v) {
         String tag = (String) v.getTag();
@@ -565,17 +591,11 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
     /**
      * 用户选中数据后调用回调
      */
+    @Override
     public void returnData() {
-        this.returnData(null);
-    }
-    
-    /**
-     * 用户选中数据后调用回调
-     */
-    public void returnData(View clickView) {
         Date date = wheelTime.getDate();
         if (date != null && timeSelectListener != null) {
-            timeSelectListener.onTimeSelect(date, clickView);
+            timeSelectListener.onTimeSelect(this, date);
         }
     }
     
@@ -594,7 +614,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         seconds = calendar.get(Calendar.SECOND);
         
         wheelTime.setLunarCalendar(lunar);
-        wheelTime.setLabels(label_year, label_month, label_day, label_hours, label_mins, label_seconds);
+        wheelTime.setLabels(mLabelYear, mLabelMonth, mLabelDay, mLabelHours, mLabelMins, mLabelSeconds);
         wheelTime.setPicker(year, month, day, hours, minute, seconds);
     }
     
@@ -602,19 +622,17 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         return wheelTime.isLunarCalendar();
     }
     
+    @Override
+    public boolean isDialog() {
+        return isDialog;
+    }
     
     public interface OnTimeSelectListener {
         /**
          * 日期被选中时调用，当选中日期为null时此方法不会被调用
          *
          * @param date 选中的日期
-         * @param v    当前弹窗依附的View，可能为空
          */
-        void onTimeSelect(Date date, View v);
-    }
-    
-    @Override
-    public boolean isDialog() {
-        return isDialog;
+        void onTimeSelect(TimePickerView pickerView, Date date);
     }
 }

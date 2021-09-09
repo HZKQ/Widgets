@@ -3,8 +3,8 @@ package com.bigkoo.pickerview.lib;
 final class OnItemSelectedRunnable implements Runnable {
     private final WheelView loopView;
     
-    OnItemSelectedRunnable(WheelView loopview) {
-        loopView = loopview;
+    OnItemSelectedRunnable(WheelView loopView) {
+        this.loopView = loopView;
     }
     
     @Override

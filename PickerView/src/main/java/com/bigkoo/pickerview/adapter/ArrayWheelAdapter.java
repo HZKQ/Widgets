@@ -2,12 +2,14 @@ package com.bigkoo.pickerview.adapter;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
 /**
  * The simple Array wheel adapter
  *
  * @param <T> the element type
  */
-public class ArrayWheelAdapter<T> implements WheelAdapter {
+public class ArrayWheelAdapter<T> implements WheelAdapter<T> {
     
     /**
      * The default items length
@@ -15,7 +17,7 @@ public class ArrayWheelAdapter<T> implements WheelAdapter {
     public static final int DEFAULT_LENGTH = 4;
     
     // items
-    private List<T> items;
+    private final List<T> items;
     // length
     private int length;
     
@@ -31,7 +33,7 @@ public class ArrayWheelAdapter<T> implements WheelAdapter {
     }
     
     /**
-     * Contructor
+     * Constructor
      *
      * @param items the items
      */
@@ -39,17 +41,18 @@ public class ArrayWheelAdapter<T> implements WheelAdapter {
         this(items, DEFAULT_LENGTH);
     }
     
+    @Nullable
     @Override
-    public Object getItem(int index) {
+    public T getItem(int index) {
         if (getItemsCount() == 0) {
-            return "";
+            return null;
         }
         
         if (index >= 0 && index < getItemsCount()) {
             return items.get(index);
         }
         
-        return "";
+        return null;
     }
     
     @Override
@@ -58,11 +61,15 @@ public class ArrayWheelAdapter<T> implements WheelAdapter {
     }
     
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(@Nullable T o) {
         if (getItemsCount() == 0) {
             return -1;
         }
         
         return items.indexOf(o);
+    }
+    
+    public List<T> getItems() {
+        return items;
     }
 }

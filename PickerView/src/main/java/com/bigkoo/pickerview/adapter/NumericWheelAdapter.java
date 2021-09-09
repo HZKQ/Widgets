@@ -1,10 +1,12 @@
 package com.bigkoo.pickerview.adapter;
 
 
+import androidx.annotation.Nullable;
+
 /**
  * Numeric Wheel adapter.
  */
-public class NumericWheelAdapter implements WheelAdapter {
+public class NumericWheelAdapter implements WheelAdapter<Integer> {
     
     /**
      * The default min value
@@ -17,8 +19,8 @@ public class NumericWheelAdapter implements WheelAdapter {
     private static final int DEFAULT_MIN_VALUE = 0;
     
     // Values
-    private int minValue;
-    private int maxValue;
+    private final int minValue;
+    private final int maxValue;
     
     /**
      * Default constructor
@@ -38,8 +40,9 @@ public class NumericWheelAdapter implements WheelAdapter {
         this.maxValue = maxValue;
     }
     
+    @Nullable
     @Override
-    public Object getItem(int index) {
+    public Integer getItem(int index) {
         if (index >= 0 && index < getItemsCount()) {
             return minValue + index;
         }
@@ -52,12 +55,11 @@ public class NumericWheelAdapter implements WheelAdapter {
     }
     
     @Override
-    public int indexOf(Object o) {
-        try {
-            return (int) o - minValue;
-        } catch (Exception e) {
+    public int indexOf(@Nullable Integer o) {
+        if (o == null) {
             return -1;
         }
         
+        return o - minValue;
     }
 }

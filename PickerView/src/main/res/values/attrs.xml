@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="pickerview">
-        <attr name="pickerview_gravity">
+    <declare-styleable name="WheelView">
+        <!--内容显示位置-->
+        <attr name="wv_gravity">
             <enum name="center" value="17" />
             <enum name="left" value="3" />
             <enum name="right" value="5" />
         </attr>
-        <attr name="pickerview_textSize" format="dimension" />
-        <attr name="pickerview_textOutSize" format="dimension" />
-        <attr name="pickerview_textColorOut" format="color" />
-        <attr name="pickerview_textColorCenter" format="color" />
-        <attr name="pickerview_dividerColor" format="color" />
-        <attr name="pickerview_lineSpacingMultiplier" format="float" />
-        <attr name="pickerview_itemsVisible" format="integer" />
+        <!--字体大小-->
+        <attr name="wv_textSize" format="dimension" />
+        <!--非选中字体大小,如果-->
+        <attr name="wv_textOutSize" format="dimension" />
+        <!--非选中字体颜色-->
+        <attr name="wv_textColorOut" format="color" />
+        <!--选中字体颜色-->
+        <attr name="wv_textColorCenter" format="color" />
+        <!--条目之间分割线颜色-->
+        <attr name="wv_dividerColor" format="color" />
+        <!--条目之间间距倍率-->
+        <attr name="wv_lineSpacingMultiplier" format="float" />
+        <!--可见条目数量-->
+        <attr name="wv_itemsVisible" format="integer" />
     </declare-styleable>
 </resources>

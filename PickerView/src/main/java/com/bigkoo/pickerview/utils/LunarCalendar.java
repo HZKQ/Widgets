@@ -23,7 +23,7 @@ public class LunarCalendar {
     /**
      * 公历每月前的天数
      */
-    private static final int DAYS_BEFORE_MONTH[] = {0, 31, 59, 90, 120, 151, 181,
+    private static final int[] DAYS_BEFORE_MONTH = {0, 31, 59, 90, 120, 151, 181,
         212, 243, 273, 304, 334, 365};
     
     /**
@@ -36,7 +36,7 @@ public class LunarCalendar {
      * 1001 0101 0101 1010 1011 1111
      * 闰九月                                  农历正月初一对应公历1月31号
      */
-    private static final int LUNAR_INFO[] = {
+    private static final int[] LUNAR_INFO = {
         0x84B6BF,/*1900*/
         0x04AE53, 0x0A5748, 0x5526BD, 0x0D2650, 0x0D9544, 0x46AAB9, 0x056A4D, 0x09AD42, 0x24AEB6, 0x04AE4A,/*1901-1910*/
         0x6A4DBE, 0x0A4D52, 0x0D2546, 0x5D52BA, 0x0B544E, 0x0D6A43, 0x296D37, 0x095B4B, 0x749BC1, 0x049754,/*1911-1920*/
@@ -59,7 +59,7 @@ public class LunarCalendar {
         0x069349, 0x7729BD, 0x06AA51, 0x0AD546, 0x54DABA, 0x04B64E, 0x0A5743, 0x452738, 0x0D264A, 0x8E933E,/*2081-2090*/
         0x0D5252, 0x0DAA47, 0x66B53B, 0x056D4F, 0x04AE45, 0x4A4EB9, 0x0A4D4C, 0x0D1541, 0x2D92B5          /*2091-2099*/
     };
-    private static int[] solar_1_1 = {1887, 0xec04c, 0xec23f, 0xec435, 0xec649,
+    private static final int[] solar_1_1 = {1887, 0xec04c, 0xec23f, 0xec435, 0xec649,
         0xec83e, 0xeca51, 0xecc46, 0xece3a, 0xed04d, 0xed242, 0xed436,
         0xed64a, 0xed83f, 0xeda53, 0xedc48, 0xede3d, 0xee050, 0xee244,
         0xee439, 0xee64d, 0xee842, 0xeea36, 0xeec4a, 0xeee3e, 0xef052,
@@ -93,7 +93,7 @@ public class LunarCalendar {
         0x105e45, 0x106039, 0x10624c, 0x106441, 0x106635, 0x106849,
         0x106a3d, 0x106c51, 0x106e47, 0x10703c, 0x10724f, 0x107444,
         0x107638, 0x10784c, 0x107a3f, 0x107c53, 0x107e48};
-    private static int[] lunar_month_days = {1887, 0x1694, 0x16aa, 0x4ad5,
+    private static final int[] lunar_month_days = {1887, 0x1694, 0x16aa, 0x4ad5,
         0xab6, 0xc4b7, 0x4ae, 0xa56, 0xb52a, 0x1d2a, 0xd54, 0x75aa, 0x156a,
         0x1096d, 0x95c, 0x14ae, 0xaa4d, 0x1a4c, 0x1b2a, 0x8d55, 0xad4,
         0x135a, 0x495d, 0x95c, 0xd49b, 0x149a, 0x1a4a, 0xbaa5, 0x16a8,
@@ -132,8 +132,8 @@ public class LunarCalendar {
      * @param isLeapMonth 该月是否是闰月
      * @return 返回农历日期对应的公历日期，year0, month1, day2.
      */
-    public static final int[] lunarToSolar(int year, int month, int monthDay,
-                                           boolean isLeapMonth) {
+    public static int[] lunarToSolar(int year, int month, int monthDay,
+                                     boolean isLeapMonth) {
         int dayOffset;
         int leapMonth;
         int i;
@@ -206,7 +206,6 @@ public class LunarCalendar {
                         solarInfo[2] = DAYS_BEFORE_MONTH[i] - DAYS_BEFORE_MONTH[i - 1] + 1;
                     else
                         solarInfo[2] = DAYS_BEFORE_MONTH[i] - DAYS_BEFORE_MONTH[i - 1];
-                    
                 } else
                     solarInfo[2] = dayOffset;
                 break;
@@ -217,7 +216,7 @@ public class LunarCalendar {
         return solarInfo;
     }
     
-    public static final int[] solarToLunar(int year, int month, int monthDay) {
+    public static int[] solarToLunar(int year, int month, int monthDay) {
         int[] lunarDate = new int[4];
         
         int index = year - solar_1_1[0];
@@ -239,7 +238,7 @@ public class LunarCalendar {
         
         int lunarY = index + solar_1_1[0];
         int lunarM = 1;
-        int lunarD = 1;
+        int lunarD;
         offset += 1;
         
         for (int i = 0; i < 13; i++) {
@@ -251,6 +250,7 @@ public class LunarCalendar {
                 break;
             }
         }
+        
         lunarD = (int) (offset);
         lunarDate[0] = lunarY;
         lunarDate[1] = lunarM;
@@ -276,7 +276,7 @@ public class LunarCalendar {
      * @deprecated 不准确
      */
     @Deprecated
-    public static final int[] solarToLunarDeprecated(int year, int month, int monthDay) {
+    public static int[] solarToLunarDeprecated(int year, int month, int monthDay) {
         int[] lunarDate = new int[4];
         Date baseDate = new GregorianCalendar(1900, 0, 31).getTime();
         Date objDate = new GregorianCalendar(year, month - 1, monthDay).getTime();
@@ -334,7 +334,7 @@ public class LunarCalendar {
      * @param month 要计算的月
      * @return 传回天数
      */
-    final public static int daysInMonth(int year, int month) {
+    public static int daysInMonth(int year, int month) {
         return daysInMonth(year, month, false);
     }
     
@@ -346,7 +346,7 @@ public class LunarCalendar {
      * @param leap  当月是否是闰月
      * @return 传回天数，如果闰月是错误的，返回0.
      */
-    public static final int daysInMonth(int year, int month, boolean leap) {
+    public static int daysInMonth(int year, int month, boolean leap) {
         int leapMonth = leapMonth(year);
         int offset = 0;
         
@@ -419,8 +419,7 @@ public class LunarCalendar {
     private static long solarToInt(int y, int m, int d) {
         m = (m + 9) % 12;
         y = y - m / 10;
-        return 365 * y + y / 4 - y / 100 + y / 400 + (m * 306 + 5) / 10
+        return 365L * y + y / 4 - y / 100 + y / 400 + (m * 306 + 5) / 10
             + (d - 1);
     }
-    
 }

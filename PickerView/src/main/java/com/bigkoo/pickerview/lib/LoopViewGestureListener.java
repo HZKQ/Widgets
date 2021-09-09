@@ -6,8 +6,8 @@ final class LoopViewGestureListener extends android.view.GestureDetector.SimpleO
     
     private final WheelView loopView;
     
-    LoopViewGestureListener(WheelView loopview) {
-        loopView = loopview;
+    LoopViewGestureListener(WheelView loopView) {
+        this.loopView = loopView;
     }
     
     @Override

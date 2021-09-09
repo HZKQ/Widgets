@@ -20,103 +20,119 @@ import com.bigkoo.pickerview.view.WheelOptions;
 import java.util.List;
 
 /**
- * 条件选择器
- * Created by Sai on 15/11/22.
+ * 联动数据条件选择器
+ *
+ * @author Created by Sai on 15/11/22.
  */
-public class OptionsPickerView<T> extends BasePickerView implements View.OnClickListener {
+public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView implements View.OnClickListener {
     
     private static final String TAG_SUBMIT = "submit";
     private static final String TAG_CANCEL = "cancel";
     
-    private WheelOptions<T, T, T> wheelOptions;
+    private WheelOptions<T1, T2, T3> wheelOptions;
     private final int layoutRes;
     private final CustomLayoutCallback mCustomLayoutCallback;
     private TextView tvTitle;
     
     private final OnOptionsSelectListener optionsSelectListener;
-    // 确定按钮文字
-    private final String mStrSubmit;
-    // 取消按钮文字
-    private final String mStrCancel;
-    // 标题文字
-    private final String mStrTitle;
-    // 确定按钮颜色
-    private final int mColorSubmit;
-    // 取消按钮颜色
-    private final int mColorCancel;
-    // 标题颜色
-    private final int mColorTitle;
-    // 滚轮背景颜色
-    private final int mColorBackgroundWheel;
-    // 标题背景颜色
-    private final int mColorBackgroundTitle;
-    // 确定取消按钮大小
-    private final int mSizeSubmitCancel;
-    // 标题文字大小
-    private final int mSizeTitle;
-    // 内容文字大小
-    private final int mSizeContent;
-    // 未选中内容文字大小
-    private final int mSizeOut;
-    // 分割线以外的文字颜色
-    private final int textColorOut;
-    // 分割线之间的文字颜色
-    private final int textColorCenter;
-    // 分割线的颜色
-    private final int dividerColor;
-    // 显示时的外部背景色颜色,默认是灰色
-    private final int backgroundId;
+    
+    private final String Str_Submit;// 确定按钮文字
+    private final String Str_Cancel;// 取消按钮文字
+    private final String Str_Title;// 标题文字
+    
+    private final int Color_Submit;// 确定按钮颜色
+    private final int Color_Cancel;// 取消按钮颜色
+    private final int Color_Title;// 标题颜色
+    
+    private final int Color_Background_Wheel;// 滚轮背景颜色
+    private final int Color_Background_Title;// 标题背景颜色
+    
+    private final int Size_Submit_Cancel;// 确定取消按钮大小
+    private final int Size_Title;// 标题文字大小
+    private final int Size_Content;// 内容文字大小
+    private final int Size_Out;// 未选中内容文字大小
+    
+    private final int textColorOut; // 分割线以外的文字颜色
+    private final int textColorCenter; // 分割线之间的文字颜色
+    private final int dividerColor; // 分割线的颜色
+    private final int backgroundId; // 显示时的外部背景色颜色,默认是灰色
     // 条目间距倍数 默认1.6
     private final float lineSpacingMultiplier;
-    // 可见条目数量
-    private final int itemsVisible;
-    // 是否是对话框模式
-    private final boolean isDialog;
-    // 是否能取消
-    private final boolean cancelable;
-    // 是否只显示中间的label
-    private final boolean isCenterLabel;
+    private final int itemsVisible; // 可见条目数量
+    private final boolean isDialog;// 是否是对话框模式
+    
+    private final boolean cancelable;// 是否能取消
+    private final boolean linkage;// 是否联动
+    
+    private final boolean isCenterLabel;// 是否只显示中间的label
+    
     // 单位
-    private final String label;
+    private final String label1;
+    private final String label2;
+    private final String label3;
+    
     // 是否循环
-    private final boolean cycle;
+    private final boolean cyclic1;
+    private final boolean cyclic2;
+    private final boolean cyclic3;
+    
     // 字体样式
     private final Typeface font;
+    
     // 默认选中项
-    private int option;
+    private int option1;
+    private int option2;
+    private int option3;
+    
     // x轴偏移量
-    private final int xOffset;
+    private final int xoffset_one;
+    private final int xoffset_two;
+    private final int xoffset_three;
+    
     // 分隔线类型
     private final WheelView.DividerType dividerType;
     // 显示位置
     private final int gravity;
     
     // 构造方法
-    public OptionsPickerView(Builder builder) {
+    public LinkageOptionsPickerView(Builder builder) {
         super(builder.context);
         this.optionsSelectListener = builder.optionsSelectListener;
-        this.mStrSubmit = builder.Str_Submit;
-        this.mStrCancel = builder.Str_Cancel;
-        this.mStrTitle = builder.Str_Title;
+        this.Str_Submit = builder.Str_Submit;
+        this.Str_Cancel = builder.Str_Cancel;
+        this.Str_Title = builder.Str_Title;
         
-        this.mColorSubmit = builder.Color_Submit;
-        this.mColorCancel = builder.Color_Cancel;
-        this.mColorTitle = builder.Color_Title;
-        this.mColorBackgroundWheel = builder.Color_Background_Wheel;
-        this.mColorBackgroundTitle = builder.Color_Background_Title;
+        this.Color_Submit = builder.Color_Submit;
+        this.Color_Cancel = builder.Color_Cancel;
+        this.Color_Title = builder.Color_Title;
+        this.Color_Background_Wheel = builder.Color_Background_Wheel;
+        this.Color_Background_Title = builder.Color_Background_Title;
         
-        this.mSizeSubmitCancel = builder.Size_Submit_Cancel;
-        this.mSizeTitle = builder.Size_Title;
-        this.mSizeContent = builder.Size_Content;
-        this.mSizeOut = builder.Size_Out;
+        this.Size_Submit_Cancel = builder.Size_Submit_Cancel;
+        this.Size_Title = builder.Size_Title;
+        this.Size_Content = builder.Size_Content;
+        this.Size_Out = builder.Size_Out;
         
-        this.cycle = builder.cycle;
+        this.cyclic1 = builder.cyclic1;
+        this.cyclic2 = builder.cyclic2;
+        this.cyclic3 = builder.cyclic3;
+        
         this.cancelable = builder.cancelable;
+        this.linkage = builder.linkage;
         this.isCenterLabel = builder.isCenterLabel;
-        this.label = builder.label;
+        
+        this.label1 = builder.label1;
+        this.label2 = builder.label2;
+        this.label3 = builder.label3;
+        
         this.font = builder.font;
-        this.option = builder.option;
-        this.xOffset = builder.xOffset;
+        
+        this.option1 = builder.option1;
+        this.option2 = builder.option2;
+        this.option3 = builder.option3;
+        this.xoffset_one = builder.xoffset_one;
+        this.xoffset_two = builder.xoffset_two;
+        this.xoffset_three = builder.xoffset_three;
         
         this.textColorCenter = builder.textColorCenter;
         this.textColorOut = builder.textColorOut;
@@ -133,7 +149,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         initView(builder.context);
     }
     
-    // 建造器
+    //建造器
     public static class Builder {
         private int layoutRes = R.layout.pickerview_options;
         private CustomLayoutCallback mCustomLayoutCallback;
@@ -157,6 +173,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         private int Size_Out = 18;// 未选中内容文字大小
         
         private boolean cancelable = true;// 是否能取消
+        private boolean linkage = true;// 是否联动
         private boolean isCenterLabel = true;// 是否只显示中间的label
         
         private int textColorOut; // 分割线以外的文字颜色
@@ -169,15 +186,23 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         private int itemsVisible = 7; // 可见条目数量
         private boolean isDialog;// 是否是对话框模式
         
-        private String label;
+        private String label1;
+        private String label2;
+        private String label3;
         // 是否循环，默认否
-        private boolean cycle = false;
+        private boolean cyclic1 = false;
+        private boolean cyclic2 = false;
+        private boolean cyclic3 = false;
         
         private Typeface font;
         // 默认选中项
-        private int option;
+        private int option1;
+        private int option2;
+        private int option3;
         // x轴偏移量
-        private int xOffset;
+        private int xoffset_one;
+        private int xoffset_two;
+        private int xoffset_three;
         // 分隔线类型
         private WheelView.DividerType dividerType;
         // 默认显示位置
@@ -229,8 +254,8 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         }
         
         /**
-         * 必须是{@link ViewGroup}
-         * 设置要将PickerView显示到的容器
+         * 必须是viewgroup
+         * 设置要将pickerview显示到的容器
          */
         public Builder setDecorView(ViewGroup decorView) {
             this.decorView = decorView;
@@ -287,8 +312,20 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
             return this;
         }
         
-        public Builder setLabel(String label) {
-            this.label = label;
+        /**
+         * 此方法已废弃
+         * 不联动的情况下，请调用 setNPicker 方法。
+         */
+        @Deprecated
+        public Builder setLinkage(boolean linkage) {
+            this.linkage = linkage;
+            return this;
+        }
+        
+        public Builder setLabels(String label1, String label2, String label3) {
+            this.label1 = label1;
+            this.label2 = label2;
+            this.label3 = label3;
             return this;
         }
         
@@ -337,19 +374,35 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
             return this;
         }
         
-        public Builder setCycle(boolean cycle) {
-            this.cycle = cycle;
+        public Builder setCyclic(boolean cyclic1, boolean cyclic2, boolean cyclic3) {
+            this.cyclic1 = cyclic1;
+            this.cyclic2 = cyclic2;
+            this.cyclic3 = cyclic3;
             return this;
         }
         
-        public Builder setSelectOption(int option) {
-            this.option = option;
+        public Builder setSelectOptions(int option1) {
+            this.option1 = option1;
             return this;
         }
         
+        public Builder setSelectOptions(int option1, int option2) {
+            this.option1 = option1;
+            this.option2 = option2;
+            return this;
+        }
         
-        public Builder setTextXOffset(int xOffset) {
-            this.xOffset = xOffset;
+        public Builder setSelectOptions(int option1, int option2, int option3) {
+            this.option1 = option1;
+            this.option2 = option2;
+            this.option3 = option3;
+            return this;
+        }
+        
+        public Builder setTextXOffset(int xoffset_one, int xoffset_two, int xoffset_three) {
+            this.xoffset_one = xoffset_one;
+            this.xoffset_two = xoffset_two;
+            this.xoffset_three = xoffset_three;
             return this;
         }
         
@@ -377,8 +430,8 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
             return this;
         }
         
-        public <T> OptionsPickerView<T> build() {
-            return new OptionsPickerView<>(this);
+        public <T1, T2, T3> LinkageOptionsPickerView<T1, T2, T3> build() {
+            return new LinkageOptionsPickerView<>(this);
         }
     }
     
@@ -406,42 +459,42 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
             btnCancel.setOnClickListener(this);
             
             // 设置文字
-            btnSubmit.setText(TextUtils.isEmpty(mStrSubmit) ? context.getResources().getString(R.string.ok_text) : mStrSubmit);
-            btnCancel.setText(TextUtils.isEmpty(mStrCancel) ? context.getResources().getString(R.string.cancel_text) : mStrCancel);
-            tvTitle.setText(TextUtils.isEmpty(mStrTitle) ? "" : mStrTitle);// 默认为空
+            btnSubmit.setText(TextUtils.isEmpty(Str_Submit) ? context.getResources().getString(R.string.ok_text) : Str_Submit);
+            btnCancel.setText(TextUtils.isEmpty(Str_Cancel) ? context.getResources().getString(R.string.cancel_text) : Str_Cancel);
+            tvTitle.setText(TextUtils.isEmpty(Str_Title) ? "" : Str_Title);// 默认为空
             
             // 设置color
-            btnSubmit.setTextColor(mColorSubmit == 0 ? pickerview_timebtn_nor : mColorSubmit);
-            btnCancel.setTextColor(mColorCancel == 0 ? pickerview_timebtn_nor : mColorCancel);
-            tvTitle.setTextColor(mColorTitle == 0 ? pickerview_topbar_title : mColorTitle);
-            rvTopBar.setBackgroundColor(mColorBackgroundTitle == 0 ? pickerview_bg_topbar : mColorBackgroundTitle);
+            btnSubmit.setTextColor(Color_Submit == 0 ? pickerview_timebtn_nor : Color_Submit);
+            btnCancel.setTextColor(Color_Cancel == 0 ? pickerview_timebtn_nor : Color_Cancel);
+            tvTitle.setTextColor(Color_Title == 0 ? pickerview_topbar_title : Color_Title);
+            rvTopBar.setBackgroundColor(Color_Background_Title == 0 ? pickerview_bg_topbar : Color_Background_Title);
             
             // 设置文字大小
-            btnSubmit.setTextSize(mSizeSubmitCancel);
-            btnCancel.setTextSize(mSizeSubmitCancel);
-            tvTitle.setTextSize(mSizeTitle);
-            tvTitle.setText(mStrTitle);
+            btnSubmit.setTextSize(Size_Submit_Cancel);
+            btnCancel.setTextSize(Size_Submit_Cancel);
+            tvTitle.setTextSize(Size_Title);
+            tvTitle.setText(Str_Title);
         } else {
             mCustomLayoutCallback.initLayout(this, LayoutInflater.from(context).inflate(layoutRes, contentContainer));
         }
         
         // ----滚轮布局
         final LinearLayout optionsPicker = (LinearLayout) findViewById(R.id.optionspicker);
-        optionsPicker.setBackgroundColor(mColorBackgroundWheel == 0 ? bgColor_default : mColorBackgroundWheel);
+        optionsPicker.setBackgroundColor(Color_Background_Wheel == 0 ? bgColor_default : Color_Background_Wheel);
         
-        wheelOptions = new WheelOptions<>(optionsPicker, false);
-        wheelOptions.setTextContentSize(mSizeContent);
-        wheelOptions.setTextOutSize(mSizeOut);
-        wheelOptions.setLabels(label, null, null);
-        wheelOptions.setTextXOffset(xOffset, 0, 0);
+        wheelOptions = new WheelOptions<>(optionsPicker, linkage);
+        wheelOptions.setTextContentSize(Size_Content);
+        wheelOptions.setTextOutSize(Size_Out);
+        wheelOptions.setLabels(label1, label2, label3);
+        wheelOptions.setTextXOffset(xoffset_one, xoffset_two, xoffset_three);
         
-        wheelOptions.setCyclic(cycle, false, false);
+        wheelOptions.setCyclic(cyclic1, cyclic2, cyclic3);
         wheelOptions.setTypeface(font);
         
         setOutSideCancelable(cancelable);
         
         if (tvTitle != null) {
-            tvTitle.setText(mStrTitle);
+            tvTitle.setText(Str_Title);
         }
         
         wheelOptions.setDividerColor(dividerColor);
@@ -456,19 +509,53 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
     /**
      * 设置默认选中项
      */
-    public void setSelectOption(int option) {
-        this.option = option;
+    public void setSelectOptions(int option1) {
+        this.option1 = option1;
+        setCurrentItems();
+    }
+    
+    public void setSelectOptions(int option1, int option2) {
+        this.option1 = option1;
+        this.option2 = option2;
+        setCurrentItems();
+    }
+    
+    public void setSelectOptions(int option1, int option2, int option3) {
+        this.option1 = option1;
+        this.option2 = option2;
+        this.option3 = option3;
         setCurrentItems();
     }
     
     private void setCurrentItems() {
         if (wheelOptions != null) {
-            wheelOptions.setCurrentItems(option, 0, 0);
+            wheelOptions.setCurrentItems(option1, option2, option3);
         }
     }
     
-    public void setPicker(List<T> options1Items) {
-        wheelOptions.setPicker(options1Items, null, null);
+    public void setPicker(List<T1> optionsItems) {
+        this.setPicker(optionsItems, null, null);
+    }
+    
+    public void setPicker(List<T1> options1Items, List<List<T2>> options2Items) {
+        this.setPicker(options1Items, options2Items, null);
+    }
+    
+    public void setPicker(List<T1> options1Items,
+                          List<List<T2>> options2Items,
+                          List<List<List<T3>>> options3Items) {
+        wheelOptions.setPicker(options1Items, options2Items, options3Items);
+        setCurrentItems();
+    }
+    
+    /**
+     * 不联动情况下调用
+     */
+    public void setNPicker(List<T1> options1Items,
+                           List<T2> options2Items,
+                           List<T3> options3Items) {
+        
+        wheelOptions.setNPicker(options1Items, options2Items, options3Items);
         setCurrentItems();
     }
     
@@ -488,7 +575,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
     public void returnData() {
         if (optionsSelectListener != null) {
             int[] optionsCurrentItems = wheelOptions.getCurrentItems();
-            optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0]);
+            optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0], optionsCurrentItems[1], optionsCurrentItems[2]);
         }
     }
     
@@ -497,8 +584,13 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         return isDialog;
     }
     
-    public List<T> getData() {
-        return wheelOptions.getData(0);
+    /**
+     * 获取数据
+     *
+     * @param index 数据在选择器位置
+     */
+    public <T> List<T> getData(int index) {
+        return wheelOptions.getData(index);
     }
     
     /**
@@ -506,6 +598,6 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
      */
     public interface OnOptionsSelectListener {
         @SuppressWarnings("rawtypes")
-        void onOptionsSelect(OptionsPickerView pickerView, int option);
+        void onOptionsSelect(LinkageOptionsPickerView pickerView, int options1, int options2, int options3);
     }
 }

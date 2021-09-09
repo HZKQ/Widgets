@@ -5,7 +5,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bigkoo.pickerview.OptionsPickerView;
+import com.bigkoo.pickerview.LinkageOptionsPickerView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.bigkoo.pickerview.model.IPickerViewData;
 import com.google.gson.Gson;
@@ -37,7 +37,7 @@ public class PickerViewActivity extends BaseActivity {
     private TextView mTvTime;
     
     private TimePickerView mStartTimePicker;
-    private OptionsPickerView mPvOptions;
+    private LinkageOptionsPickerView<String, String, String> mPvOptions;
     
     private List<String> options1Items;
     private List<List<String>> options2Items;
@@ -63,13 +63,13 @@ public class PickerViewActivity extends BaseActivity {
     @Override
     public void initData() {
         //条件选择器
-        mPvOptions = new OptionsPickerView.Builder(this, (options1, option2, options3, v) -> {
-            //返回的分别是三个级别的选中位置
+        mPvOptions = new LinkageOptionsPickerView.Builder(this, (pickerView, options1, options2, options3) -> {
+        
         }).setCancelColor(0xff999999)
             .setContentTextSize(SimpleUtil.getScaledValue(46, true))
             .setOutTextSize(SimpleUtil.getScaledValue(36, true))
             .setLineSpacingMultiplier(3f)
-            .setLayoutRes(R.layout.pickerview_options2)
+            .setLayoutRes(R.layout.pickerview_linkage_options)
             .setGravity(Gravity.BOTTOM)
             .isDialog(false)
             .build();
@@ -89,10 +89,10 @@ public class PickerViewActivity extends BaseActivity {
     private void chooseStarTime() {
         if (mStartTimePicker == null) {
             //时间选择器 ，自定义布局
-            mStartTimePicker = new TimePickerView.Builder(this, (date, v) -> {
+            mStartTimePicker = new TimePickerView.Builder(this, (p, date) -> {
                 // 选中事件回调
             })
-                .setLayoutRes(R.layout.pickerview_custom_time, v -> {
+                .setLayoutRes(R.layout.pickerview_custom_time, (p, v) -> {
                     final TextView tvSubmit = v.findViewById(R.id.tv_ok);
                     TextView tvCancel = v.findViewById(R.id.tv_cancel);
                     tvSubmit.setOnClickListener(v12 -> {
@@ -154,7 +154,6 @@ public class PickerViewActivity extends BaseActivity {
                     }.getType());
                 
                 parseProvinceCityArea(provinceList);
-                //noinspection unchecked
                 mPvOptions.setPicker(options1Items, options2Items, options3Items);
             } catch (Exception e) {
                 e.printStackTrace();

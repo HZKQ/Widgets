@@ -1,9 +1,9 @@
 package com.bigkoo.pickerview.view;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -19,21 +21,25 @@ import com.bigkoo.pickerview.R;
 import com.bigkoo.pickerview.listener.OnDismissListener;
 import com.bigkoo.pickerview.utils.PickerViewAnimateUtil;
 
-
 /**
- * Created by Sai on 15/11/22.
  * 精仿iOSPickerViewController控件
+ *
+ * @author Created by Sai on 15/11/22.
  */
-public class BasePickerView {
+public abstract class BasePickerView {
+    
     protected final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER
     );
     
-    private Context context;
+    private final Context context;
     protected ViewGroup contentContainer;
-    public ViewGroup decorView;//显示pickerview的根View,默认是activity的根view
-    private ViewGroup rootView;//附加View 的 根View
-    private ViewGroup dialogView;//附加Dialog 的 根View
+    // 显示PickerView的根View,默认是activity的根view
+    public ViewGroup decorView;
+    // 附加View 的 根View
+    private ViewGroup rootView;
+    // 附加Dialog 的 根View
+    private ViewGroup dialogView;
     
     protected int pickerview_timebtn_nor = 0xFF057dff;
     protected int pickerview_timebtn_pre = 0xFFc2daf5;
@@ -49,58 +55,46 @@ public class BasePickerView {
     private boolean isShowing;
     private int gravity = Gravity.CENTER;
     
-    
     private Dialog mDialog;
-    private boolean cancelable;//是否能取消
-    
+    // 是否能取消
+    private boolean cancelable;
     private boolean isAnim = true;
     
     public BasePickerView(Context context) {
         this.context = context;
-
-        /*initViews();
-        init();
-        initEvents();*/
     }
     
-    protected void initViews(int backgroudId) {
+    @SuppressLint("InflateParams")
+    protected void initViews(int backgroundId) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         if (isDialog()) {
-            //如果是对话框模式
+            // 如果是对话框模式
             dialogView = (ViewGroup) layoutInflater.inflate(R.layout.layout_basepickerview, null, false);
-            //设置界面的背景为透明
+            // 设置界面的背景为透明
             dialogView.setBackgroundColor(Color.TRANSPARENT);
-            //这个是真正要加载时间选取器的父布局
+            // 这个是真正要加载时间选取器的父布局
             contentContainer = (ViewGroup) dialogView.findViewById(R.id.content_container);
-            //设置对话框 左右间距屏幕30
-            this.params.leftMargin = 30;
-            this.params.rightMargin = 30;
             contentContainer.setLayoutParams(this.params);
-            //创建对话框
+            // 创建对话框
             createDialog();
-            //给背景设置点击事件,这样当点击内容以外的地方会关闭界面
-            dialogView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dismiss();
-                }
-            });
+            // 给背景设置点击事件,这样当点击内容以外的地方会关闭界面
+            dialogView.setOnClickListener(view -> dismiss());
         } else {
-            //如果只是要显示在屏幕的下方
-            //decorView是activity的根View
+            // 如果只是要显示在屏幕的下方
+            // decorView是activity的根View
             if (decorView == null) {
                 decorView = (ViewGroup) ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
             }
-            //将控件添加到decorView中
+            // 将控件添加到decorView中
             rootView = (ViewGroup) layoutInflater.inflate(R.layout.layout_basepickerview, decorView, false);
             rootView.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             ));
-            if (backgroudId != 0) {
-                rootView.setBackgroundColor(backgroudId);
+            if (backgroundId != 0) {
+                rootView.setBackgroundColor(backgroundId);
             }
-            // rootView.setBackgroundColor(ContextCompat.getColor(context,backgroudId));
-            //这个是真正要加载时间选取器的父布局
+            // rootView.setBackgroundColor(ContextCompat.getColor(context,backgroundId));
+            // 这个是真正要加载时间选取器的父布局
             contentContainer = (ViewGroup) rootView.findViewById(R.id.content_container);
             contentContainer.setLayoutParams(params);
         }
@@ -113,6 +107,11 @@ public class BasePickerView {
     }
     
     protected void initEvents() {
+    
+    }
+    
+    public Context getContext() {
+        return context;
     }
     
     public void show(boolean isAnim) {
@@ -127,15 +126,15 @@ public class BasePickerView {
         if (isDialog()) {
             showDialog();
         } else {
-            if (isShowing()) {
+            if (isAttachToParent()) {
                 return;
             }
+            
             isShowing = true;
             onAttached(rootView);
             rootView.requestFocus();
         }
     }
-    
     
     /**
      * show的时候调用
@@ -149,19 +148,25 @@ public class BasePickerView {
         }
     }
     
-    
     /**
-     * 检测该View是不是已经添加到根视图
+     * 检测非Dialog时，该View是不是已经添加到根视图
      *
      * @return 如果视图已经存在该View返回true
      */
-    public boolean isShowing() {
+    private boolean isAttachToParent() {
         if (isDialog()) {
             return false;
         } else {
             return rootView.getParent() != null || isShowing;
         }
-        
+    }
+    
+    public boolean isShowing() {
+        if (isDialog()) {
+            return mDialog.isShowing();
+        } else {
+            return rootView.getParent() != null || isShowing;
+        }
     }
     
     public void dismiss() {
@@ -196,26 +201,18 @@ public class BasePickerView {
             }
             dismissing = true;
         }
-        
-        
     }
     
     public void dismissImmediately() {
-        
-        decorView.post(new Runnable() {
-            @Override
-            public void run() {
-                //从根视图移除
-                decorView.removeView(rootView);
-                isShowing = false;
-                dismissing = false;
-                if (onDismissListener != null) {
-                    onDismissListener.onDismiss(BasePickerView.this);
-                }
+        decorView.post(() -> {
+            //从根视图移除
+            decorView.removeView(rootView);
+            isShowing = false;
+            dismissing = false;
+            if (onDismissListener != null) {
+                onDismissListener.onDismiss(BasePickerView.this);
             }
         });
-        
-        
     }
     
     public Animation getInAnimation() {
@@ -228,13 +225,11 @@ public class BasePickerView {
         return AnimationUtils.loadAnimation(context, res);
     }
     
-    public BasePickerView setOnDismissListener(OnDismissListener onDismissListener) {
+    public void setOnDismissListener(OnDismissListener onDismissListener) {
         this.onDismissListener = onDismissListener;
-        return this;
     }
     
     public void setKeyBackCancelable(boolean isCancelable) {
-        
         ViewGroup View;
         if (isDialog()) {
             View = dialogView;
@@ -251,20 +246,16 @@ public class BasePickerView {
         }
     }
     
-    private View.OnKeyListener onKeyBackListener = new View.OnKeyListener() {
-        @Override
-        public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == MotionEvent.ACTION_DOWN
-                && isShowing()) {
-                dismiss();
-                return true;
-            }
-            return false;
+    private final View.OnKeyListener onKeyBackListener = (v, keyCode, event) -> {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == MotionEvent.ACTION_DOWN
+            && isAttachToParent()) {
+            dismiss();
+            return true;
         }
+        return false;
     };
     
-    protected BasePickerView setOutSideCancelable(boolean isCancelable) {
-        
+    protected void setOutSideCancelable(boolean isCancelable) {
         if (rootView != null) {
             View view = rootView.findViewById(R.id.outmost_container);
             
@@ -274,8 +265,6 @@ public class BasePickerView {
                 view.setOnTouchListener(null);
             }
         }
-        
-        return this;
     }
     
     /**
@@ -288,50 +277,49 @@ public class BasePickerView {
         }
     }
     
-    
     /**
      * Called when the user touch on black overlay in order to dismiss the dialog
      */
-    private final View.OnTouchListener onCancelableTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                dismiss();
-            }
-            return false;
+    @SuppressLint("ClickableViewAccessibility")
+    private final View.OnTouchListener onCancelableTouchListener = (v, event) -> {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            dismiss();
         }
+        return false;
     };
     
     public View findViewById(int id) {
         return contentContainer.findViewById(id);
     }
     
-    public void createDialog() {
+    private void createDialog() {
         if (dialogView != null) {
             mDialog = new Dialog(context, R.style.custom_dialog2);
             mDialog.setCancelable(cancelable);//不能点外面取消,也不 能点back取消
             mDialog.setContentView(dialogView);
             
-            mDialog.getWindow().setWindowAnimations(R.style.pickerview_dialogAnim);
-            mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    if (onDismissListener != null) {
-                        onDismissListener.onDismiss(BasePickerView.this);
-                    }
+            Window window = mDialog.getWindow();
+            View decorView = window.getDecorView();
+            decorView.setPadding(0, 0, 0, 0);
+            WindowManager.LayoutParams layoutParams = window.getAttributes();
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            window.setAttributes(layoutParams);
+            window.setWindowAnimations(R.style.pickerview_dialogAnim);
+            mDialog.setOnDismissListener(dialog -> {
+                if (onDismissListener != null) {
+                    onDismissListener.onDismiss(BasePickerView.this);
                 }
             });
         }
-        
     }
     
-    public void showDialog() {
+    private void showDialog() {
         if (mDialog != null) {
             mDialog.show();
         }
     }
     
-    public void dismissDialog() {
+    private void dismissDialog() {
         if (mDialog != null) {
             mDialog.dismiss();
         }
@@ -356,4 +344,8 @@ public class BasePickerView {
         return true;
     }
     
+    /**
+     * 回调用户选中的数据
+     */
+    public abstract void returnData();
 }

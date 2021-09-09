@@ -1,5 +1,7 @@
 package com.bigkoo.pickerview.utils;
 
+import android.annotation.SuppressLint;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,7 +69,7 @@ public class ChinaDate {
      * @param y 年的总天数
      * @return 农历
      */
-    final private static int lYearDays(int y) {
+    private static int lYearDays(int y) {
         int i, sum = 348;
         for (i = 0x8000; i > 0x8; i >>= 1) {
             if ((lunarInfo[y - 1900] & i) != 0)
@@ -82,7 +84,7 @@ public class ChinaDate {
      * @param y 年闰月的天数
      * @return 农历
      */
-    final public static int leapDays(int y) {
+    public static int leapDays(int y) {
         if (leapMonth(y) != 0) {
             if ((lunarInfo[y - 1900] & 0x10000) != 0)
                 return 30;
@@ -98,7 +100,7 @@ public class ChinaDate {
      * @param y 年闰哪个月 1-12 , 没闰传回 0
      * @return 农历
      */
-    final public static int leapMonth(int y) {
+    public static int leapMonth(int y) {
         return (int) (lunarInfo[y - 1900] & 0xf);
     }
     
@@ -109,7 +111,7 @@ public class ChinaDate {
      * @param m y年m月的总天数
      * @return 农历
      */
-    final public static int monthDays(int y, int m) {
+    public static int monthDays(int y, int m) {
         if ((lunarInfo[y - 1900] & (0x10000 >> m)) == 0)
             return 29;
         else
@@ -121,7 +123,7 @@ public class ChinaDate {
      *
      * @param y 年的生肖
      */
-    final public static String AnimalsYear(int y) {
+    public static String AnimalsYear(int y) {
         return Animals[(y - 4) % 12];
     }
     
@@ -131,7 +133,7 @@ public class ChinaDate {
      * @param num 月日的offset 传回干支,0是甲子
      * @return 干支
      */
-    final private static String cyclicalm(int num) {
+    private static String cyclicalm(int num) {
         return (Gan[num % 10] + Zhi[num % 12]);
     }
     
@@ -141,7 +143,7 @@ public class ChinaDate {
      * @param y 0是甲子
      * @return 干支
      */
-    final public static String cyclical(int y) {
+    public static String cyclical(int y) {
         int num = y - 1900 + 36;
         return (cyclicalm(num));
     }
@@ -153,7 +155,7 @@ public class ChinaDate {
      * @param m 月
      * @return 传出农历
      */
-    final private long[] Lunar(int y, int m) {
+    private long[] Lunar(int y, int m) {
         long[] nongDate = new long[7];
         int i = 0, temp = 0, leap = 0;
         Date baseDate = new GregorianCalendar(1900 + 1900, 1, 31).getTime();
@@ -224,7 +226,7 @@ public class ChinaDate {
      * @param d 日
      * @return y年m月d日对应的农历
      */
-    final public static long[] calElement(int y, int m, int d) {
+    public static long[] calElement(int y, int m, int d) {
         long[] nongDate = new long[7];
         int i = 0, temp = 0, leap = 0;
         Date baseDate = new GregorianCalendar(0 + 1900, 0, 31).getTime();
@@ -281,7 +283,7 @@ public class ChinaDate {
         return nongDate;
     }
     
-    public final static String getChinaDate(int day) {
+    public static String getChinaDate(int day) {
         String a = "";
         if (day == 10)
             return "初十";
@@ -339,7 +341,7 @@ public class ChinaDate {
         long[] l = calElement(year, month, date);
         StringBuffer sToday = new StringBuffer();
         try {
-            sToday.append(sdf.format(today.getTime()));
+            sToday.append(SDF.format(today.getTime()));
             sToday.append(" 农历");
             sToday.append(cyclical(year));
             sToday.append('(');
@@ -374,14 +376,14 @@ public class ChinaDate {
         }
     }
     
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日 EEEEE");
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy年M月d日 EEEEE");
     
     /**
      * 返回星座
      *
      * @return 星座
      */
-    
     public static String getConstellation(int month, int day) {
         return day < dayArr[month - 1] ? constellationArr[month - 1] : constellationArr[month];
     }
@@ -406,6 +408,7 @@ public class ChinaDate {
     }
     
     
+    @SuppressLint("DefaultLocale")
     public static ArrayList<String> getYears(int startYear, int endYear) {
         ArrayList<String> years = new ArrayList<>();
         for (int i = startYear; i < endYear; i++) {

@@ -1,5 +1,7 @@
 package com.bigkoo.pickerview.adapter;
 
+import androidx.annotation.Nullable;
+
 public interface WheelAdapter<T> {
     /**
      * Gets items count
@@ -14,6 +16,7 @@ public interface WheelAdapter<T> {
      * @param index the item index
      * @return the wheel item text or null
      */
+    @Nullable
     T getItem(int index);
     
     /**
@@ -22,5 +25,7 @@ public interface WheelAdapter<T> {
      *
      * @return the maximum item length or -1
      */
-    int indexOf(T o);
+    int indexOf(@Nullable T o);
+    
+    
 }

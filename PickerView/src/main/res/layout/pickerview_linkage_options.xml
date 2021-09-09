@@ -22,21 +22,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:pickerview_itemsVisible="11" />
+            app:wv_itemsVisible="11" />
 
         <com.bigkoo.pickerview.lib.WheelView
             android:id="@+id/options2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:pickerview_itemsVisible="11" />
+            app:wv_itemsVisible="11" />
 
         <com.bigkoo.pickerview.lib.WheelView
             android:id="@+id/options3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:pickerview_itemsVisible="11" />
+            app:wv_itemsVisible="11" />
     </LinearLayout>
 
 </LinearLayout>

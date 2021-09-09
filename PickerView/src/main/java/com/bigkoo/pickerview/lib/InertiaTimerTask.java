@@ -4,6 +4,7 @@ import java.util.TimerTask;
 
 /**
  * 滚动惯性的实现
+ *
  * @author 小嵩
  */
 final class InertiaTimerTask extends TimerTask {
@@ -12,9 +13,9 @@ final class InertiaTimerTask extends TimerTask {
     private final float velocityY;
     private final WheelView loopView;
     
-    InertiaTimerTask(WheelView loopview, float velocityY) {
+    InertiaTimerTask(WheelView loopView, float velocityY) {
         super();
-        loopView = loopview;
+        this.loopView = loopView;
         this.velocityY = velocityY;
         a = Integer.MAX_VALUE;
     }
