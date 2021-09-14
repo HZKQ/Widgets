@@ -83,8 +83,5 @@
         android:background="@drawable/full_round_shape_white_with_gray_border"
         android:gravity="center"
         android:text="发送短信"
-        android:textColor="@color/btn_code_color_selector"
-        app:cdv_border_color="@color/colorPrimary"
-        app:cdv_border_width="5px"
-        app:cdv_text_size="66px" />
+        android:textColor="@color/btn_code_color_selector" />
 </LinearLayout>

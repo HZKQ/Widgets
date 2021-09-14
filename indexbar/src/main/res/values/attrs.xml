@@ -6,5 +6,11 @@
         <attr name="ib_text_color" format="color|reference" />
         <attr name="ib_letters" format="string|reference" />
         <attr name="ib_letter_spacing" format="float" />
+        <attr name="ib_letter_style">
+            <enum name="normal" value="0" />
+            <enum name="bold" value="1" />
+            <enum name="italic" value="2" />
+            <enum name="bold_italic" value="3" />
+        </attr>
     </declare-styleable>
 </resources>

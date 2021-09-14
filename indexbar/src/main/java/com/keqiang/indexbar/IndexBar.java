@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -18,8 +19,12 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
@@ -37,12 +42,16 @@ public class IndexBar extends View {
         "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
         "W", "X", "Y", "Z", "#"};
     
+    @IntDef(value = {Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface Style {}
+    
     /**
      * 文字大小，如果所有索引绘制高度 <= 当前View高度使用此值
      */
     private float mTextSize;
     /**
-     * 最新文字大小，如果所有索引绘制高度 > 当前View高度,则文字等比例缩放后不能小于此值
+     * 最小文字大小，如果所有索引绘制高度 > 当前View高度,则文字等比例缩放后不能小于此值
      */
     private float minTextSize;
     private String[] letters;
@@ -109,6 +118,7 @@ public class IndexBar extends View {
         mTextSize = 26;
         minTextSize = 16;
         int textColor = getResources().getColor(R.color.colorAccent);
+        int textStyle = Typeface.NORMAL;
         if (attrs != null) {
             TypedArray t = context.obtainStyledAttributes(attrs, R.styleable.IndexBar);
             mTextSize = t.getDimensionPixelSize(R.styleable.IndexBar_ib_text_size, 26);
@@ -117,6 +127,7 @@ public class IndexBar extends View {
             boolean existLettersAttr = t.hasValue(R.styleable.IndexBar_ib_letters);
             String letters = t.getString(R.styleable.IndexBar_ib_letters);
             mLetterSpacing = t.getFloat(R.styleable.IndexBar_ib_letter_spacing, 1.5f);
+            textStyle = t.getInt(R.styleable.IndexBar_ib_letter_style, Typeface.NORMAL);
             t.recycle();
             
             if (!TextUtils.isEmpty(letters)) {
@@ -148,6 +159,7 @@ public class IndexBar extends View {
         mPaint = new Paint();
         mPaint.setColor(textColor);
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setTypeface(Typeface.defaultFromStyle(textStyle));
     }
     
     @Override
@@ -402,6 +414,16 @@ public class IndexBar extends View {
         requestLayout();
     }
     
+    public void setTextStyle(@Style int style) {
+        mPaint.setTypeface(Typeface.defaultFromStyle(style));
+        invalidate();
+    }
+    
+    public void setTypeface(@Nullable Typeface typeface) {
+        mPaint.setTypeface(typeface);
+        invalidate();
+    }
+    
     public void setTextColor(@ColorInt int color) {
         mPaint.setColor(color);
         invalidate();
@@ -420,7 +442,6 @@ public class IndexBar extends View {
     public void setOnLetterChosenListener(OnLetterChosenListener listener) {
         mOnLetterChosenListener = listener;
     }
-    
     
     /**
      * 设置点击索引后是否在屏幕中间显示索引内容
