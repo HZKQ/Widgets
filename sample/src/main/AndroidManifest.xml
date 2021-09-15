@@ -86,6 +86,8 @@
         <activity android:name=".chart.RadarChartActivity" />
 
         <activity android:name=".GroupActivity" />
+
+        <activity android:name=".LayoutActivity" />
     </application>
 
 </manifest>

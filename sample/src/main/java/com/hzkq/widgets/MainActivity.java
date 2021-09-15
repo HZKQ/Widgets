@@ -131,4 +131,8 @@ public class MainActivity extends BaseActivity {
     public void onProgressBarClick(View view) {
         startActWithIntent(new Intent(this, ProgressBarActivity.class));
     }
+    
+    public void onLayoutClick(View view) {
+        startActWithIntent(new Intent(this, LayoutActivity.class));
+    }
 }

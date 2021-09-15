@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="进度条" />
+
+    <com.keqiang.layout.Column
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ff61b4fe">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#fffb9a55"
+            android:layout_marginTop="10dp"/>
+    </com.keqiang.layout.Column>
+</LinearLayout>

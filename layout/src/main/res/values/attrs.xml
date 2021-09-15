@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LazyColumn">
+        <!--仅用于预览时，展示的Item布局-->
+        <attr name="layout" />
+        <!--仅用于预览时，展示的Item数量-->
+        <attr name="itemCount" format="integer" />
+    </declare-styleable>
+
+</resources>

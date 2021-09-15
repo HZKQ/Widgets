@@ -1,3 +1,4 @@
+rootProject.name='Widgets'
 include ':library'
 include ':sample',':zxing',':MPChartLib',':CalendarPickerView', ':rainbowbar', ':indexbar', ':seekbar',':PickerView', ':countdownview', ':views', ':breadcrumb', ':progressbar', ':brvah'
-rootProject.name='Widgets'
+include ':layout'

@@ -40,5 +40,6 @@ dependencies {
     implementation project(path: ':breadcrumb')
     implementation project(path: ':progressbar')
     implementation project(path: ':brvah')
+    implementation project(path: ':layout')
     implementation deps.multidex
 }

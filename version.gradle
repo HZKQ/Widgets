@@ -6,13 +6,23 @@ buildVersions.buildToolsVersion = '29.0.2'
 ext.buildVersions = buildVersions
 
 def versions = [:]
-versions.kotlin_version = '1.4.20'
+versions.kotlin_version = '1.5.10'
 ext.versions = versions
 
 def deps = [:]
-deps.appcompat = 'androidx.appcompat:appcompat:1.2.0'
-deps.annotation = 'androidx.annotation:annotation:1.1.0'
+deps.kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$versions.kotlin_version"
+// android kotlin 语法糖
+deps.coreKtx = 'androidx.core:core-ktx:1.3.2'
+// 协程
+deps.coroutines = 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9'
+// multidex
+deps.multidex = 'androidx.multidex:multidex:2.0.1'
+deps.androidTest = 'androidx.test.ext:junit:1.1.2'
+deps.espresso = 'androidx.test.espresso:espresso-core:3.3.0'
 deps.junit = 'junit:junit:4.12'
+deps.lifecycle = 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+deps.appcompat = 'androidx.appcompat:appcompat:1.3.1'
+deps.annotation = 'androidx.annotation:annotation:1.1.0'
 deps.multidex = 'androidx.multidex:multidex:2.0.1'
 
 deps.magpieX = 'com.github.zhouzhuo810:MagpieX:1.9.8'
