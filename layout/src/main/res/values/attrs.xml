@@ -2,9 +2,10 @@
 <resources>
     <declare-styleable name="LazyColumn">
         <!--仅用于预览时，展示的Item布局-->
-        <attr name="layout" />
+        <attr name="layout" format="reference" />
         <!--仅用于预览时，展示的Item数量-->
         <attr name="itemCount" format="integer" />
+        <attr name="android:background" />
     </declare-styleable>
 
 </resources>

@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
 // View数据
@@ -27,6 +28,12 @@ sealed class ViewData(
 
     abstract fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int)
 
+    abstract fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: List<Any>
+    )
+
     abstract fun <T : View> findViewById(id: Int): T?
 }
 
@@ -35,6 +42,28 @@ class LazyColumnViewData(
     type: Int,
     val lazyColumn: LazyColumn
 ) : ViewData(context, type) {
+
+    private var mDataObserver: AdapterDataObserver? = null
+
+    init {
+        lazyColumn.registerAdapterChangeListener { oldAdapter, adapter ->
+            mDataObserver?.apply {
+                oldAdapter?.unregisterAdapterDataObserver(this)
+                adapter?.registerAdapterDataObserver(this)
+                this.onChanged()
+            }
+        }
+
+        lazyColumn.setTag(R.id.lazy_column_layout_update_flag, 1L)
+        lazyColumn.registerLayoutChangeListener {
+            val flag: Long = lazyColumn.getTag(R.id.lazy_column_layout_update_flag) as Long
+            lazyColumn.setTag(
+                R.id.lazy_column_layout_update_flag,
+                if (flag == Long.MAX_VALUE) 1L else flag + 1
+            )
+            mDataObserver?.apply { this.onChanged() }
+        }
+    }
 
     override fun getViewCount(): Int {
         return lazyColumn.getAdapter<RecyclerView.ViewHolder>()?.itemCount ?: 0
@@ -72,8 +101,39 @@ class LazyColumnViewData(
         lazyColumn.getAdapter<RecyclerView.ViewHolder>()?.onBindViewHolder(holder, position)
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: List<Any>
+    ) {
+        lazyColumn.getAdapter<RecyclerView.ViewHolder>()
+            ?.onBindViewHolder(holder, position, payloads)
+    }
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        return null
+        return if (id == lazyColumn.id) {
+            lazyColumn as T
+        } else {
+            null
+        }
+    }
+
+    fun registerAdapterDataObserver(observer: AdapterDataObserver) {
+        mDataObserver = observer
+        lazyColumn.getAdapter<RecyclerView.ViewHolder>()?.registerAdapterDataObserver(observer)
+    }
+
+    companion object {
+        /**
+         * [LazyColumn]布局数据改变标识1
+         */
+        const val LAYOUT_CHANGE_FLAG_1 = 1
+
+        /**
+         * [LazyColumn]布局数据改变标识2
+         */
+        const val LAYOUT_CHANGE_FLAG_2 = 2
     }
 }
 
@@ -84,8 +144,6 @@ class NormalViewData(
 ) : ViewData(context, type) {
 
     private var viewHolder: RecyclerView.ViewHolder? = null
-    private var lazyColumn: LazyColumn? = null
-    private var isTop: Boolean = false
 
     override fun getViewCount(): Int {
         return 1
@@ -99,6 +157,7 @@ class NormalViewData(
         return viewType == type
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <VH : RecyclerView.ViewHolder> onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -114,6 +173,7 @@ class NormalViewData(
         }
 
         val linearLayout = LinearLayout(context)
+        linearLayout.orientation = LinearLayout.VERTICAL
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -124,16 +184,23 @@ class NormalViewData(
         return viewHolder as VH
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: List<Any>
+    ) {
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        return viewHolder?.itemView?.findViewById(id)
-    }
+        for (view in children) {
+            if (view.id == id) {
+                return view as T
+            }
+        }
 
-    fun setLazyColumnData(lazyColumn: LazyColumn?, isTop: Boolean) {
-        this.lazyColumn = lazyColumn
-        this.isTop = isTop
+        return viewHolder?.itemView?.findViewById(id)
     }
 }

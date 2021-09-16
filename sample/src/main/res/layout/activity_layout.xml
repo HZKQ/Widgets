@@ -18,56 +18,67 @@
         app:ttb_textSizeTitle="@dimen/base_title_text_size"
         app:ttb_titleText="进度条" />
 
-    <com.keqiang.layout.Column
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ff61b4fe">
+        android:layout_height="match_parent">
 
-        <View
+        <com.keqiang.layout.Column
+            android:id="@+id/column"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"/>
+            android:layout_height="match_parent"
+            android:background="#ff61b4fe">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/view1"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#fffb9a55"
+                android:gravity="center"
+                android:text="view 1"
+                android:textSize="20sp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <View
+                android:id="@+id/view2"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="10dp"
+                android:background="#fffb9a55" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <com.keqiang.layout.LazyColumn
+                android:id="@+id/lazyColumn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBlack"
+                android:paddingBottom="10dp"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <View
+                android:id="@+id/view3"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#fffb9a55" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <com.keqiang.layout.LazyColumn
+                android:id="@+id/lazyColumn2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout2" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+        </com.keqiang.layout.Column>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#fffb9a55"
-            android:layout_marginTop="10dp"/>
-    </com.keqiang.layout.Column>
+        <Button
+            android:id="@+id/btn"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="改变LazyColumn布局数据" />
+    </RelativeLayout>
 </LinearLayout>
