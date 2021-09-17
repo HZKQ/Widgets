@@ -1,10 +1,9 @@
-package com.keqiang.layout
+package com.keqiang.layout.combination
 
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.ShapeDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -13,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.keqiang.layout.R
 
 /**
  * @author Created by wanggaowan on 2021/9/15 09:28
@@ -28,6 +28,17 @@ class LazyColumn @JvmOverloads constructor(
     private var mLayoutResId = NO_ID
     private var mBackgroundResId = NO_ID
 
+    /**
+     * 是否隔离视图，如果设置为true，那么不同[LazyColumn]的adapter视图不相互复用，
+     * 如果设置为false，那么多个[LazyColumn]的adapter视图可复用，只要[RecyclerView.Adapter.getItemViewType]一致
+     */
+    var isolateViewTypes: Boolean = true
+
+    /**
+     * 用来标识复用相同adapter item布局的多个[LazyColumn]
+     */
+    var typeFlag: String = ""
+
     init {
         if (attrs != null) {
             var typedArray: TypedArray? = null
@@ -38,6 +49,9 @@ class LazyColumn @JvmOverloads constructor(
                 mLayoutResId = typedArray.getResourceId(R.styleable.LazyColumn_layout, NO_ID)
                 mBackgroundResId =
                     typedArray.getResourceId(R.styleable.LazyColumn_android_background, NO_ID)
+                isolateViewTypes =
+                    typedArray.getBoolean(R.styleable.LazyColumn_isolateViewTypes, true)
+                typeFlag = typedArray.getString(R.styleable.LazyColumn_type_flag) ?: ""
             } finally {
                 typedArray?.recycle()
             }

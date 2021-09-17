@@ -34,22 +34,35 @@
                 android:layout_height="100dp"
                 android:background="#fffb9a55"
                 android:gravity="center"
-                android:text="view 1"
+                android:text="普通视图"
                 android:textSize="20sp" />
 
-            <View
+            <TextView
                 android:id="@+id/view2"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="10dp"
-                android:background="#fffb9a55" />
+                android:background="#fffb9a55"
+                android:gravity="center"
+                android:text="普通视图"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表1，非布局共享的列表"
+                android:textSize="14sp" />
 
             <com.keqiang.layout.LazyColumn
                 android:id="@+id/lazyColumn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorBlack"
-                android:paddingBottom="10dp"
                 app:itemCount="2"
                 app:layout="@layout/rv_item_layout" />
 
@@ -59,13 +72,86 @@
                 android:layout_height="100dp"
                 android:background="#fffb9a55" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表2，与列表4布局共享(复用)"
+                android:textSize="14sp" />
+
             <com.keqiang.layout.LazyColumn
                 android:id="@+id/lazyColumn2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
+                android:background="@color/colorWhite"
+                app:isolateViewTypes="false"
                 app:itemCount="2"
-                app:layout="@layout/rv_item_layout2" />
+                app:layout="@layout/rv_item_layout2"
+                app:type_flag="2" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表3，与列表5布局共享(复用)"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.LazyColumn
+                android:id="@+id/lazyColumn3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite"
+                app:isolateViewTypes="false"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout"
+                app:type_flag="1" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表4，与列表2布局共享(复用)"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.LazyColumn
+                android:id="@+id/lazyColumn4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite"
+                app:isolateViewTypes="false"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout2"
+                app:type_flag="2" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表5，与列表3布局共享(复用)"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.LazyColumn
+                android:id="@+id/lazyColumn5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite"
+                app:isolateViewTypes="false"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout"
+                app:type_flag="1" />
 
             <View
                 android:layout_width="match_parent"

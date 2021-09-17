@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.RvQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
-import com.keqiang.layout.Column;
-import com.keqiang.layout.LazyColumn;
+import com.keqiang.layout.combination.Column;
+import com.keqiang.layout.combination.LazyColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,9 @@ public class LayoutActivity extends BaseActivity {
     private View mView3;
     private LazyColumn mLazyColumn2;
     private Column mColumn;
+    private LazyColumn mLazyColumn3;
+    private LazyColumn mLazyColumn4;
+    private LazyColumn mLazyColumn5;
     
     private Button mButton;
     
@@ -52,6 +55,9 @@ public class LayoutActivity extends BaseActivity {
         mView3 = mColumn.findViewById2(R.id.view3);
         mLazyColumn2 = mColumn.findViewById2(R.id.lazyColumn2);
         mButton = findViewById(R.id.btn);
+        mLazyColumn3 = mColumn.findViewById2(R.id.lazyColumn3);
+        mLazyColumn4 = mColumn.findViewById2(R.id.lazyColumn4);
+        mLazyColumn5 = mColumn.findViewById2(R.id.lazyColumn5);
     }
     
     @Override
@@ -60,17 +66,36 @@ public class LayoutActivity extends BaseActivity {
         for (int i = 0; i < 5; i++) {
             strings.add("test str:" + i);
         }
-        
         CustomterAdapter adapter = new CustomterAdapter(strings);
         mLazyColumn.setAdapter(adapter);
+    
+        strings = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            strings.add("test str3:" + i);
+        }
+        CustomterAdapter adapter3 = new CustomterAdapter(strings);
+        mLazyColumn3.setAdapter(adapter3);
+    
+        strings = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            strings.add("test str5:" + i);
+        }
+        CustomterAdapter adapter5 = new CustomterAdapter(strings);
+        mLazyColumn5.setAdapter(adapter5);
         
         strings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             strings.add("test str2:" + i);
         }
-        
         CustomterAdapter2 adapter2 = new CustomterAdapter2(strings);
         mLazyColumn2.setAdapter(adapter2);
+    
+        strings = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            strings.add("test str4:" + i);
+        }
+        CustomterAdapter2 adapter4 = new CustomterAdapter2(strings);
+        mLazyColumn4.setAdapter(adapter4);
     }
     
     @Override
@@ -107,7 +132,8 @@ public class LayoutActivity extends BaseActivity {
         
         @Override
         protected void convert(@NonNull BaseViewHolder holder, String item) {
-            ((TextView) holder.itemView).setText(item);
+            TextView itemView = (TextView) holder.itemView;
+            itemView.setText(item);
         }
         
         @Nullable

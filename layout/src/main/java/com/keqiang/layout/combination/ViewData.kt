@@ -1,4 +1,4 @@
-package com.keqiang.layout
+package com.keqiang.layout.combination
 
 import android.content.Context
 import android.view.View
@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.keqiang.layout.R
 
 // View数据
 // Created by wanggaowan on 2021/9/15 15:41
@@ -123,18 +124,6 @@ class LazyColumnViewData(
         mDataObserver = observer
         lazyColumn.getAdapter<RecyclerView.ViewHolder>()?.registerAdapterDataObserver(observer)
     }
-
-    companion object {
-        /**
-         * [LazyColumn]布局数据改变标识1
-         */
-        const val LAYOUT_CHANGE_FLAG_1 = 1
-
-        /**
-         * [LazyColumn]布局数据改变标识2
-         */
-        const val LAYOUT_CHANGE_FLAG_2 = 2
-    }
 }
 
 class NormalViewData(
@@ -202,5 +191,26 @@ class NormalViewData(
         }
 
         return viewHolder?.itemView?.findViewById(id)
+    }
+
+    fun addView(view: View, index: Int) {
+        children.add(index, view)
+        viewHolder?.itemView?.apply {
+            (this as LinearLayout).addView(view, index)
+        }
+    }
+
+    fun removeView(view: View) {
+        children.remove(view)
+        viewHolder?.itemView?.apply {
+            (this as LinearLayout).removeView(view)
+        }
+    }
+
+    fun removeView(index: Int) {
+        children.removeAt(index)
+        viewHolder?.itemView?.apply {
+            (this as LinearLayout).removeViewAt(index)
+        }
     }
 }
