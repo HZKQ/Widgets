@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.hzkq.widgets.layout.ComplexColumnRowLayoutActivity;
+import com.hzkq.widgets.layout.MultiLazyColumnLayoutActivity;
+import com.hzkq.widgets.layout.SimpleColumnLayoutActivity;
+
 import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
@@ -11,12 +15,12 @@ import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 /**
  * @author Created by 汪高皖 on 2020/1/17 17:26
  */
-public class LayoutActivity extends BaseActivity {
+public class CombinationLayoutActivity extends BaseActivity {
     private TitleBar mTitleBar;
     
     @Override
     public int getLayoutId() {
-        return R.layout.activity_layout;
+        return R.layout.activity_combination_layout;
     }
     
     @Override
@@ -39,7 +43,15 @@ public class LayoutActivity extends BaseActivity {
         mTitleBar.getLlLeft().setOnClickListener(v -> closeAct());
     }
     
-    public void onClickCombinationLayout(View view) {
-        startActWithIntent(new Intent(this, CombinationLayoutActivity.class));
+    public void onClickColumnLayout(View view) {
+        startActWithIntent(new Intent(this, SimpleColumnLayoutActivity.class));
+    }
+    
+    public void onClickColumnRowLayout(View view) {
+        startActWithIntent(new Intent(this, ComplexColumnRowLayoutActivity.class));
+    }
+    
+    public void onClickMultiColumnLayout(View view) {
+        startActWithIntent(new Intent(this, MultiLazyColumnLayoutActivity.class));
     }
 }

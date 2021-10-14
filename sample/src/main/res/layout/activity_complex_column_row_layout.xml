@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="PxUsage,HardcodedText">
+
+    <me.zhouzhuo810.magpiex.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_title_height"
+        android:background="@color/colorPrimary"
+        app:ttb_showLeftImg="false"
+        app:ttb_showLeftLayout="false"
+        app:ttb_textColorAll="@color/colorWhite"
+        app:ttb_textSizeTitle="@dimen/base_title_text_size"
+        app:ttb_titleText="LazyColumn和LazyRow相互嵌套" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.keqiang.layout.combination.LazyColumn
+            android:id="@+id/column"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ff61b4fe">
+
+            <TextView
+                android:id="@+id/view1"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#fffb9a55"
+                android:gravity="center"
+                android:text="普通视图"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/view2"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="10dp"
+                android:background="#fffb9a55"
+                android:gravity="center"
+                android:text="普通视图"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.combination.AdapterView
+                android:id="@+id/lazyColumn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBlack"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="LazyRow"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.combination.LazyRow
+                android:id="@+id/row_layout"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="@color/colorWhite">
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:background="#fffb9a55"
+                    android:gravity="center"
+                    android:text="普通视图"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:background="#fffb9a55"
+                    android:gravity="center"
+                    android:text="普通视图"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:background="#DDD3CC"
+                    android:gravity="center"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp"
+                    android:text="横向列表"
+                    android:textSize="14sp" />
+
+                <com.keqiang.layout.combination.AdapterView
+                    android:id="@+id/row_lazy_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimaryDark"
+                    app:itemCount="2"
+                    app:layout="@layout/rv_item_layout_horizontal" />
+
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:background="#DDD3CC"
+                    android:gravity="center"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp"
+                    android:text="LazyColumn"
+                    android:textSize="14sp" />
+
+                <com.keqiang.layout.combination.LazyColumn
+                    android:layout_width="300dp"
+                    android:layout_height="match_parent"
+                    app:dispatchTouchToParentOnNoScroll="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="#2196F3"
+                        android:gravity="center"
+                        android:text="所处列表自身不可滑动时传递事件给父布局"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:background="#2196F3"
+                        android:gravity="center"
+                        android:text="普通视图"
+                        android:textSize="20sp" />
+
+                    <com.keqiang.layout.combination.LazyRow
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@color/colorWhite"
+                        app:dispatchTouchToParentOnNoScroll="false">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:background="#fffb9a55"
+                            android:gravity="center"
+                            android:text="所处列表自身不可滑动时不传递事件给父布局"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="10dp"
+                            android:background="#fffb9a55"
+                            android:gravity="center"
+                            android:text="普通视图"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="10dp"
+                            android:background="#fffb9a55"
+                            android:gravity="center"
+                            android:text="普通视图"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="10dp"
+                            android:background="#fffb9a55"
+                            android:gravity="center"
+                            android:text="普通视图"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="10dp"
+                            android:background="#fffb9a55"
+                            android:gravity="center"
+                            android:text="到底了"
+                            android:textSize="20sp" />
+
+                    </com.keqiang.layout.combination.LazyRow>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        android:background="#00BCD4"
+                        android:gravity="center_vertical"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:text="纵向列表"
+                        android:textSize="14sp" />
+
+                    <com.keqiang.layout.combination.AdapterView
+                        android:id="@+id/adapter_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#FF9800"
+                        app:itemCount="2"
+                        app:layout="@layout/rv_item_layout_horizontal" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:background="#2196F3"
+                        android:gravity="center"
+                        android:text="到底了"
+                        android:textSize="20sp" />
+                </com.keqiang.layout.combination.LazyColumn>
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="match_parent" />
+            </com.keqiang.layout.combination.LazyRow>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="#DDD3CC"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="列表2"
+                android:textSize="14sp" />
+
+            <com.keqiang.layout.combination.AdapterView
+                android:id="@+id/lazyColumn2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBlack"
+                app:itemCount="2"
+                app:layout="@layout/rv_item_layout2" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+        </com.keqiang.layout.combination.LazyColumn>
+
+        <Button
+            android:id="@+id/btn"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="测试改变数据"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </RelativeLayout>
+</LinearLayout>

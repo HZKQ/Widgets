@@ -88,6 +88,14 @@
         <activity android:name=".GroupActivity" />
 
         <activity android:name=".LayoutActivity" />
+
+        <activity android:name=".layout.SimpleColumnLayoutActivity" />
+
+        <activity android:name=".layout.ComplexColumnRowLayoutActivity" />
+
+        <activity android:name=".layout.MultiLazyColumnLayoutActivity" />
+
+        <activity android:name=".CombinationLayoutActivity" />
     </application>
 
 </manifest>

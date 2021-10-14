@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="LazyColumn">
+    <declare-styleable name="AdapterView">
         <!--仅用于预览时，展示的Item布局-->
         <attr name="layout" format="reference" />
         <!--仅用于预览时，展示的Item数量-->
@@ -12,4 +12,8 @@
         <attr name="type_flag" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="CombinationLayout">
+        <!--当布局自身滑动到边界，不可再滑动时，是否将滑动事件传递给父布局-->
+        <attr name="dispatchTouchToParentOnNoScroll" format="boolean" />
+    </declare-styleable>
 </resources>
