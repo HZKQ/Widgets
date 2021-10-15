@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
 
 /**
- * 适配器View，用于结合[LazyColumn]、[LazyColumn]使用，单独使用相当于普通[View]
+ * 适配器View，用于结合[LazyColumn]、[LazyColumn]使用，单独使用相当于普通[View].
+ * 结合[LazyColumn]使用时，高度始终都是[ViewGroup.LayoutParams.WRAP_CONTENT].
+ * 结合[LazyRow]使用时，宽度始终都是[ViewGroup.LayoutParams.WRAP_CONTENT].
  *
  * @author Created by wanggaowan on 2021/9/15 09:28
  */
@@ -26,6 +29,7 @@ class AdapterView @JvmOverloads constructor(
     private var mItemCount = 1
     private var mAdapterChangeListener: MutableList<AdapterChangeListener> = mutableListOf()
     private var mLayoutChangeListener: LayoutChangeListener? = null
+    internal var scrollListener: ScrollListener? = null
     internal val recyclerView: RecyclerView = RecyclerView(context)
     internal val recyclerViewLayoutManager = LinearLayoutManager(context)
     private var mAdapter: RecyclerView.Adapter<*>? = null
@@ -66,6 +70,7 @@ class AdapterView @JvmOverloads constructor(
     }
 
     override fun invalidate() {
+        ViewGroup.LayoutParams.WRAP_CONTENT
         super.invalidate()
         mLayoutChangeListener?.invoke()
     }
@@ -96,21 +101,21 @@ class AdapterView @JvmOverloads constructor(
     }
 
     /**
-     * 注册适配器改变监听
+     * 注册[RecyclerView.Adapter]变更监听
      */
     fun registerAdapterChangeListener(listener: AdapterChangeListener?) {
         listener?.apply { mAdapterChangeListener.add(this) }
     }
 
     /**
-     * 移除适配器改变监听
+     * 移除[RecyclerView.Adapter]变更监听
      */
     fun removeAdapterChangeListener(listener: AdapterChangeListener?) {
         listener?.apply { mAdapterChangeListener.remove(this) }
     }
 
     /**
-     * 注册适配器改变监听
+     * 注册[AdapterView]布局改变监听
      */
     fun registerLayoutChangeListener(listener: LayoutChangeListener?) {
         mLayoutChangeListener = listener
@@ -132,6 +137,34 @@ class AdapterView @JvmOverloads constructor(
     @Suppress("UNCHECKED_CAST")
     fun <T : RecyclerView.Adapter<*>> getAdapter(): T? {
         return mAdapter as T?
+    }
+
+    /**
+     * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示
+     */
+    fun scrollToPosition(position: Int) {
+        scrollListener?.invoke(position, false, 0)
+    }
+
+    /**
+     * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示。
+     * [offset]用于置顶距离顶部的距离
+     */
+    fun scrollToPositionWithOffset(position: Int, offset: Int) {
+        scrollListener?.invoke(position, false, offset)
+    }
+
+    /**
+     * 顺滑的滑动到[position]对应View所在位置，view首次进入屏幕即停止，不置顶显示
+     */
+    fun smoothScrollToPosition(position: Int) {
+        scrollListener?.invoke(position, true, 0)
+    }
+
+    @Deprecated("AdapterView does not support scrolling to an absolute position.",
+        ReplaceWith("scrollToPosition"))
+    override fun scrollTo(x: Int, y: Int) {
+
     }
 
     /**
@@ -218,3 +251,4 @@ typealias AdapterChangeListener = (oldAdapter: RecyclerView.Adapter<*>?, adapter
  * 布局数据改变监听
  */
 typealias LayoutChangeListener = () -> Unit
+

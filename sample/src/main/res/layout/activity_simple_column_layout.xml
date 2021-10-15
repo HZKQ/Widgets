@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorWhite"
-                app:isolateViewTypes="true"
+                app:isolateViewTypes="false"
                 app:itemCount="2"
                 app:layout="@layout/rv_item_layout2"
                 app:type_flag="2" />

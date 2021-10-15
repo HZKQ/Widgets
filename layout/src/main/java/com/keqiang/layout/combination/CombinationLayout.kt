@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
-import androidx.core.view.marginBottom
-import androidx.core.view.marginEnd
-import androidx.core.view.marginStart
-import androidx.core.view.marginTop
+import androidx.core.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
@@ -42,6 +39,9 @@ abstract class CombinationLayout constructor(
     private var lazyViewType = 10000
     private var shareLazyViewType = 100000
     private val shareLazyViewTypeMap: MutableMap<String, Int> = mutableMapOf()
+
+    // 记录xml布局中view的顺序
+    private var xmlChildren: MutableList<View> = mutableListOf()
 
     /**
      * 当布局自身滑动到边界，不可再滑动时，是否将滑动事件传递给父布局
@@ -86,14 +86,28 @@ abstract class CombinationLayout constructor(
     @Suppress("UNCHECKED_CAST")
     fun <T : View> getChildAt2(index: Int): T? {
         if (this::adapterProxy.isInitialized) {
-            return adapterProxy.getChildAt(index) as T?
+            return xmlChildren[index] as T?
         }
         return null
     }
 
     override fun addView(child: View, index: Int) {
         if (this::adapterProxy.isInitialized) {
-            adapterProxy.addView(child, index)
+            if (index != -1 && index > xmlChildren.size) {
+                return
+            }
+
+            val viewData = viewToViewData(child)
+            if (index == -1 || index == xmlChildren.size) {
+                xmlChildren.add(child)
+                adapterProxy.addView(viewData, -1)
+            } else {
+                // 新数据插入位置的原View
+                val insertView = xmlChildren[index]
+                xmlChildren.add(index, child)
+                val insertIndex = adapterProxy.viewToViewDataListIndex(insertView)
+                adapterProxy.addView(viewData, insertIndex)
+            }
         } else {
             super.addView(child, index)
         }
@@ -131,7 +145,12 @@ abstract class CombinationLayout constructor(
 
     override fun removeView(view: View?) {
         if (this::adapterProxy.isInitialized) {
-            adapterProxy.removeView(view, false)
+            val index = xmlChildren.indexOf(view)
+            if (index == -1) {
+                return
+            }
+
+            removeView(index, 1, false)
         } else {
             super.removeView(view)
         }
@@ -139,7 +158,7 @@ abstract class CombinationLayout constructor(
 
     override fun removeViewAt(index: Int) {
         if (this::adapterProxy.isInitialized) {
-            adapterProxy.removeViewAt(index, false)
+            removeView(index, 1, false)
         } else {
             super.removeViewAt(index)
         }
@@ -151,15 +170,7 @@ abstract class CombinationLayout constructor(
             return
         }
 
-        super.removeViews(start, count)
-        val end = start + count
-        if (start < 0 || count < 0 || end > adapterProxy.getAllViewCount()) {
-            throw IndexOutOfBoundsException()
-        }
-
-        for (i in start until end) {
-            adapterProxy.removeViewAt(i, false)
-        }
+        removeView(start, count, false)
     }
 
     override fun removeAllViewsInLayout() {
@@ -172,7 +183,12 @@ abstract class CombinationLayout constructor(
 
     override fun removeViewInLayout(view: View?) {
         if (this::adapterProxy.isInitialized) {
-            adapterProxy.removeView(view, true)
+            val index = xmlChildren.indexOf(view)
+            if (index == -1) {
+                return
+            }
+
+            removeView(index, 1, true)
         } else {
             super.removeViewInLayout(view)
         }
@@ -184,13 +200,102 @@ abstract class CombinationLayout constructor(
             return
         }
 
-        val end = start + count
-        if (start < 0 || count < 0 || end > adapterProxy.getAllViewCount()) {
-            throw IndexOutOfBoundsException()
+        removeView(start, count, true)
+    }
+
+    private fun removeView(start: Int, count: Int, preventRequestLayout: Boolean) {
+        if (start < 0 || count < 0 || start + count > xmlChildren.size) {
+            return
         }
 
-        for (i in start until end) {
-            adapterProxy.removeViewAt(i, true)
+        val firstChild = xmlChildren[start]
+        val firstIndex = if (firstChild !is GroupPlaceholder) {
+            adapterProxy.viewToViewDataListIndex(firstChild)
+        } else {
+            getGroupPlaceholderStartIndex(firstChild)
+        }
+
+        val endIndex = if (count == 1) {
+            if (firstChild !is GroupPlaceholder) {
+                firstIndex + 1
+            } else {
+                getGroupPlaceholderEndIndex(firstChild) + 1
+            }
+        } else {
+            val endChild = xmlChildren[start + count - 1]
+            if (endChild !is GroupPlaceholder) {
+                adapterProxy.viewToViewDataListIndex(endChild) + 1
+            } else {
+                getGroupPlaceholderEndIndex(endChild) + 1
+            }
+        }
+
+        if (firstIndex == -1 || endIndex - firstIndex <= 0) {
+            return
+        }
+
+        adapterProxy.removeViewAt(firstIndex, endIndex - firstIndex, preventRequestLayout)
+        for (index in start until start + count) {
+            xmlChildren.removeAt(start)
+        }
+    }
+
+    @Deprecated("CombinationLayout does not support scrolling to an absolute position.",
+        ReplaceWith("scrollToPosition"))
+    override fun scrollTo(x: Int, y: Int) {
+
+    }
+
+    /**
+     * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示
+     */
+    fun scrollToPosition(position: Int) {
+        scrollTo(position, false, 0)
+    }
+
+    /**
+     * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示。
+     * [offset]用于置顶距离顶部的距离
+     */
+    fun scrollToPositionWithOffset(position: Int, offset: Int) {
+        scrollTo(position, false, offset)
+    }
+
+    /**
+     * 顺滑的滑动到[position]对应View所在位置，view首次进入屏幕即停止，不置顶显示
+     */
+    fun smoothScrollToPosition(position: Int) {
+        scrollTo(position, true, 0)
+    }
+
+    private fun scrollTo(position: Int, smooth: Boolean, offset: Int) {
+        if (position < 0 || position >= xmlChildren.size) {
+            return
+        }
+
+        val child = xmlChildren[position]
+        val pos = if (child is GroupPlaceholder) {
+            getGroupPlaceholderAdapterStartIndex(child)
+        } else {
+            val index = adapterProxy.viewToViewDataListIndex(child)
+            if (index == -1) {
+                -1
+            } else {
+                val viewData = adapterProxy.viewDataList[index]
+                adapterProxy.viewDataToAdapterStartIndex(viewData)
+            }
+        }
+
+        if (pos == -1) {
+            return
+        }
+
+        when {
+            smooth -> recyclerView.smoothScrollToPosition(pos)
+
+            else -> (recyclerView.layoutManager as LinearLayoutManager).apply {
+                scrollToPositionWithOffset(pos, offset)
+            }
         }
     }
 
@@ -214,54 +319,17 @@ abstract class CombinationLayout constructor(
             return
         }
 
-        val children = mutableListOf<ViewData>()
-        var viewData = NormalViewData(context, viewType++, orientation, mutableListOf())
+        val children = mutableListOf<ViewData<*>>()
+        xmlChildren.clear()
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: continue
-            if (isNonNormalView(child)) {
-                if (viewData.children.size > 0) {
-                    // 记录列表至之上的数据，作为一个分组
-                    children.add(viewData)
-                }
-
-                when (child) {
-                    is AdapterView -> {
-                        // 记录列表数据
-                        child.recyclerViewLayoutManager.orientation = orientation
-                        val lazyViewData = AdapterViewData(
-                            context,
-                            if (child.isolateViewTypes) lazyViewType++ else {
-                                if (!shareLazyViewTypeMap.containsKey(child.typeFlag)) {
-                                    shareLazyViewTypeMap[child.typeFlag] = shareLazyViewType++
-                                }
-                                shareLazyViewTypeMap[child.typeFlag]!!
-                            }, child
-                        )
-                        children.add(lazyViewData)
-                    }
-
-                    is LazyColumn -> {
-                        val columnLayoutData = LazyColumnData(context, lazyViewType++, child)
-                        children.add(columnLayoutData)
-                    }
-
-                    else -> {
-                        val rowLayoutData =
-                            LazyRowData(context, lazyViewType++, child as LazyRow)
-                        children.add(rowLayoutData)
-                    }
-                }
-
-                // 记录新分组数据
-                if (viewData.children.size > 0) {
-                    viewData = NormalViewData(context, viewType++, orientation, mutableListOf())
-                }
-            } else {
-                viewData.children.add(child)
-                if (i >= childCount - 1) {
-                    children.add(viewData)
-                }
+            xmlChildren.add(child)
+            if (child is GroupPlaceholder) {
+                parseGroupPlaceholder(child, children)
+                continue
             }
+
+            children.add(viewToViewData(child))
         }
 
         // 最终以RecyclerView展示内容
@@ -276,12 +344,7 @@ abstract class CombinationLayout constructor(
         removeAllViews()
         addView(recyclerView)
 
-        recyclerView.itemAnimator?.apply {
-            addDuration = 0
-            changeDuration = 0
-            moveDuration = 0
-            removeDuration = 0
-        }
+        recyclerView.itemAnimator = null
         recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
 
         adapterProxy = AdapterProxy(children)
@@ -291,56 +354,209 @@ abstract class CombinationLayout constructor(
     }
 
     /**
-     * 是否非普通视图
+     * 解析[GroupPlaceholder]对象，[parent]用于存储所有[GroupPlaceholder]子节点提升后展开状态[ViewData]数据
      */
-    private fun isNonNormalView(view: View?): Boolean {
-        return view is AdapterView || view is LazyColumn || view is LazyRow
+    private fun parseGroupPlaceholder(group: GroupPlaceholder, parent: MutableList<ViewData<*>>) {
+        group.viewDataList.clear()
+        group.addViewListener = Listener@{ view, index ->
+            // 当前View需要插入位置的原数据
+            val insertPosData = if (index == -1) {
+                viewDataList[viewDataList.size - 1]
+            } else {
+                viewDataList[index]
+            }
+
+            val listIndex = adapterProxy.viewDataList.indexOf(insertPosData)
+            if (listIndex == -1) {
+                return@Listener
+            }
+
+            val viewData = viewToViewData(view)
+            if (index == -1) {
+                viewDataList.add(viewData)
+                val pos = if (listIndex + 1 >= adapterProxy.viewDataList.size) -1 else listIndex + 1
+                adapterProxy.addView(viewData, pos)
+            } else {
+                viewDataList.add(index, viewData)
+                adapterProxy.addView(viewData, listIndex)
+            }
+        }
+
+        group.removeViewListener = Listener@{ start, count, preventRequestLayout ->
+            if (viewDataList.isEmpty()) {
+                return@Listener
+            }
+
+            val firstChild = children[start]
+            val firstIndex = if (firstChild !is GroupPlaceholder) {
+                adapterProxy.viewDataList.indexOf(viewDataList[start])
+            } else {
+                getGroupPlaceholderStartIndex(firstChild)
+            }
+
+            val endIndex = if (count == 1) {
+                if (firstChild !is GroupPlaceholder) {
+                    firstIndex + 1
+                } else {
+                    getGroupPlaceholderEndIndex(firstChild) + 1
+                }
+            } else {
+                val endChild = children[start + count - 1]
+                if (endChild !is GroupPlaceholder) {
+                    adapterProxy.viewDataList.indexOf(viewDataList[start + count - 1]) + 1
+                } else {
+                    getGroupPlaceholderEndIndex(endChild) + 1
+                }
+            }
+
+            if (firstIndex == -1 || endIndex - firstIndex <= 0) {
+                return@Listener
+            }
+
+            adapterProxy.removeViewAt(firstIndex, endIndex - firstIndex, preventRequestLayout)
+            // 清除groupPlaceholderList中已移除View的ViewData数据
+            for (index in start until start + count) {
+                viewDataList.removeAt(start)
+            }
+        }
+
+        group.scrollListener = Listener@{ position, smooth, offset ->
+            if (position < 0 || position >= group.viewDataList.size) {
+                return@Listener
+            }
+
+            val viewData = group.viewDataList[position]
+            val pos = if (viewData !is GroupPlaceholderViewData) {
+                adapterProxy.viewDataToAdapterStartIndex(viewData)
+            } else {
+                getGroupPlaceholderAdapterStartIndex(viewData.view)
+            }
+
+            if (pos == -1) {
+                return@Listener
+            }
+
+            when {
+                smooth -> recyclerView.smoothScrollToPosition(pos)
+
+                else -> (recyclerView.layoutManager as LinearLayoutManager).apply {
+                    scrollToPositionWithOffset(pos, offset)
+                }
+            }
+        }
+
+        group.children.forEach {
+            val viewData = viewToViewData(it)
+            group.viewDataList.add(viewData)
+            if (it !is GroupPlaceholder) {
+                parent.add(viewData)
+            } else {
+                parseGroupPlaceholder(it, parent)
+            }
+        }
     }
 
     /**
-     * 是否非普通视图数据
+     * 获取[GroupPlaceholder]在[AdapterProxy.viewDataList]中的起始位置
      */
-    @OptIn(ExperimentalContracts::class)
-    private fun isNonNormalViewData(viewData: ViewData?): Boolean {
-        contract {
-            returns(true) implies (viewData is NormalViewData?)
+    private tailrec fun getGroupPlaceholderStartIndex(group: GroupPlaceholder): Int {
+        val list = group.viewDataList
+        if (list.isEmpty()) {
+            return -1
         }
-        return viewData is AdapterViewData || viewData is LazyColumnData || viewData is LazyRowData
+
+        val child = group.children[0]
+        if (child !is GroupPlaceholder) {
+            return adapterProxy.viewDataList.indexOf(list[0])
+        }
+        return getGroupPlaceholderStartIndex(child)
     }
 
     /**
-     * 是否是普通视图数据
+     * 获取[GroupPlaceholder]在[AdapterProxy]中的起始位置
      */
-    @OptIn(ExperimentalContracts::class)
-    private fun isNormalViewData(viewData: ViewData?): Boolean {
-        contract {
-            returns(true) implies (viewData is NormalViewData)
+    private tailrec fun getGroupPlaceholderAdapterStartIndex(group: GroupPlaceholder): Int {
+        val list = group.viewDataList
+        if (list.isEmpty()) {
+            return -1
         }
-        return viewData is NormalViewData
+
+        val child = group.children[0]
+        if (child !is GroupPlaceholder) {
+            return adapterProxy.viewDataToAdapterStartIndex(list[0])
+        }
+        return getGroupPlaceholderAdapterStartIndex(child)
+    }
+
+    /**
+     * 获取[GroupPlaceholder]在[AdapterProxy.viewDataList]中的结束位置
+     */
+    private tailrec fun getGroupPlaceholderEndIndex(group: GroupPlaceholder): Int {
+        val list = group.viewDataList
+        if (list.isEmpty()) {
+            return -1
+        }
+
+        val child = group.children[group.children.size - 1]
+        if (child !is GroupPlaceholder) {
+            return adapterProxy.viewDataList.indexOf(list[list.size - 1])
+        }
+        return getGroupPlaceholderEndIndex(child)
+    }
+
+    /**
+     * 将View转化为对应的[ViewData]数据
+     */
+    private fun viewToViewData(child: View): ViewData<*> {
+        if (child is GroupPlaceholder) {
+            return GroupPlaceholderViewData(context, child)
+        }
+
+        if (child !is AdapterView && child !is LazyColumn && child !is LazyRow) {
+            return NormalViewData(context, viewType++, child)
+        }
+
+        return when (child) {
+            is AdapterView -> {
+                // 记录列表数据
+                child.recyclerViewLayoutManager.orientation = orientation
+                val viewData = AdapterViewData(
+                    context,
+                    if (child.isolateViewTypes) lazyViewType++ else {
+                        if (!shareLazyViewTypeMap.containsKey(child.typeFlag)) {
+                            shareLazyViewTypeMap[child.typeFlag] = shareLazyViewType++
+                        }
+                        shareLazyViewTypeMap[child.typeFlag]!!
+                    }, child
+                )
+
+                child.scrollListener = { position, smooth, offset ->
+                    val pos = adapterProxy.viewDataToAdapterStartIndex(viewData) + position
+
+                    when {
+                        smooth -> recyclerView.smoothScrollToPosition(pos)
+
+                        else -> (recyclerView.layoutManager as LinearLayoutManager).apply {
+                            scrollToPositionWithOffset(pos, offset)
+                        }
+                    }
+                }
+
+                viewData
+            }
+
+            is LazyColumn -> LazyColumnData(context, lazyViewType++, child)
+
+            else -> LazyRowData(context, lazyViewType++, child as LazyRow)
+        }
     }
 
     @OptIn(ExperimentalContracts::class)
-    private fun isAdapterViewData(viewData: ViewData?): Boolean {
+    private fun isAdapterViewData(viewData: ViewData<*>?): Boolean {
         contract {
             returns(true) implies (viewData is AdapterViewData)
         }
         return viewData is AdapterViewData
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    private fun isLazyColumnData(viewData: ViewData?): Boolean {
-        contract {
-            returns(true) implies (viewData is LazyColumnData)
-        }
-        return viewData is LazyColumnData
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    private fun isLazyRowData(viewData: ViewData?): Boolean {
-        contract {
-            returns(true) implies (viewData is LazyRowData)
-        }
-        return viewData is LazyRowData
     }
 
     /**
@@ -350,13 +566,13 @@ abstract class CombinationLayout constructor(
         view: View,
         val viewHolder: RecyclerView.ViewHolder,
     ) : RecyclerView.ViewHolder(view) {
-        var viewData: ViewData? = null
+        var viewData: ViewData<AdapterView>? = null
     }
 
     /**
      * 实现[CombinationLayout] View的重新组合
      */
-    private inner class AdapterProxy(var viewDataList: MutableList<ViewData>) :
+    private inner class AdapterProxy(var viewDataList: MutableList<ViewData<*>>) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         private var itemCount2: Int = 0
@@ -370,21 +586,24 @@ abstract class CombinationLayout constructor(
             }
         }
 
-        private fun addViewData(viewData: ViewData, index: Int = -1) {
-            if (isAdapterViewData(viewData)) {
-                viewData.registerAdapterDataObserver(LazyColumnAdapterDataObserver(viewData))
+        private fun addViewData(viewData: List<ViewData<*>>, index: Int = -1) {
+            viewData.forEach {
+                if (isAdapterViewData(it)) {
+                    it.registerAdapterDataObserver(LazyColumnAdapterDataObserver(it))
+                }
             }
 
             if (index == -1) {
-                viewDataList.add(viewData)
+                viewDataList.addAll(viewData)
             } else {
-                viewDataList.add(index, viewData)
+                viewDataList.addAll(index, viewData)
             }
         }
 
-        private fun removeViewData(viewData: ViewData) {
+        private fun removeViewData(viewData: ViewData<*>) {
             if (isAdapterViewData(viewData)) {
                 viewData.unRegisterAdapterDataObserver()
+                viewData.view.scrollListener = null
             }
             viewDataList.remove(viewData)
         }
@@ -401,8 +620,12 @@ abstract class CombinationLayout constructor(
             val viewHolder: RecyclerView.ViewHolder = viewData.createViewHolder(parent, viewType)
             if (isAdapterViewData(viewData)) {
                 val frameLayout = FrameLayout(parent.context)
-                val layoutParams = viewData.adapterView.layoutParams
-                val params = MarginLayoutParams(layoutParams.width, layoutParams.height)
+                val layoutParams = viewData.view.layoutParams
+                val params = if (orientation == VERTICAL) {
+                    MarginLayoutParams(layoutParams.width, LayoutParams.WRAP_CONTENT)
+                } else {
+                    MarginLayoutParams(LayoutParams.WRAP_CONTENT, layoutParams.height)
+                }
                 frameLayout.layoutParams = params
                 frameLayout.addView(viewHolder.itemView)
                 return ViewHolderWrapper(frameLayout, viewHolder)
@@ -413,7 +636,7 @@ abstract class CombinationLayout constructor(
         /**
          * 检查是否有满足条件的创建ViewHolder的对应[ViewData]对象
          */
-        private fun checkCouldCreateViewHolder(viewDataList: List<ViewData>) {
+        private fun checkCouldCreateViewHolder(viewDataList: List<ViewData<*>>) {
             if (viewDataList.size > 1) {
                 var isShare = true
                 var typeFlag: String? = null
@@ -421,13 +644,13 @@ abstract class CombinationLayout constructor(
                     if (data !is AdapterViewData) {
                         isShare = false
                         break
-                    } else if (data.adapterView.isolateViewTypes) {
+                    } else if (data.view.isolateViewTypes) {
                         isShare = false
                         break
                     } else {
                         if (typeFlag == null) {
-                            typeFlag = data.adapterView.typeFlag
-                        } else if (typeFlag != data.adapterView.typeFlag) {
+                            typeFlag = data.view.typeFlag
+                        } else if (typeFlag != data.view.typeFlag) {
                             isShare = false
                             break
                         }
@@ -444,9 +667,10 @@ abstract class CombinationLayout constructor(
             val (viewDataIndex, adapterIndex) = adapterIndexToViewDataListIndex(position)
             val viewData = viewDataList[viewDataIndex]
             if (holder is ViewHolderWrapper) {
-                holder.viewData = viewData
-                applyLazyColumnLayoutParams(holder, adapterIndex, viewData as AdapterViewData)
-                setOwnerRecyclerView(holder.viewHolder, viewData.adapterView.recyclerView)
+                @Suppress("UNCHECKED_CAST")
+                holder.viewData = viewData as ViewData<AdapterView>
+                applyAdapterViewLayoutParams(holder, adapterIndex, viewData as AdapterViewData)
+                setOwnerRecyclerView(holder.viewHolder, viewData.view.recyclerView)
                 // 清除BindingAdapter，调用viewData.bindViewHolder时会重新给position赋值
                 setBindingAdapter(holder.viewHolder, null)
                 viewData.bindViewHolder(holder.viewHolder, adapterIndex)
@@ -497,7 +721,7 @@ abstract class CombinationLayout constructor(
         /**
          * 给[AdapterView] adapter item应用[AdapterView]的布局数据
          */
-        private fun applyLazyColumnLayoutParams(
+        private fun applyAdapterViewLayoutParams(
             holder: ViewHolderWrapper,
             adapterIndex: Int,
             viewData: AdapterViewData
@@ -513,7 +737,7 @@ abstract class CombinationLayout constructor(
             val oldItemType = holder.itemView.getTag(R.id.lazy_column_wrapper_item_type) as Int?
             val flag: Long? = holder.itemView.getTag(R.id.lazy_column_layout_update_flag) as Long?
             val newFlag: Long =
-                viewData.adapterView.getTag(R.id.lazy_column_layout_update_flag) as Long + viewData.adapterView.hashCode()
+                viewData.view.getTag(R.id.lazy_column_layout_update_flag) as Long + viewData.view.hashCode()
             if (flag != null && flag == newFlag && oldItemType != null && oldItemType == itemType) {
                 // 所在LazyColumn父对应布局参数未改变，且复用的item viewType一致
                 return
@@ -521,23 +745,23 @@ abstract class CombinationLayout constructor(
 
             holder.itemView.setTag(R.id.lazy_column_layout_update_flag, newFlag)
             holder.itemView.setTag(R.id.lazy_column_wrapper_item_type, itemType)
-            val paddingStart = viewData.adapterView.paddingStart
-            val paddingEnd = viewData.adapterView.paddingEnd
+            val paddingStart = viewData.view.paddingStart
+            val paddingEnd = viewData.view.paddingEnd
             var paddingTop = 0
             var paddingBottom = 0
 
-            val marginStart = viewData.adapterView.marginStart
-            val marginEnd = viewData.adapterView.marginEnd
+            val marginStart = viewData.view.marginStart
+            val marginEnd = viewData.view.marginEnd
             var marginTop = 0
             var marginBottom = 0
 
             if (itemType == 0 || itemType == 2) {
                 if (itemType == 0) {
-                    marginTop = viewData.adapterView.marginTop
-                    paddingTop = viewData.adapterView.paddingTop
+                    marginTop = viewData.view.marginTop
+                    paddingTop = viewData.view.paddingTop
                 } else {
-                    marginBottom = viewData.adapterView.marginBottom
-                    paddingBottom = viewData.adapterView.paddingBottom
+                    marginBottom = viewData.view.marginBottom
+                    paddingBottom = viewData.view.paddingBottom
                 }
             }
 
@@ -549,8 +773,14 @@ abstract class CombinationLayout constructor(
             )
 
             val layoutParams = holder.itemView.layoutParams
-            layoutParams.width = viewData.adapterView.layoutParams.width
-            layoutParams.height = viewData.adapterView.layoutParams.height
+            if (orientation == HORIZONTAL) {
+                layoutParams.width = LayoutParams.WRAP_CONTENT
+                layoutParams.height = viewData.view.layoutParams.height
+            } else {
+                layoutParams.width = viewData.view.layoutParams.width
+                layoutParams.height = LayoutParams.WRAP_CONTENT
+            }
+
             if (layoutParams is MarginLayoutParams) {
                 layoutParams.marginStart = marginStart
                 layoutParams.marginEnd = marginEnd
@@ -559,15 +789,15 @@ abstract class CombinationLayout constructor(
                 holder.itemView.layoutParams = layoutParams
             }
 
-            holder.itemView.background = viewData.adapterView.backgroundClone()
+            holder.itemView.background = viewData.view.backgroundClone()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                holder.itemView.backgroundTintMode = viewData.adapterView.backgroundTintMode
-                holder.itemView.backgroundTintList = viewData.adapterView.backgroundTintList
+                holder.itemView.backgroundTintMode = viewData.view.backgroundTintMode
+                holder.itemView.backgroundTintList = viewData.view.backgroundTintList
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 holder.itemView.backgroundTintBlendMode =
-                    viewData.adapterView.backgroundTintBlendMode
+                    viewData.view.backgroundTintBlendMode
             }
         }
 
@@ -577,7 +807,7 @@ abstract class CombinationLayout constructor(
             super.onAttachedToRecyclerView(recyclerView)
             viewDataList.forEach {
                 if (isAdapterViewData(it)) {
-                    it.adapterView.onAttachedToRecyclerView(recyclerView)
+                    it.view.onAttachedToRecyclerView(recyclerView)
                 }
             }
         }
@@ -586,7 +816,7 @@ abstract class CombinationLayout constructor(
             super.onDetachedFromRecyclerView(recyclerView)
             viewDataList.forEach {
                 if (isAdapterViewData(it)) {
-                    it.adapterView.onDetachedFromRecyclerView(recyclerView)
+                    it.view.onDetachedFromRecyclerView(recyclerView)
                 }
             }
         }
@@ -596,7 +826,7 @@ abstract class CombinationLayout constructor(
             if (holder is ViewHolderWrapper) {
                 val viewData = holder.viewData
                 if (isAdapterViewData(viewData)) {
-                    viewData.adapterView.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
+                    viewData.view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
                         ?.onViewAttachedToWindow(holder.viewHolder)
                 }
             }
@@ -607,7 +837,7 @@ abstract class CombinationLayout constructor(
             if (holder is ViewHolderWrapper) {
                 val viewData = holder.viewData
                 if (isAdapterViewData(viewData)) {
-                    viewData.adapterView.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
+                    viewData.view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
                         ?.onViewDetachedFromWindow(holder.viewHolder)
                 }
             }
@@ -617,7 +847,7 @@ abstract class CombinationLayout constructor(
             if (holder is ViewHolderWrapper) {
                 val viewData = holder.viewData
                 if (isAdapterViewData(viewData)) {
-                    return viewData.adapterView.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
+                    return viewData.view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
                         ?.onFailedToRecycleView(holder.viewHolder)
                         ?: super.onFailedToRecycleView(holder)
                 }
@@ -631,7 +861,7 @@ abstract class CombinationLayout constructor(
             if (holder is ViewHolderWrapper) {
                 val viewData = holder.viewData
                 if (isAdapterViewData(viewData)) {
-                    viewData.adapterView.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
+                    viewData.view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()
                         ?.onViewRecycled(holder.viewHolder)
                 }
             }
@@ -644,148 +874,41 @@ abstract class CombinationLayout constructor(
             }
         }
 
-        fun addView(child: View, index: Int) {
-            val (viewDataIndex, dataIndex) = viewIndexToViewDataListIndex(index)
-            if (isNonNormalView(child)) {
-                val viewData = if (viewDataIndex == -1) null else viewDataList[viewDataIndex]
-                if (isNormalViewData(viewData)) {
-                    // 插入到普通视图区间
-                    if (dataIndex == 0) {
-                        // 插入到整个普通视图顶端，直接插入
-                        addNonNormalView(child, index, viewDataIndex)
-                    } else {
-                        // 插入到整个普通视图中间，将普通视图根据插入的child位置分为上下两部分
-                        // 移除需要放到child之后的视图
-                        val removeChildren = mutableListOf<View>()
-                        val count = viewData.children.size
-                        for (i in dataIndex until count) {
-                            val view = viewData.children[dataIndex]
-                            viewData.removeView(view, true)
-                            removeChildren.add(view)
-                        }
-                        viewData.requestLayout()
-                        viewData.invalidate()
-
-                        addNonNormalView(child, index, viewDataIndex + 1)
-
-                        // 将移除的View重新插入
-                        val viewData2 = NormalViewData(
-                            context,
-                            viewType++,
-                            orientation,
-                            mutableListOf()
-                        ).apply {
-                            children.addAll(removeChildren)
-                        }
-                        addViewData(viewData2, viewDataIndex + 2)
-                        itemCount2++
-                        notifyItemInserted(viewDataToAdapterStartIndex(viewData2))
-                    }
-                } else {
-                    addNonNormalView(child, index, viewDataIndex)
-                }
-                return
+        /**
+         * 新增View,插入到[viewDataList]中的[index]下标处，如果插入的View非[GroupPlaceholder],
+         * 则返回创建的[ViewData]
+         */
+        fun addView(viewData: ViewData<*>, index: Int): ViewData<*>? {
+            if (index != -1 && index > viewDataList.size) {
+                return null
             }
 
-            if (index == -1 || (viewDataIndex == -1 && index == getAllViewCount())) {
-                // 插入到最后面
-                val viewData = viewDataList[viewDataList.size - 1]
-                if (isNonNormalViewData(viewData)) {
-                    val childData =
-                        NormalViewData(context, viewType++, orientation, mutableListOf()).apply {
-                            children.add(child)
-                        }
-                    addViewData(childData)
-                    itemCount2++
-                    notifyItemInserted(itemCount)
-                } else {
-                    (viewData as NormalViewData).addView(child, -1)
-                }
-            } else if (viewDataIndex != -1) {
-                val viewData = viewDataList[viewDataIndex]
-                when {
-                    isNormalViewData(viewData) -> {
-                        viewData.addView(child, dataIndex)
-                    }
-
-                    viewDataIndex == 0 -> {
-                        // 插入位置是非NormalView，且前面无其它数据
-                        val childData =
-                            NormalViewData(
-                                context,
-                                viewType++,
-                                orientation,
-                                mutableListOf()
-                            ).apply {
-                                children.add(child)
-                            }
-                        addViewData(childData, 0)
-                        itemCount2++
-                        notifyItemInserted(0)
-                    }
-
-                    isNormalViewData(viewDataList[viewDataIndex - 1]) -> {
-                        // 插入位置是非NormalView,但是前一个位置是NormalViewData，因此不创建新ViewData，而是插入该NormalViewData尾部
-                        (viewDataList[viewDataIndex - 1] as NormalViewData).apply {
-                            addView(child, -1)
-                        }
-                    }
-
-                    else -> {
-                        val childData =
-                            NormalViewData(
-                                context,
-                                viewType++,
-                                orientation,
-                                mutableListOf()
-                            ).apply {
-                                children.add(child)
-                            }
-                        addViewData(childData, viewDataIndex)
-                        itemCount2++
-                        notifyItemInserted(viewDataToAdapterStartIndex(childData))
-                    }
-                }
+            val list = mutableListOf<ViewData<*>>()
+            if (viewData is GroupPlaceholderViewData) {
+                parseGroupPlaceholder(viewData.view, list)
             } else {
-                throw IndexOutOfBoundsException("length=${getAllViewCount()}; index=$index")
-            }
-        }
-
-        private fun addNonNormalView(child: View, index: Int, viewDataIndex: Int) {
-            val childData = when (child) {
-                is AdapterView -> {
-                    // 记录列表数据
-                    AdapterViewData(
-                        context,
-                        if (child.isolateViewTypes) lazyViewType++ else {
-                            if (!shareLazyViewTypeMap.containsKey(child.typeFlag)) {
-                                shareLazyViewTypeMap[child.typeFlag] = shareLazyViewType++
-                            }
-                            shareLazyViewTypeMap[child.typeFlag]!!
-                        }, child
-                    )
-                }
-
-                is LazyColumn -> LazyColumnData(context, lazyViewType++, child)
-
-                else -> LazyRowData(context, lazyViewType++, child as LazyRow)
+                list.add(viewData)
             }
 
-            if (index == -1 || (viewDataIndex == -1 && index == getAllViewCount())) {
-                addViewData(childData)
+            val dataCount = viewData.getViewCount()
+            if (dataCount == 0) {
+                return null
+            }
+
+            if (index == -1 || index == viewDataList.size) {
+                addViewData(list)
                 val preCount = itemCount2
-                itemCount2 += childData.getViewCount()
-                notifyItemRangeInserted(preCount, childData.getViewCount())
-            } else if (viewDataIndex != -1) {
-                addViewData(childData, viewDataIndex)
-                itemCount2 += childData.getViewCount()
-                notifyItemRangeInserted(
-                    viewDataToAdapterStartIndex(childData),
-                    childData.getViewCount()
-                )
+                itemCount2 += dataCount
+                notifyItemRangeInserted(preCount, dataCount)
             } else {
-                throw IndexOutOfBoundsException("length=${getAllViewCount()}; index=$index")
+                addViewData(list, index)
+                itemCount2 += dataCount
+                notifyItemRangeInserted(
+                    viewDataToAdapterStartIndex(list[0]),
+                    dataCount
+                )
             }
+            return viewData
         }
 
         @SuppressLint("NotifyDataSetChanged")
@@ -796,73 +919,24 @@ abstract class CombinationLayout constructor(
             }
         }
 
-        fun removeView(view: View?, preventRequestLayout: Boolean) {
-            view?.apply {
-                val index = viewToViewDataListIndex(view)
-                if (index == -1) {
-                    return
-                }
-
-                val viewData = viewDataList[index]
-                if (isNonNormalViewData(viewData)) {
-                    val startPos = viewDataToAdapterStartIndex(viewData)
-                    itemCount2 -= viewData.getViewCount()
-                    removeViewData(viewData)
-                    if (!preventRequestLayout) {
-                        notifyItemRangeRemoved(startPos, viewData.getViewCount())
-                    }
-                } else {
-                    (viewData as NormalViewData).apply { removeView(view, preventRequestLayout) }
-                }
-            }
-        }
-
-        fun removeViewAt(index: Int, preventRequestLayout: Boolean) {
-            val (viewDataIndex, dataIndex) = viewIndexToViewDataListIndex(index)
-            if (viewDataIndex != -1) {
-                val viewData = viewDataList[viewDataIndex]
-                if (isNonNormalViewData(viewData)) {
-                    val startPos = viewDataToAdapterStartIndex(viewData)
-                    itemCount2 -= viewData.getViewCount()
-                    removeViewData(viewData)
-                    if (!preventRequestLayout) {
-                        notifyItemRangeRemoved(startPos, viewData.getViewCount())
-                    }
-                } else {
-                    (viewData as NormalViewData).apply {
-                        removeView(
-                            dataIndex,
-                            preventRequestLayout
-                        )
-                    }
-                }
-            }
-        }
-
-        fun getChildAt(index: Int): View? {
-            val (viewDataIndex, dataIndex) = viewIndexToViewDataListIndex(index)
-            if (viewDataIndex == -1) {
-                return null
+        fun removeViewAt(start: Int, count: Int, preventRequestLayout: Boolean) {
+            val viewData = viewDataList[start]
+            val startPos = viewDataToAdapterStartIndex(viewData)
+            var dataCount = 0
+            for (index in start until start + count) {
+                val data = viewDataList[index]
+                dataCount += data.getViewCount()
             }
 
-            val viewData = viewDataList[viewDataIndex]
-            if (isAdapterViewData(viewData)) {
-                return viewData.adapterView
+            for (index in start until start + count) {
+                val data = viewDataList[start]
+                removeViewData(data)
             }
 
-            if (isNormalViewData(viewData)) {
-                return viewData.children[dataIndex]
+            if (!preventRequestLayout) {
+                notifyItemRangeRemoved(startPos, dataCount)
+                itemCount2 -= dataCount
             }
-
-            if (isLazyColumnData(viewData)) {
-                return viewData.lazyColumn
-            }
-
-            if (isLazyRowData(viewData)) {
-                return viewData.lazyRow
-            }
-
-            return null
         }
 
         /**
@@ -881,44 +955,13 @@ abstract class CombinationLayout constructor(
         }
 
         /**
-         * 布局文件中view的下标转化为[viewDataList]列表中对应数据下标以及数据在[ViewData]中真实的下标位置
-         */
-        private fun viewIndexToViewDataListIndex(position: Int): Pair<Int, Int> {
-            if (position < 0) {
-                return Pair(-1, -1)
-            }
-
-            var index = 0
-            for (i in viewDataList.indices) {
-                val data = viewDataList[i]
-                val viewCount = if (isNormalViewData(data)) {
-                    data.children.size
-                } else {
-                    1
-                }
-                if (position <= index + viewCount - 1) {
-                    return Pair(i, position - index)
-                }
-                index += viewCount
-            }
-
-            return Pair(-1, -1)
-        }
-
-        /**
          * 查找布局文件中view对象在[viewDataList]列表中对应数据下标以及数据在[ViewData]中真实的下标位置
          */
-        private fun viewToViewDataListIndex(view: View): Int {
+        fun viewToViewDataListIndex(view: View): Int {
             for (i in viewDataList.indices) {
                 val data = viewDataList[i]
-                if (data == view) {
+                if (data.view == view) {
                     return i
-                } else if (isNormalViewData(data)) {
-                    for (child in data.children) {
-                        if (child == view) {
-                            return i
-                        }
-                    }
                 }
             }
 
@@ -928,7 +971,7 @@ abstract class CombinationLayout constructor(
         /**
          * 获取指定[viewData]在[AdapterProxy]的真实起始位置,未找到对应数据，则返回-1
          */
-        private fun viewDataToAdapterStartIndex(viewData: ViewData): Int {
+        fun viewDataToAdapterStartIndex(viewData: ViewData<*>): Int {
             var index = 0
             for (data in viewDataList) {
                 if (data == viewData) {
@@ -938,24 +981,6 @@ abstract class CombinationLayout constructor(
             }
 
             return -1
-        }
-
-        /**
-         * 获取所有View的Count，该数量非Adapter Item数量
-         */
-        fun getAllViewCount(): Int {
-            var count = 0
-            for (i in viewDataList.indices) {
-                val data = viewDataList[i]
-                val viewCount = if (isNormalViewData(data)) {
-                    data.children.size
-                } else {
-                    1
-                }
-                count += viewCount
-            }
-
-            return count
         }
 
         inner class LazyColumnAdapterDataObserver(private val adapterViewData: AdapterViewData) :
@@ -1126,3 +1151,8 @@ abstract class CombinationLayout constructor(
         }
     }
 }
+
+/**
+ * 滑动监听
+ */
+internal typealias ScrollListener = (position: Int, smooth: Boolean, offset: Int) -> Unit

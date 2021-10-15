@@ -2,14 +2,19 @@ package com.hzkq.widgets.layout;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.RvQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.hzkq.widgets.R;
 import com.keqiang.layout.combination.AdapterView;
+import com.keqiang.layout.combination.GroupPlaceholder;
 import com.keqiang.layout.combination.LazyColumn;
 
 import java.util.ArrayList;
@@ -114,8 +119,12 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
         mAdapterView4.setAdapter(adapter4);
     }
     
+    private GroupPlaceholder group = null;
+    private boolean add = false;
+    
     @Override
     public void initEvent() {
+        // mButton.setVisibility(View.VISIBLE);
         mButton.setOnClickListener(v -> {
             // mLazyColumn.setPaddingRelative(30, mLazyColumn.getPaddingTop(), 30, mLazyColumn.getPaddingBottom());
             // mLazyColumn.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
@@ -128,9 +137,39 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             // textView.setText("新增的view");
             // textView.setGravity(Gravity.CENTER);
             // textView.setTextSize(50);
-            // mColumn.addView(textView, 1);
+            // mLazyColumn.addView(textView, 1);
             
-            // mColumn.removeViewAt(1);
+            if (group == null) {
+                group = (GroupPlaceholder) LayoutInflater.from(mContext).inflate(R.layout.view_simple_grou_placeholder, null);
+                AdapterView adapterView = group.findViewById2(R.id.lazyColumn333);
+                List<String> strings = new ArrayList<>();
+                for (int i = 0; i < 5; i++) {
+                    strings.add("group placeholder itme:" + i);
+                }
+                CustomerAdapter adapter = new CustomerAdapter(strings);
+                assert adapterView != null;
+                adapterView.setAdapter(adapter);
+                
+                mLazyColumn.addView(group,0);
+                mLazyColumn.scrollToPosition(0);
+            } else {
+                if (!add) {
+                    TextView textView = new TextView(mContext);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
+                    textView.setLayoutParams(params);
+                    textView.setBackgroundResource(R.color.color888);
+                    textView.setTextColor(getResources().getColor(R.color.colorWhite));
+                    textView.setText("新增的view");
+                    textView.setGravity(Gravity.CENTER);
+                    textView.setTextSize(50);
+                    group.addView(textView, 1);
+                    add = true;
+                } else {
+                    group.removeViewAt(1);
+                }
+            }
+            
+            // mLazyColumn.removeViewAt(1);
             
             // AdapterView lazyView = new AdapterView(mContext);
             // LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -145,11 +184,8 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             //
             // mColumnLayout.addView(lazyView, 1);
             
-            View childAt = mLazyColumn.getChildAt2(3);
-            View childAt1 = mLazyColumn.getChildAt2(1);
-            View childAt13 = mLazyColumn.getChildAt2(13);
-            View childAt0 = mLazyColumn.getChildAt2(0);
-            
+            // mLazyColumn.scrollToPosition(5);
+            // mAdapterView4.scrollToPositionWithOffset(0, SimpleUtil.getScaledValue(100));
         });
     }
     
@@ -237,19 +273,19 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
         protected void convert(@NonNull BaseViewHolder holder, Person item, @NonNull List<?> payloads) {
             int position = holder.getBindingAdapterPosition();
             TextView itemView = (TextView) holder.itemView;
-            itemView.setText(getData().get(position).getName()  + ";" + "当前位置：" + position);
+            itemView.setText(getData().get(position).getName() + ";" + "当前位置：" + position);
         }
-    
+        
         @Override
         public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
             super.onAttachedToRecyclerView(recyclerView);
         }
-    
+        
         @Override
         public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
             super.onDetachedFromRecyclerView(recyclerView);
         }
-    
+        
         @Nullable
         @Override
         public int[] getNestViewIds() {
@@ -265,19 +301,19 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             this.name = name;
             this.age = age;
         }
-    
+        
         public String getName() {
             return name;
         }
-    
+        
         public void setName(String name) {
             this.name = name;
         }
-    
+        
         public int getAge() {
             return age;
         }
-    
+        
         public void setAge(int age) {
             this.age = age;
         }

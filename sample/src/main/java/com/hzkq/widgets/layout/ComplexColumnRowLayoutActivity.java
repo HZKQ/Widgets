@@ -7,8 +7,8 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.RvQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.hzkq.widgets.R;
-import com.keqiang.layout.combination.LazyColumn;
 import com.keqiang.layout.combination.AdapterView;
+import com.keqiang.layout.combination.LazyColumn;
 import com.keqiang.layout.combination.LazyRow;
 
 import java.util.ArrayList;
@@ -25,12 +25,13 @@ import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 public class ComplexColumnRowLayoutActivity extends BaseActivity {
     
     private TitleBar mTitleBar;
-    private AdapterView mLazyColumn;
+    private AdapterView mAdapterView;
     private AdapterView mRowAdapterView;
     private AdapterView mColumnAdapterView;
     private LazyRow mLazyRow;
-    private AdapterView mLazyColumn2;
+    private AdapterView mAdapterView2;
     private LazyColumn mColumn;
+    private LazyColumn mColumn2;
     private Button mBtn;
     
     @Override
@@ -49,13 +50,14 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
         mBtn = findViewById(R.id.btn);
         
         mColumn = findViewById(R.id.column);
-        mLazyColumn = mColumn.findViewById2(R.id.lazyColumn);
-        mLazyColumn2 = mColumn.findViewById2(R.id.lazyColumn2);
+        mAdapterView = mColumn.findViewById2(R.id.lazyColumn);
+        mAdapterView2 = mColumn.findViewById2(R.id.lazyColumn2);
         
         mLazyRow = mColumn.findViewById2(R.id.row_layout);
         assert mLazyRow != null;
         mRowAdapterView = mLazyRow.findViewById2(R.id.row_lazy_view);
         mColumnAdapterView = mLazyRow.findViewById2(R.id.adapter_view);
+        mColumn2 = mLazyRow.findViewById2(R.id.column2);
     }
     
     @Override
@@ -65,7 +67,7 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
             strings.add("test str:" + i);
         }
         CustomerAdapter adapter = new CustomerAdapter(strings);
-        mLazyColumn.setAdapter(adapter);
+        mAdapterView.setAdapter(adapter);
         
         strings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -86,13 +88,16 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
             strings.add("test str2:" + i);
         }
         CustomerAdapter2 adapter2 = new CustomerAdapter2(strings);
-        mLazyColumn2.setAdapter(adapter2);
+        mAdapterView2.setAdapter(adapter2);
     }
     
     @Override
     public void initEvent() {
+        // mBtn.setVisibility(View.VISIBLE);
         mBtn.setOnClickListener(v -> {
-        
+            mColumn.scrollToPosition(4);
+            mLazyRow.scrollToPosition(4);
+            mColumn2.scrollToPosition(1);
         });
     }
     

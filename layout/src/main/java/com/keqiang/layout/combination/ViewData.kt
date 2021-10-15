@@ -3,7 +3,6 @@ package com.keqiang.layout.combination
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.keqiang.layout.R
@@ -11,9 +10,10 @@ import com.keqiang.layout.R
 // View数据
 // Created by wanggaowan on 2021/9/15 15:41
 
-sealed class ViewData(
+sealed class ViewData<T : View>(
     val context: Context,
-    val type: Int
+    val type: Int,
+    val view: T
 ) {
     abstract fun getViewCount(): Int
 
@@ -34,13 +34,13 @@ sealed class ViewData(
 class AdapterViewData(
     context: Context,
     type: Int,
-    val adapterView: AdapterView
-) : ViewData(context, type) {
+    adapterView: AdapterView
+) : ViewData<AdapterView>(context, type, adapterView) {
 
     private var mDataObserver: AdapterDataObserver? = null
 
     init {
-        adapterView.registerAdapterChangeListener { oldAdapter, adapter ->
+        view.registerAdapterChangeListener { oldAdapter, adapter ->
             mDataObserver?.apply {
                 oldAdapter?.unregisterAdapterDataObserver(this)
                 adapter?.registerAdapterDataObserver(this)
@@ -48,10 +48,10 @@ class AdapterViewData(
             }
         }
 
-        adapterView.setTag(R.id.lazy_column_layout_update_flag, 1L)
-        adapterView.registerLayoutChangeListener {
-            val flag: Long = adapterView.getTag(R.id.lazy_column_layout_update_flag) as Long
-            adapterView.setTag(
+        view.setTag(R.id.lazy_column_layout_update_flag, 1L)
+        view.registerLayoutChangeListener {
+            val flag: Long = view.getTag(R.id.lazy_column_layout_update_flag) as Long
+            view.setTag(
                 R.id.lazy_column_layout_update_flag,
                 if (flag == Long.MAX_VALUE) 1L else flag + 1
             )
@@ -60,12 +60,12 @@ class AdapterViewData(
     }
 
     override fun getViewCount(): Int {
-        return adapterView.getAdapter<RecyclerView.Adapter<*>>()?.itemCount ?: 0
+        return view.getAdapter<RecyclerView.Adapter<*>>()?.itemCount ?: 0
     }
 
     override fun getViewType(position: Int): Int {
         val itemViewType =
-            adapterView.getAdapter<RecyclerView.Adapter<*>>()?.getItemViewType(position)
+            view.getAdapter<RecyclerView.Adapter<*>>()?.getItemViewType(position)
         return if (itemViewType == null) {
             type
         } else {
@@ -74,7 +74,7 @@ class AdapterViewData(
     }
 
     override fun hasViewType(viewType: Int): Boolean {
-        adapterView.getAdapter<RecyclerView.Adapter<*>>()?.let {
+        view.getAdapter<RecyclerView.Adapter<*>>()?.let {
             (0..it.itemCount).forEach { index ->
                 if (it.getItemViewType(index) == viewType - type) {
                     return true
@@ -88,17 +88,17 @@ class AdapterViewData(
         parent: ViewGroup,
         viewType: Int
     ): VH {
-        return adapterView.getAdapter<RecyclerView.Adapter<VH>>()?.createViewHolder(parent, viewType - type) as VH
+        return view.getAdapter<RecyclerView.Adapter<VH>>()?.createViewHolder(parent, viewType - type) as VH
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        adapterView.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()?.bindViewHolder(holder, position)
+        view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()?.bindViewHolder(holder, position)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        return if (id == adapterView.id) {
-            adapterView as T
+        return if (id == view.id) {
+            view as T
         } else {
             null
         }
@@ -106,24 +106,25 @@ class AdapterViewData(
 
     fun registerAdapterDataObserver(observer: AdapterDataObserver) {
         mDataObserver = observer
-        adapterView.getAdapter<RecyclerView.Adapter<*>>()?.registerAdapterDataObserver(observer)
+        view.getAdapter<RecyclerView.Adapter<*>>()?.registerAdapterDataObserver(observer)
     }
 
     fun unRegisterAdapterDataObserver() {
         mDataObserver?.apply {
-            adapterView.getAdapter<RecyclerView.Adapter<*>>()?.unregisterAdapterDataObserver(this)
+            view.getAdapter<RecyclerView.Adapter<*>>()?.unregisterAdapterDataObserver(this)
         }
+        mDataObserver = null
     }
 }
 
+/**
+ * 普通View数据，非[LazyColumn]、[LazyRow]、[AdapterView]
+ */
 class NormalViewData(
     context: Context,
     type: Int,
-    val orientation: Int,
-    val children: MutableList<View>
-) : ViewData(context, type) {
-
-    private var linearLayout: LinearLayout? = null
+    view: View
+) : ViewData<View>(context, type, view) {
 
     override fun getViewCount(): Int {
         return 1
@@ -142,98 +143,74 @@ class NormalViewData(
         parent: ViewGroup,
         viewType: Int
     ): VH {
-        if (linearLayout == null) {
-            val linearLayout = LinearLayout(context)
-            linearLayout.orientation = orientation
-            val params = if (orientation == LinearLayout.VERTICAL) {
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            } else {
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-
-            linearLayout.layoutParams = params
-            children.forEach {
-                if (it.parent is ViewGroup) {
-                    (it.parent as ViewGroup).removeView(it)
-                }
-                linearLayout.addView(it)
-            }
-            this.linearLayout = linearLayout
+        if (view.parent is ViewGroup) {
+            (view.parent as ViewGroup).removeView(view)
         }
 
-        if (linearLayout?.parent is ViewGroup) {
-            (linearLayout?.parent as ViewGroup).removeView(linearLayout)
-        }
-
-        return object : RecyclerView.ViewHolder(linearLayout!!) {} as VH
+        return object : RecyclerView.ViewHolder(view) {} as VH
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        for (view in children) {
-            if (view.id == id) {
-                return view as T
-            } else if (view is CombinationLayout) {
-                return view.findViewById2(id) ?: continue
-            }
+        if (view.id == id) {
+            return view as T
         }
 
-        return linearLayout?.findViewById(id)
+        return if (view is ViewGroup) view.findViewById(id) else null
+    }
+}
+
+/**
+ * [GroupPlaceholder] ViewData
+ */
+class GroupPlaceholderViewData(
+    context: Context,
+    view: GroupPlaceholder
+) : ViewData<GroupPlaceholder>(context, -1, view) {
+
+    override fun getViewCount(): Int {
+        var dataCount = 0
+        view.viewDataList.forEach {
+            dataCount += it.getViewCount()
+        }
+        return dataCount
     }
 
-    fun addView(view: View, index: Int) {
-        if (index == -1) {
-            children.add(view)
-        } else {
-            children.add(index, view)
+    override fun getViewType(position: Int): Int {
+        return type
+    }
+
+    override fun hasViewType(viewType: Int): Boolean {
+        return viewType == type
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <VH : RecyclerView.ViewHolder> createViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): VH {
+        throw IllegalArgumentException("GroupPlaceholderViewData can not be show")
+    }
+
+    override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : View> findViewById(id: Int): T? {
+        if (view.id == id) {
+            return view as T
         }
 
-        linearLayout?.apply {
-            if (index == -1) {
-                addView(view)
-            } else {
-                addView(view, index)
-            }
-        }
-    }
-
-    fun removeView(view: View, preventRequestLayout: Boolean) {
-        children.remove(view)
-        linearLayout?.apply {
-            if (preventRequestLayout) {
-                removeViewInLayout(view)
-            } else {
-                removeView(view)
-            }
-        }
-    }
-
-    fun removeView(index: Int, preventRequestLayout: Boolean) {
-        removeView(children[index], preventRequestLayout)
-    }
-
-    fun invalidate() {
-        linearLayout?.invalidate()
-    }
-
-    fun requestLayout() {
-        linearLayout?.requestLayout()
+        return view.findViewById2(id)
     }
 }
 
 class LazyColumnData(
     context: Context,
     type: Int,
-    val lazyColumn: LazyColumn
-) : ViewData(context, type) {
+    lazyColumn: LazyColumn
+) : ViewData<LazyColumn>(context, type, lazyColumn) {
 
     override fun getViewCount(): Int {
         return 1
@@ -252,30 +229,30 @@ class LazyColumnData(
         parent: ViewGroup,
         viewType: Int
     ): VH {
-        if (lazyColumn.parent is ViewGroup) {
-            (lazyColumn.parent as ViewGroup).removeView(lazyColumn)
+        if (view.parent is ViewGroup) {
+            (view.parent as ViewGroup).removeView(view)
         }
 
-        return object : RecyclerView.ViewHolder(lazyColumn) {} as VH
+        return object : RecyclerView.ViewHolder(view) {} as VH
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        if (id == lazyColumn.id) {
-            return lazyColumn as T
+        if (id == view.id) {
+            return view as T
         }
 
-        return lazyColumn.findViewById2(id)
+        return view.findViewById2(id)
     }
 }
 
 class LazyRowData(
     context: Context,
     type: Int,
-    val lazyRow: LazyRow
-) : ViewData(context, type) {
+    lazyRow: LazyRow
+) : ViewData<LazyRow>(context, type, lazyRow) {
 
     override fun getViewCount(): Int {
         return 1
@@ -294,21 +271,21 @@ class LazyRowData(
         parent: ViewGroup,
         viewType: Int
     ): VH {
-        if (lazyRow.parent is ViewGroup) {
-            (lazyRow.parent as ViewGroup).removeView(lazyRow)
+        if (view.parent is ViewGroup) {
+            (view.parent as ViewGroup).removeView(view)
         }
 
-        return object : RecyclerView.ViewHolder(lazyRow) {} as VH
+        return object : RecyclerView.ViewHolder(view) {} as VH
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : View> findViewById(id: Int): T? {
-        if (id == lazyRow.id) {
-            return lazyRow as T
+        if (id == view.id) {
+            return view as T
         }
 
-        return lazyRow.findViewById2(id)
+        return view.findViewById2(id)
     }
 }

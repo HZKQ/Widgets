@@ -130,6 +130,7 @@
                     android:textSize="14sp" />
 
                 <com.keqiang.layout.combination.LazyColumn
+                    android:id="@+id/column2"
                     android:layout_width="300dp"
                     android:layout_height="match_parent"
                     app:dispatchTouchToParentOnNoScroll="true">
