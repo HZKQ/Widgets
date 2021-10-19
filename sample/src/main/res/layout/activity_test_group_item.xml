@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.keqiang.layout.combination.GroupPlaceholder xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.hzkq.widgets.layout.TV
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#fffb9a55"
+        android:gravity="center"
+        android:text="group item 普通视图"
+        android:textSize="20sp" />
+
+    <com.keqiang.layout.combination.AdapterView
+        android:id="@+id/adapter_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBlack"
+        app:itemCount="2"
+        app:layout="@layout/rv_item_layout" />
+
+</com.keqiang.layout.combination.GroupPlaceholder>

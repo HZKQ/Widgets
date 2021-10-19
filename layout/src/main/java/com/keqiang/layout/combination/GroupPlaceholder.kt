@@ -43,7 +43,6 @@ class GroupPlaceholder @JvmOverloads constructor(
                     addView(child.createPreviewView(orientation), i)
                 }
             }
-            return
         }
     }
 
@@ -63,6 +62,18 @@ class GroupPlaceholder @JvmOverloads constructor(
         for (view in views) {
             if (view.id == id) {
                 return view as T
+            }
+
+            if (view is CombinationLayout) {
+                return view.findViewById2(id) ?: continue
+            }
+
+            if (view is GroupPlaceholder) {
+                return view.findViewById2(id) ?: continue
+            }
+
+            if (view is ViewGroup) {
+                return view.findViewById(id) ?: continue
             }
         }
 

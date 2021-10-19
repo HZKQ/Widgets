@@ -2,12 +2,8 @@ package com.hzkq.widgets.layout;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.RvQuickAdapter;
@@ -43,6 +39,7 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
     private AdapterView mAdapterView4;
     private AdapterView mAdapterView5;
     private Button mButton;
+    private CustomerAdapter3 mAdapter2;
     
     @Override
     public int getLayoutId() {
@@ -108,8 +105,8 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
         for (int i = 0; i < 20; i++) {
             personList.add(new Person("name" + i, i));
         }
-        CustomerAdapter3 adapter2 = new CustomerAdapter3(personList);
-        mAdapterView2.setAdapter(adapter2);
+        mAdapter2 = new CustomerAdapter3(personList);
+        mAdapterView2.setAdapter(mAdapter2);
         
         strings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -139,35 +136,35 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             // textView.setTextSize(50);
             // mLazyColumn.addView(textView, 1);
             
-            if (group == null) {
-                group = (GroupPlaceholder) LayoutInflater.from(mContext).inflate(R.layout.view_simple_grou_placeholder, null);
-                AdapterView adapterView = group.findViewById2(R.id.lazyColumn333);
-                List<String> strings = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    strings.add("group placeholder itme:" + i);
-                }
-                CustomerAdapter adapter = new CustomerAdapter(strings);
-                assert adapterView != null;
-                adapterView.setAdapter(adapter);
-                
-                mLazyColumn.addView(group,0);
-                mLazyColumn.scrollToPosition(0);
-            } else {
-                if (!add) {
-                    TextView textView = new TextView(mContext);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
-                    textView.setLayoutParams(params);
-                    textView.setBackgroundResource(R.color.color888);
-                    textView.setTextColor(getResources().getColor(R.color.colorWhite));
-                    textView.setText("新增的view");
-                    textView.setGravity(Gravity.CENTER);
-                    textView.setTextSize(50);
-                    group.addView(textView, 1);
-                    add = true;
-                } else {
-                    group.removeViewAt(1);
-                }
-            }
+            // if (group == null) {
+            //     group = (GroupPlaceholder) LayoutInflater.from(mContext).inflate(R.layout.view_simple_grou_placeholder, null);
+            //     AdapterView adapterView = group.findViewById2(R.id.lazyColumn333);
+            //     List<String> strings = new ArrayList<>();
+            //     for (int i = 0; i < 5; i++) {
+            //         strings.add("group placeholder itme:" + i);
+            //     }
+            //     CustomerAdapter adapter = new CustomerAdapter(strings);
+            //     assert adapterView != null;
+            //     adapterView.setAdapter(adapter);
+            //
+            //     mLazyColumn.addView(group,0);
+            //     mLazyColumn.scrollToPosition(0);
+            // } else {
+            //     if (!add) {
+            //         TextView textView = new TextView(mContext);
+            //         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
+            //         textView.setLayoutParams(params);
+            //         textView.setBackgroundResource(R.color.color888);
+            //         textView.setTextColor(getResources().getColor(R.color.colorWhite));
+            //         textView.setText("新增的view");
+            //         textView.setGravity(Gravity.CENTER);
+            //         textView.setTextSize(50);
+            //         group.addView(textView, 1);
+            //         add = true;
+            //     } else {
+            //         group.removeViewAt(1);
+            //     }
+            // }
             
             // mLazyColumn.removeViewAt(1);
             
@@ -186,6 +183,9 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             
             // mLazyColumn.scrollToPosition(5);
             // mAdapterView4.scrollToPositionWithOffset(0, SimpleUtil.getScaledValue(100));
+            
+            mAdapter2.getData().get(2).setName("change name");
+            mAdapter2.notifyItemChanged(2);
         });
     }
     

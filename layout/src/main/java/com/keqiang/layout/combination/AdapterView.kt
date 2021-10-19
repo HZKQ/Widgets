@@ -35,7 +35,6 @@ class AdapterView @JvmOverloads constructor(
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLayoutResId = NO_ID
     private var mBackgroundResId = NO_ID
-    private var mAttachedToRecyclerView = false
 
     /**
      * 是否隔离视图，如果设置为true，那么不同[AdapterView]的adapter视图不相互复用，
@@ -50,6 +49,7 @@ class AdapterView @JvmOverloads constructor(
 
     init {
         recyclerView.layoutManager = recyclerViewLayoutManager
+        recyclerView.visibility = GONE
 
         if (attrs != null) {
             var typedArray: TypedArray? = null
@@ -128,9 +128,6 @@ class AdapterView @JvmOverloads constructor(
 
         val oldAdapter = mAdapter
         mAdapter = adapter
-        if (mAttachedToRecyclerView) {
-            recyclerView.adapter = mAdapter
-        }
         mAdapterChangeListener.forEach { it.invoke(oldAdapter, mAdapter) }
     }
 
@@ -232,13 +229,19 @@ class AdapterView @JvmOverloads constructor(
     }
 
     internal fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        mAttachedToRecyclerView = true
         mAdapter?.onAttachedToRecyclerView(this.recyclerView)
     }
 
     internal fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        mAttachedToRecyclerView = false
         mAdapter?.onDetachedFromRecyclerView(this.recyclerView)
+    }
+
+    /**
+     * 消除RecyclerView未执行的更新，防止获取position时位置不正确
+     * 主要目的就是使RecyclerView中AdapterHelper的mPendingUpdates清空
+     */
+    internal fun resetChange() {
+        recyclerView.adapter = mAdapter
     }
 }
 

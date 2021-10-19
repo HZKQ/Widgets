@@ -96,6 +96,8 @@
         <activity android:name=".layout.MultiLazyColumnLayoutActivity" />
 
         <activity android:name=".CombinationLayoutActivity" />
+
+        <activity android:name=".layout.TestActivity" />
     </application>
 
 </manifest>

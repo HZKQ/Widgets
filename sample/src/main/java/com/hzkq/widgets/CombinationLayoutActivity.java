@@ -7,6 +7,7 @@ import android.view.View;
 import com.hzkq.widgets.layout.ComplexColumnRowLayoutActivity;
 import com.hzkq.widgets.layout.MultiLazyColumnLayoutActivity;
 import com.hzkq.widgets.layout.SimpleColumnLayoutActivity;
+import com.hzkq.widgets.layout.TestActivity;
 
 import androidx.annotation.Nullable;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
@@ -53,5 +54,9 @@ public class CombinationLayoutActivity extends BaseActivity {
     
     public void onClickMultiColumnLayout(View view) {
         startActWithIntent(new Intent(this, MultiLazyColumnLayoutActivity.class));
+    }
+    
+    public void onClickTest(View view) {
+        startActWithIntent(new Intent(this, TestActivity.class));
     }
 }

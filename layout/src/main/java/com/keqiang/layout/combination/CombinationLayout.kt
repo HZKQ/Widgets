@@ -35,9 +35,31 @@ abstract class CombinationLayout constructor(
     private lateinit var recyclerView: RecyclerView
     private lateinit var onItemTouchListener: OnItemTouchListener
     private lateinit var adapterProxy: AdapterProxy
+
     private var viewType = 0
-    private var lazyViewType = 10000
-    private var shareLazyViewType = 100000
+        get() {
+            val type = field
+            field++
+            return type
+        }
+
+    private var adapterViewType = 100000
+        get() {
+            val type = field
+            // 通过100000的间距，防止两个AdapterView itemType相同
+            // 但是如果AdapterView设置的adapter数量超过100000，
+            // 那么将会出现问题，通常不会有如此大量的数据
+            field += 100000
+            return type
+        }
+
+    private var shareAdapterViewType = 10000000
+        get() {
+            val type = field
+            field += 100000
+            return type
+        }
+
     private val shareLazyViewTypeMap: MutableMap<String, Int> = mutableMapOf()
 
     // 记录xml布局中view的顺序
@@ -71,10 +93,25 @@ abstract class CombinationLayout constructor(
     /**
      * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[findViewById]无法查找xml中对应的[View]
      */
+    @Suppress("UNCHECKED_CAST")
     fun <T : View> findViewById2(@IdRes id: Int): T? {
         if (this::adapterProxy.isInitialized) {
-            for (data in adapterProxy.viewDataList) {
-                return data.findViewById(id) ?: continue
+            for (view in xmlChildren) {
+                if (view.id == id) {
+                    return view as T
+                }
+
+                if (view is CombinationLayout) {
+                    return view.findViewById2(id) ?: continue
+                }
+
+                if (view is GroupPlaceholder) {
+                    return view.findViewById2(id) ?: continue
+                }
+
+                if (view is ViewGroup) {
+                    return view.findViewById(id) ?: continue
+                }
             }
         }
         return null
@@ -366,7 +403,16 @@ abstract class CombinationLayout constructor(
                 viewDataList[index]
             }
 
-            val listIndex = adapterProxy.viewDataList.indexOf(insertPosData)
+            val listIndex = if (insertPosData is GroupPlaceholderViewData) {
+                if (index == -1) {
+                    getGroupPlaceholderEndIndex(insertPosData.view)
+                } else {
+                    getGroupPlaceholderStartIndex(insertPosData.view)
+                }
+            } else {
+                adapterProxy.viewDataList.indexOf(insertPosData)
+            }
+
             if (listIndex == -1) {
                 return@Listener
             }
@@ -513,7 +559,7 @@ abstract class CombinationLayout constructor(
         }
 
         if (child !is AdapterView && child !is LazyColumn && child !is LazyRow) {
-            return NormalViewData(context, viewType++, child)
+            return NormalViewData(context, viewType, child)
         }
 
         return when (child) {
@@ -522,9 +568,9 @@ abstract class CombinationLayout constructor(
                 child.recyclerViewLayoutManager.orientation = orientation
                 val viewData = AdapterViewData(
                     context,
-                    if (child.isolateViewTypes) lazyViewType++ else {
+                    if (child.isolateViewTypes) adapterViewType else {
                         if (!shareLazyViewTypeMap.containsKey(child.typeFlag)) {
-                            shareLazyViewTypeMap[child.typeFlag] = shareLazyViewType++
+                            shareLazyViewTypeMap[child.typeFlag] = shareAdapterViewType
                         }
                         shareLazyViewTypeMap[child.typeFlag]!!
                     }, child
@@ -545,9 +591,9 @@ abstract class CombinationLayout constructor(
                 viewData
             }
 
-            is LazyColumn -> LazyColumnData(context, lazyViewType++, child)
+            is LazyColumn -> LazyColumnData(context, adapterViewType, child)
 
-            else -> LazyRowData(context, lazyViewType++, child as LazyRow)
+            else -> LazyRowData(context, adapterViewType, child as LazyRow)
         }
     }
 
@@ -576,12 +622,13 @@ abstract class CombinationLayout constructor(
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         private var itemCount2: Int = 0
+        private var mAttachedToRecyclerView = false
 
         init {
             viewDataList.forEach {
                 itemCount2 += it.getViewCount()
                 if (isAdapterViewData(it)) {
-                    it.registerAdapterDataObserver(LazyColumnAdapterDataObserver(it))
+                    it.registerAdapterDataObserver(AdapterViewAdapterDataObserver(it))
                 }
             }
         }
@@ -589,7 +636,10 @@ abstract class CombinationLayout constructor(
         private fun addViewData(viewData: List<ViewData<*>>, index: Int = -1) {
             viewData.forEach {
                 if (isAdapterViewData(it)) {
-                    it.registerAdapterDataObserver(LazyColumnAdapterDataObserver(it))
+                    it.registerAdapterDataObserver(AdapterViewAdapterDataObserver(it))
+                    if (mAttachedToRecyclerView && this@CombinationLayout::recyclerView.isInitialized) {
+                        it.view.onAttachedToRecyclerView(recyclerView)
+                    }
                 }
             }
 
@@ -805,6 +855,7 @@ abstract class CombinationLayout constructor(
 
         override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
             super.onAttachedToRecyclerView(recyclerView)
+            mAttachedToRecyclerView = true
             viewDataList.forEach {
                 if (isAdapterViewData(it)) {
                     it.view.onAttachedToRecyclerView(recyclerView)
@@ -814,6 +865,7 @@ abstract class CombinationLayout constructor(
 
         override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
             super.onDetachedFromRecyclerView(recyclerView)
+            mAttachedToRecyclerView = false
             viewDataList.forEach {
                 if (isAdapterViewData(it)) {
                     it.view.onDetachedFromRecyclerView(recyclerView)
@@ -983,7 +1035,10 @@ abstract class CombinationLayout constructor(
             return -1
         }
 
-        inner class LazyColumnAdapterDataObserver(private val adapterViewData: AdapterViewData) :
+        /**
+         * [AdapterView] Adapter数据变更监听
+         */
+        inner class AdapterViewAdapterDataObserver(private val adapterViewData: AdapterViewData) :
             RecyclerView.AdapterDataObserver() {
 
             override fun onChanged() {
@@ -997,6 +1052,7 @@ abstract class CombinationLayout constructor(
                 val newCount = itemCount2
                 val viewDataCount = adapterViewData.getViewCount()
 
+                adapterViewData.view.resetChange()
                 if (preCount == newCount) {
                     // 数量无变化
                     if (viewDataCount > 0) {
@@ -1017,7 +1073,7 @@ abstract class CombinationLayout constructor(
                         notifyItemRangeChanged(actualStartPos, changeCount)
                     }
 
-                    notifyItemRangeInserted(actualStartPos + adapterViewData.getViewCount(),
+                    notifyItemRangeInserted(actualStartPos + changeCount,
                         newCount - preCount)
                 }
             }
@@ -1046,8 +1102,17 @@ abstract class CombinationLayout constructor(
                     return
                 }
 
+                adapterViewData.view.resetChange()
                 itemCount2 += itemCount
                 notifyItemRangeInserted(actualStartPos + positionStart, itemCount)
+                // 插入之后的总数量
+                val allItemCount = adapterViewData.view.getAdapter<RecyclerView.Adapter<*>>()?.itemCount
+                    ?: return
+                // 插入之后的数据下标都发生变更
+                val changeCount = allItemCount - (positionStart + itemCount)
+                if (changeCount > 0) {
+                    notifyItemChanged(actualStartPos + positionStart + itemCount, changeCount)
+                }
             }
 
             override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
@@ -1056,8 +1121,17 @@ abstract class CombinationLayout constructor(
                     return
                 }
 
+                adapterViewData.view.resetChange()
                 itemCount2 -= itemCount
                 notifyItemRangeRemoved(actualStartPos + positionStart, itemCount)
+                // 移除之后的总数量
+                val allItemCount = adapterViewData.view.getAdapter<RecyclerView.Adapter<*>>()?.itemCount
+                    ?: return
+                // 移除数据之后的数据下标都发生变更
+                if (positionStart < allItemCount + itemCount - 1
+                    && positionStart + itemCount < allItemCount + itemCount) {
+                    notifyItemRangeChanged(actualStartPos + positionStart, allItemCount - positionStart)
+                }
             }
 
             override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
@@ -1068,7 +1142,11 @@ abstract class CombinationLayout constructor(
                     return
                 }
 
+                adapterViewData.view.resetChange()
                 notifyItemMoved(actualStartPos + fromPosition, actualStartPos + toPosition)
+                // 交换后，两个数据的下标发生变更
+                notifyItemChanged(actualStartPos + fromPosition)
+                notifyItemChanged(actualStartPos + toPosition)
             }
         }
     }
