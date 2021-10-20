@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.RvQuickAdapter;
@@ -184,8 +185,20 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             // mLazyColumn.scrollToPosition(5);
             // mAdapterView4.scrollToPositionWithOffset(0, SimpleUtil.getScaledValue(100));
             
-            mAdapter2.getData().get(2).setName("change name");
-            mAdapter2.notifyItemChanged(2);
+            // mAdapter2.getData().get(2).setName("change name");
+            // mAdapter2.notifyItemChanged(2);
+            
+            int firstVisibleItemPosition = mAdapterView.findFirstVisibleItemPosition();
+            int lastVisibleItemPosition = mAdapterView.findLastVisibleItemPosition();
+            int firstCompletelyVisibleItemPosition = mAdapterView.findFirstCompletelyVisibleItemPosition();
+            int lastCompletelyVisibleItemPosition = mAdapterView.findLastCompletelyVisibleItemPosition();
+            Log.e("xxx", "first pos:" + firstVisibleItemPosition
+                + "\n end pos:" + lastVisibleItemPosition
+                + "\n first complete pos:" + firstCompletelyVisibleItemPosition
+                + "\n end complete pos:" + lastCompletelyVisibleItemPosition);
+            View viewByPosition = mAdapterView.findViewByPosition(1);
+            Log.e("xxx", "findViewByPosition is " + (viewByPosition == null ? "null" : (
+                viewByPosition instanceof FrameLayout ? ((TextView) ((FrameLayout) viewByPosition).getChildAt(0)).getText().toString() : viewByPosition.toString())));
         });
     }
     

@@ -21,7 +21,9 @@ import kotlin.contracts.contract
 import kotlin.math.abs
 
 /**
- * 实现[RecyclerView]的效果，但是只需要在xml中配置布局就可以实现多类型Item，多[RecyclerView.Adapter]组合的功能
+ * 实现[RecyclerView]的效果，但是只需要在xml中配置布局就可以实现多类型Item，多[RecyclerView.Adapter]组合的功能。
+ * 由于最终实现采用[RecyclerView],因此实际运行时，查找xml中对象，请使用[findViewById2]、[getChildAt2]、[getChildren]
+ * 方法获取实际运行的View对象
  *
  * @author Created by wanggaowan on 2021/9/15 09:19
  */
@@ -32,7 +34,7 @@ abstract class CombinationLayout constructor(
     internal val orientation: Int
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    private lateinit var recyclerView: RecyclerView
+    internal lateinit var recyclerView: RecyclerView
     private lateinit var onItemTouchListener: OnItemTouchListener
     private lateinit var adapterProxy: AdapterProxy
 
@@ -60,7 +62,7 @@ abstract class CombinationLayout constructor(
             return type
         }
 
-    private val shareLazyViewTypeMap: MutableMap<String, Int> = mutableMapOf()
+    private val shareAdapterViewTypeMap: MutableMap<String, Int> = mutableMapOf()
 
     // 记录xml布局中view的顺序
     private var xmlChildren: MutableList<View> = mutableListOf()
@@ -126,6 +128,23 @@ abstract class CombinationLayout constructor(
             return xmlChildren[index] as T?
         }
         return null
+    }
+
+    @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
+    override fun getChildAt(index: Int): View {
+        return super.getChildAt(index)
+    }
+
+    @Deprecated("此对象无法获取实际View数量", ReplaceWith("请使用getChildren()"))
+    override fun getChildCount(): Int {
+        return super.getChildCount()
+    }
+
+    /**
+     * 获取所有子对象
+     */
+    fun getChildren(): List<View> {
+        return xmlChildren
     }
 
     override fun addView(child: View, index: Int) {
@@ -303,6 +322,83 @@ abstract class CombinationLayout constructor(
      */
     fun smoothScrollToPosition(position: Int) {
         scrollTo(position, true, 0)
+    }
+
+    /**
+     * 查找可见项目位置，是否要查找[isComplete]和[isFirst]状态的View
+     */
+    internal fun findVisibleItemPosition(view: View, isFirst: Boolean, isComplete: Boolean = false): Int {
+        if (!this::recyclerView.isInitialized) {
+            return RecyclerView.NO_POSITION
+        }
+
+        val index = adapterProxy.viewToViewDataListIndex(view)
+        if (index == -1) {
+            return RecyclerView.NO_POSITION
+        }
+
+        val viewData = adapterProxy.viewDataList[index]
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        val firstPos = if (isComplete) {
+            layoutManager.findFirstCompletelyVisibleItemPosition()
+        } else {
+            layoutManager.findFirstVisibleItemPosition()
+        }
+
+        if (isFirst && firstPos == RecyclerView.NO_POSITION) {
+            return RecyclerView.NO_POSITION
+        }
+
+        val lastPos = if (isComplete) {
+            layoutManager.findLastCompletelyVisibleItemPosition()
+        } else {
+            layoutManager.findLastVisibleItemPosition()
+        }
+
+        if (!isFirst && lastPos == RecyclerView.NO_POSITION) {
+            return RecyclerView.NO_POSITION
+        }
+
+        val startIndex = adapterProxy.viewDataToAdapterStartIndex(viewData)
+        val endIndex = startIndex + viewData.getViewCount() - 1
+        if (isFirst) {
+            if (startIndex in firstPos..lastPos) {
+                return 0
+            }
+
+            if (firstPos in (startIndex + 1)..endIndex) {
+                return viewData.getViewCount() - 1 - (endIndex - firstPos)
+            }
+        } else {
+            if (endIndex in firstPos..lastPos) {
+                return viewData.getViewCount() - 1
+            }
+
+            if (lastPos in startIndex until endIndex) {
+                return lastPos - startIndex
+            }
+        }
+
+        return RecyclerView.NO_POSITION
+    }
+
+    /**
+     * 查找指定位置的View
+     */
+    internal fun findViewByPosition(view: View, position: Int): View? {
+        if (!this::recyclerView.isInitialized) {
+            return null
+        }
+
+        val index = adapterProxy.viewToViewDataListIndex(view)
+        if (index == -1) {
+            return null
+        }
+
+        val viewData = adapterProxy.viewDataList[index]
+        val startIndex = adapterProxy.viewDataToAdapterStartIndex(viewData)
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        return layoutManager.findViewByPosition(startIndex + position)
     }
 
     private fun scrollTo(position: Int, smooth: Boolean, offset: Int) {
@@ -566,13 +662,14 @@ abstract class CombinationLayout constructor(
             is AdapterView -> {
                 // 记录列表数据
                 child.recyclerViewLayoutManager.orientation = orientation
+                child.combinationLayout = this
                 val viewData = AdapterViewData(
                     context,
                     if (child.isolateViewTypes) adapterViewType else {
-                        if (!shareLazyViewTypeMap.containsKey(child.typeFlag)) {
-                            shareLazyViewTypeMap[child.typeFlag] = shareAdapterViewType
+                        if (!shareAdapterViewTypeMap.containsKey(child.typeFlag)) {
+                            shareAdapterViewTypeMap[child.typeFlag] = shareAdapterViewType
                         }
-                        shareLazyViewTypeMap[child.typeFlag]!!
+                        shareAdapterViewTypeMap[child.typeFlag]!!
                     }, child
                 )
 
@@ -654,6 +751,7 @@ abstract class CombinationLayout constructor(
             if (isAdapterViewData(viewData)) {
                 viewData.unRegisterAdapterDataObserver()
                 viewData.view.scrollListener = null
+                viewData.view.combinationLayout = null
             }
             viewDataList.remove(viewData)
         }
@@ -994,7 +1092,7 @@ abstract class CombinationLayout constructor(
         /**
          * [AdapterProxy]下标转化为[viewDataList]列表中对应数据下标以及数据在[ViewData]中真实的下标位置
          */
-        private fun adapterIndexToViewDataListIndex(position: Int): Pair<Int, Int> {
+        fun adapterIndexToViewDataListIndex(position: Int): Pair<Int, Int> {
             var index = 0
             for (i in viewDataList.indices) {
                 val viewCount = viewDataList[i].getViewCount()

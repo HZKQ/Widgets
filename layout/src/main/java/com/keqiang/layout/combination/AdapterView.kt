@@ -37,6 +37,11 @@ class AdapterView @JvmOverloads constructor(
     private var mBackgroundResId = NO_ID
 
     /**
+     * 实际运行时，此界面展示内容的父对象
+     */
+    internal var combinationLayout: CombinationLayout? = null
+
+    /**
      * 是否隔离视图，如果设置为true，那么不同[AdapterView]的adapter视图不相互复用，
      * 如果设置为false，那么多个[AdapterView]的adapter视图可复用，只要[RecyclerView.Adapter.getItemViewType]一致
      */
@@ -242,6 +247,43 @@ class AdapterView @JvmOverloads constructor(
      */
     internal fun resetChange() {
         recyclerView.adapter = mAdapter
+    }
+
+    /**
+     * 查找第一个可见Item位置
+     */
+    fun findFirstVisibleItemPosition(): Int {
+        return combinationLayout?.findVisibleItemPosition(this, isFirst = true) ?: -1
+    }
+
+    /**
+     * 查找最后一个可见Item位置
+     */
+    fun findLastVisibleItemPosition(): Int {
+        return combinationLayout?.findVisibleItemPosition(this, isFirst = false) ?: -1
+    }
+
+    /**
+     * 查找第一个完全展示Item位置，该Item完整展示在界面，无任何部分滑出界面边界
+     */
+    fun findFirstCompletelyVisibleItemPosition(): Int {
+        return combinationLayout?.findVisibleItemPosition(this, isFirst = true, isComplete = true)
+            ?: -1
+    }
+
+    /**
+     * 查找最后一个完全展示Item位置，该Item完整展示在界面，无任何部分滑出界面边界
+     */
+    fun findLastCompletelyVisibleItemPosition(): Int {
+        return combinationLayout?.findVisibleItemPosition(this, isFirst = false, isComplete = true)
+            ?: -1
+    }
+
+    /**
+     * 获取指定[position]位置的View，仅当前位置数据在界面展示时返回，否则返回null
+     */
+    fun findViewByPosition(position: Int): View? {
+        return combinationLayout?.findViewByPosition(this, position)
     }
 }
 

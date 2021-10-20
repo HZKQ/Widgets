@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  * 占位符，用于整体添加一组控件到[LazyColumnData]或[LazyRow]，实际运行时，该组件本身将移除不显示，其子节点向上提升。
- * 且该组件任何属性都将不作用于其子节点，比如宽高，背景色等属性。排列方式根据添加[LazyColumn]或[LazyRow]决定
+ * 且该组件任何属性都将不作用于其子节点，比如宽高，背景色等属性。实际运行时排列方式根据添加到[LazyColumn]或[LazyRow]决定。
+ * 预览时可通过[setOrientation]指定排列方式。由于最终实现采用[RecyclerView],因此实际运行时，查找xml中对象，
+ * 请使用[findViewById2]、[getChildAt2]、[children]方法获取实际运行的View对象
  *
  * @author Created by wanggaowan on 2021/10/13 16:08
  */
@@ -20,7 +23,7 @@ class GroupPlaceholder @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     private var views: MutableList<View> = mutableListOf()
-    internal val children: List<View> = views
+    val children: List<View> = views
     internal val viewDataList: MutableList<ViewData<*>> = mutableListOf()
 
     internal var addViewListener: (GroupPlaceholder.(view: View, index: Int) -> Unit)? = null
@@ -91,6 +94,16 @@ class GroupPlaceholder @JvmOverloads constructor(
             }
         }
         return null
+    }
+
+    @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
+    override fun getChildAt(index: Int): View {
+        return super.getChildAt(index)
+    }
+
+    @Deprecated("此对象无法获取实际View数量", ReplaceWith("请使用getChildren()"))
+    override fun getChildCount(): Int {
+        return super.getChildCount()
     }
 
     override fun addView(child: View, index: Int) {
