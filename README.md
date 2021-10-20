@@ -84,7 +84,7 @@ implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
 > 该库主要由LazyColumn、LazyRow、AdapterView、GroupPlaceholder组成
 > 
 >>### LazyColumn、LazyRow
->> Layout库主要控件，用于组合添加到其下的LazyColumn、LazyRow、AdapterView、GroupPlaceholder，LazyColumn、LazyRow可以相互嵌套
+>> Layout库主要控件，用于组合添加到其下的LazyColumn、LazyRow、AdapterView、GroupPlaceholder
 >>
 >>### AdapterView
 >> 用于处理列表数据，用法与RecyclerView相似，且增加了isolateViewTypes和type_flag属性，用于配置多个AdapterView item布局复用。内部不可添加其它视图，且只有作为LazyColumn、LazyRow、GroupPlaceholder 直接子节点时，才会执行预期逻辑，否则就是一个普通的View控件
@@ -92,7 +92,7 @@ implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
 >>### GroupPlaceholder
 >> 组视图的占位符，用于整体处理一组View的添加、移除、滚动等操作，其内部可添加其它View(如：LazyColumn、LazyRow、AdapterView、GroupPlaceholder)
 >>
->> ### 使用方式如下(优点在于多个列表可整体滚动，且需要给列表加上头部，底部，多个列表直接增加分隔符或其它内容，都可简单通过xml配置，且可以一目了然的预览)，详细使用请参考[Demo](./sample/src/main/java/com/hzkq/widgets/layout):
+>> 使用方式如下(优点在于多个列表可整体滚动，且需要给列表加上头部，底部，多个列表直接增加分隔符或其它内容，都可简单通过xml配置，且可以一目了然的预览)，详细使用请参考[Demo](./sample/src/main/java/com/hzkq/widgets/layout):
 >>```xml
 >>···
 >><com.keqiang.layout.combination.LazyColumn
