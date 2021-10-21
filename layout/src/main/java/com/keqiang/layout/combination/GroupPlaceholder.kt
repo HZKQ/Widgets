@@ -32,6 +32,9 @@ class GroupPlaceholder @JvmOverloads constructor(
     internal var removeViewListener: (GroupPlaceholder.(start: Int, count: Int, preventRequestLayout: Boolean) -> Unit)? = null
     internal var scrollListener: ScrollListener? = null
 
+    // 空View,用于在列表插桩，便于快速查找当前View实际运行时在列表中的位置
+    private val emptyView: View = View(context)
+
     // 用户是否配置了Orientation属性，仅用于预览
     private var hasOrientationAttr = false
 
@@ -110,6 +113,7 @@ class GroupPlaceholder @JvmOverloads constructor(
 
     private fun viewMap() {
         views.clear()
+        views.add(emptyView)
         (0 until super.getChildCount()).forEach {
             super.getChildAt(it)?.apply {
                 scale()
@@ -125,6 +129,10 @@ class GroupPlaceholder @JvmOverloads constructor(
     @Suppress("UNCHECKED_CAST")
     fun <T : View?> findViewById2(@IdRes id: Int): T? {
         for (view in views) {
+            if (view == emptyView) {
+                continue
+            }
+
             if (view.id == id) {
                 return view as T
             }
@@ -151,7 +159,8 @@ class GroupPlaceholder @JvmOverloads constructor(
     @Suppress("UNCHECKED_CAST")
     fun <T : View?> getChildAt2(index: Int): T? {
         for (i in views.indices) {
-            if (index == i) {
+            // 列表第一个为emptyView
+            if (index + 1 == i) {
                 return views[i] as T
             }
         }
@@ -177,10 +186,13 @@ class GroupPlaceholder @JvmOverloads constructor(
         child.scale()
         if (index == -1) {
             views.add(child)
+            addViewListener?.invoke(this, child, -1)
         } else {
-            views.add(index, child)
+            // 列表第一个为emptyView
+            views.add(index + 1, child)
+            addViewListener?.invoke(this, child, index + 1)
         }
-        addViewListener?.invoke(this, child, index)
+
     }
 
     override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams) {
@@ -217,9 +229,11 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
-        removeViewListener?.invoke(this, 0, views.size, false)
+        // 列表第一个为emptyView
+        removeViewListener?.invoke(this, 1, views.size - 1, false)
         removeListener(this)
         views.clear()
+        views.add(emptyView)
     }
 
     private fun removeListener(group: GroupPlaceholder) {
@@ -257,16 +271,17 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
-        if (index < 0 || index >= views.size) {
+        if (index < 0 || index >= views.size - 1) {
             return
         }
 
-        removeViewListener?.invoke(this, index, 1, false)
-        val view = views[index]
+        // 列表第一个为emptyView
+        removeViewListener?.invoke(this, index + 1, 1, false)
+        val view = views[index + 1]
         if (view is GroupPlaceholder) {
             removeListener(view)
         }
-        views.removeAt(index)
+        views.removeAt(index + 1)
     }
 
     override fun removeViews(start: Int, count: Int) {
@@ -275,13 +290,14 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
-        val end = start + count
+        val end = start + 1 + count
         if (start < 0 || count < 0 || end > views.size) {
             return
         }
 
-        removeViewListener?.invoke(this, start, count, false)
-        for (i in start until end) {
+        // 列表第一个为emptyView
+        removeViewListener?.invoke(this, start + 1, count, false)
+        for (i in start + 1 until end) {
             val view = views[start]
             if (view is GroupPlaceholder) {
                 removeListener(view)
@@ -300,9 +316,11 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
-        removeViewListener?.invoke(this, 0, views.size, true)
+        // 列表第一个为emptyView
+        removeViewListener?.invoke(this, 1, views.size - 1, true)
         removeListener(this)
         views.clear()
+        views.add(emptyView)
     }
 
     override fun removeViewInLayout(view: View?) {
@@ -329,13 +347,14 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
-        val end = start + count
+        val end = start + 1 + count
         if (start < 0 || count < 0 || end > views.size) {
             return
         }
 
-        removeViewListener?.invoke(this, start, count, true)
-        for (i in start until end) {
+        // 列表第一个为emptyView
+        removeViewListener?.invoke(this, start + 1, count, true)
+        for (i in start + 1 until end) {
             val view = views[start]
             if (view is GroupPlaceholder) {
                 removeListener(view)
@@ -354,7 +373,8 @@ class GroupPlaceholder @JvmOverloads constructor(
      * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示
      */
     fun scrollToPosition(position: Int) {
-        scrollListener?.invoke(position, false, 0)
+        // 列表第一个为emptyView
+        scrollListener?.invoke(position + 1, false, 0)
     }
 
     /**
@@ -362,13 +382,15 @@ class GroupPlaceholder @JvmOverloads constructor(
      * [offset]用于置顶距离顶部的距离
      */
     fun scrollToPositionWithOffset(position: Int, offset: Int) {
-        scrollListener?.invoke(position, false, offset)
+        // 列表第一个为emptyView
+        scrollListener?.invoke(position + 1, false, offset)
     }
 
     /**
      * 顺滑的滑动到[position]对应View所在位置，view首次进入屏幕即停止，不置顶显示
      */
     fun smoothScrollToPosition(position: Int) {
-        scrollListener?.invoke(position, true, 0)
+        // 列表第一个为emptyView
+        scrollListener?.invoke(position + 1, true, 0)
     }
 }
