@@ -1,12 +1,14 @@
 package com.keqiang.layout.combination
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
+import com.keqiang.layout.R
 
 /**
  * 占位符，用于整体添加一组控件到[LazyColumnData]或[LazyRow]，实际运行时，该组件本身将移除不显示，其子节点向上提升。
@@ -30,20 +32,77 @@ class GroupPlaceholder @JvmOverloads constructor(
     internal var removeViewListener: (GroupPlaceholder.(start: Int, count: Int, preventRequestLayout: Boolean) -> Unit)? = null
     internal var scrollListener: ScrollListener? = null
 
+    // 用户是否配置了Orientation属性，仅用于预览
+    private var hasOrientationAttr = false
+
+    // 父类布局方向，仅用于预览
+    private var parentOrientation: Int? = null
+
     init {
         if (!isInEditMode) {
             viewMap()
+        } else {
+            var typedArray: TypedArray? = null
+            try {
+                typedArray = context.obtainStyledAttributes(attrs, R.styleable.GroupPlaceholder, defStyleAttr, 0)
+                hasOrientationAttr = typedArray.hasValue(R.styleable.GroupPlaceholder_android_orientation)
+            } finally {
+                typedArray?.recycle()
+            }
         }
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (isInEditMode) {
-            for (i in 0 until childCount) {
-                val child = getChildAt(i)
-                if (child is AdapterView) {
+        if (parentOrientation != null && !hasOrientationAttr) {
+            orientation = parentOrientation!!
+        }
+        preview()
+    }
+
+    /**
+     * 设置父类布局的布局方向，仅用于预览使用，实际运行，此View不展示
+     */
+    internal fun setParentOrientation(orientation: Int) {
+        if (orientation == this.orientation) {
+            return
+        }
+
+        parentOrientation = orientation
+        if (!hasOrientationAttr) {
+            this.orientation = orientation
+            preview()
+        }
+    }
+
+    /**
+     * 视图预览
+     */
+    private fun preview() {
+        if (!isInEditMode) {
+            return
+        }
+
+        for (i in 0 until super.getChildCount()) {
+            val child = super.getChildAt(i)
+            when {
+                child is AdapterView -> {
                     removeView(child)
-                    addView(child.createPreviewView(orientation), i)
+                    addView(child.createPreviewView(orientation).apply {
+                        this.tag = child
+                    }, i)
+                }
+
+                child is GroupPlaceholder -> {
+                    child.setParentOrientation(orientation)
+                }
+
+                child.tag is AdapterView -> {
+                    val adapterView = child.tag as AdapterView
+                    removeView(child)
+                    addView(adapterView.createPreviewView(orientation).apply {
+                        this.tag = child
+                    })
                 }
             }
         }
@@ -51,8 +110,11 @@ class GroupPlaceholder @JvmOverloads constructor(
 
     private fun viewMap() {
         views.clear()
-        (0 until childCount).forEach {
-            views.add(getChildAt(it))
+        (0 until super.getChildCount()).forEach {
+            super.getChildAt(it)?.apply {
+                scale()
+                views.add(this)
+            }
         }
         removeAllViews()
     }
@@ -97,7 +159,7 @@ class GroupPlaceholder @JvmOverloads constructor(
     }
 
     @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
-    override fun getChildAt(index: Int): View {
+    override fun getChildAt(index: Int): View? {
         return super.getChildAt(index)
     }
 
@@ -112,6 +174,7 @@ class GroupPlaceholder @JvmOverloads constructor(
             return
         }
 
+        child.scale()
         if (index == -1) {
             views.add(child)
         } else {

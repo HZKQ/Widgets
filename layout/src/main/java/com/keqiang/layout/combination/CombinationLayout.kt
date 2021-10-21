@@ -131,7 +131,7 @@ abstract class CombinationLayout constructor(
     }
 
     @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
-    override fun getChildAt(index: Int): View {
+    override fun getChildAt(index: Int): View? {
         return super.getChildAt(index)
     }
 
@@ -153,6 +153,7 @@ abstract class CombinationLayout constructor(
                 return
             }
 
+            child.scale()
             val viewData = viewToViewData(child)
             if (index == -1 || index == xmlChildren.size) {
                 xmlChildren.add(child)
@@ -442,11 +443,13 @@ abstract class CombinationLayout constructor(
      */
     private fun viewMap() {
         if (isInEditMode) {
-            for (i in 0 until childCount) {
-                val child = getChildAt(i)
+            for (i in 0 until super.getChildCount()) {
+                val child = super.getChildAt(i)
                 if (child is AdapterView) {
                     removeView(child)
                     addView(child.createPreviewView(orientation), i)
+                } else if (child is GroupPlaceholder) {
+                    child.setParentOrientation(orientation)
                 }
             }
             return
@@ -454,9 +457,9 @@ abstract class CombinationLayout constructor(
 
         val children = mutableListOf<ViewData<*>>()
         xmlChildren.clear()
-        for (i in 0 until childCount) {
-            val child = getChildAt(i) ?: continue
-            xmlChildren.add(child)
+        for (i in 0 until super.getChildCount()) {
+            val child = super.getChildAt(i) ?: continue
+            xmlChildren.add(child.apply { scale() })
             if (child is GroupPlaceholder) {
                 parseGroupPlaceholder(child, children)
                 continue

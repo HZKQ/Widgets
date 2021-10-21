@@ -43,4 +43,5 @@ dependencies {
     androidTestImplementation deps.androidTest
     androidTestImplementation deps.espresso
     implementation deps.recyclerview
+    implementation deps.magpieX
 }

@@ -16,4 +16,8 @@
         <!--当布局自身滑动到边界，不可再滑动时，是否将滑动事件传递给父布局-->
         <attr name="dispatchTouchToParentOnNoScroll" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="GroupPlaceholder">
+        <attr name="android:orientation" />
+    </declare-styleable>
 </resources>
