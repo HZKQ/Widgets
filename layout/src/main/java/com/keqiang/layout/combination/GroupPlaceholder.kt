@@ -120,7 +120,7 @@ class GroupPlaceholder @JvmOverloads constructor(
                 views.add(this)
             }
         }
-        removeAllViews()
+        super.removeAllViews()
     }
 
     /**
@@ -231,12 +231,16 @@ class GroupPlaceholder @JvmOverloads constructor(
 
         // 列表第一个为emptyView
         removeViewListener?.invoke(this, 1, views.size - 1, false)
-        removeListener(this)
+        views.forEach {
+            if (it is GroupPlaceholder) {
+                removeListener(it)
+            }
+        }
         views.clear()
         views.add(emptyView)
     }
 
-    private fun removeListener(group: GroupPlaceholder) {
+    internal fun removeListener(group: GroupPlaceholder) {
         group.scrollListener = null
         group.addViewListener = null
         group.removeViewListener = null
@@ -318,7 +322,11 @@ class GroupPlaceholder @JvmOverloads constructor(
 
         // 列表第一个为emptyView
         removeViewListener?.invoke(this, 1, views.size - 1, true)
-        removeListener(this)
+        views.forEach {
+            if (it is GroupPlaceholder) {
+                removeListener(it)
+            }
+        }
         views.clear()
         views.add(emptyView)
     }

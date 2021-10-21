@@ -293,6 +293,10 @@ abstract class CombinationLayout constructor(
 
         adapterProxy.removeViewAt(firstIndex, endIndex - firstIndex, preventRequestLayout)
         for (index in start until start + count) {
+            val view = xmlChildren[start]
+            if (view is GroupPlaceholder) {
+                view.removeListener(view)
+            }
             xmlChildren.removeAt(start)
         }
     }
