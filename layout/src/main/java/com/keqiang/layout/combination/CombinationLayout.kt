@@ -147,6 +147,18 @@ abstract class CombinationLayout constructor(
         return xmlChildren
     }
 
+    override fun indexOfChild(child: View?): Int {
+        if (isInEditMode) {
+            return super.indexOfChild(child)
+        }
+
+        if (child == null) {
+            return -1
+        }
+
+        return xmlChildren.indexOf(child)
+    }
+
     override fun addView(child: View, index: Int) {
         if (this::adapterProxy.isInitialized) {
             if (index != -1 && index > xmlChildren.size) {

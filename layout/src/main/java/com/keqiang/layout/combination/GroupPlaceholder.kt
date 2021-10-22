@@ -177,6 +177,20 @@ class GroupPlaceholder @JvmOverloads constructor(
         return super.getChildCount()
     }
 
+    override fun indexOfChild(child: View?): Int {
+        if (isInEditMode) {
+            return super.indexOfChild(child)
+        }
+
+        if (child == null) {
+            return -1
+        }
+
+        val indexOf = views.indexOf(child)
+        // 列表第一个为emptyView,对用户来说不可见
+        return if (indexOf == -1) -1 else indexOf - 1
+    }
+
     override fun addView(child: View, index: Int) {
         if (isInEditMode) {
             super.addView(child, index)
