@@ -7,14 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
-import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
 
 /**
  * 占位符，用于整体添加一组控件到[LazyColumnData]或[LazyRow]，实际运行时，该组件本身将移除不显示，其子节点向上提升。
  * 且该组件任何属性都将不作用于其子节点，比如宽高，背景色等属性。实际运行时排列方式根据添加到[LazyColumn]或[LazyRow]决定。
- * 预览时可通过[setOrientation]指定排列方式。由于最终实现采用[RecyclerView],因此实际运行时，查找xml中对象，
- * 请使用[findViewById2]、[getChildAt2]、[children]方法获取实际运行的View对象
+ * 预览时可通过[setOrientation]指定排列方式
  *
  * @author Created by wanggaowan on 2021/10/13 16:08
  */
@@ -124,57 +122,48 @@ class GroupPlaceholder @JvmOverloads constructor(
     }
 
     /**
-     * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[findViewById]无法查找xml中对应的[View]
+     * 此方法在[ViewGroup]表示为hide api，但是覆盖此方法，是可以生效的且没有在高版本发生崩溃，测试版本最高未android11
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : View?> findViewById2(@IdRes id: Int): T? {
+    protected fun <T : View> findViewTraversal(@IdRes id: Int): T? {
+        if (id == this.id) {
+            return this as T
+        }
+
         for (view in views) {
             if (view == emptyView) {
                 continue
             }
 
-            if (view.id == id) {
-                return view as T
-            }
-
-            if (view is CombinationLayout) {
-                return view.findViewById2(id) ?: continue
-            }
-
-            if (view is GroupPlaceholder) {
-                return view.findViewById2(id) ?: continue
-            }
-
-            if (view is ViewGroup) {
-                return view.findViewById(id) ?: continue
-            }
+            return view.findViewById(id) ?: continue
         }
 
         return null
     }
 
-    /**
-     * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[getChildAt]无法查找xml中对应的[View]
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : View?> getChildAt2(index: Int): T? {
-        for (i in views.indices) {
-            // 列表第一个为emptyView
-            if (index + 1 == i) {
-                return views[i] as T
-            }
-        }
-        return null
-    }
-
-    @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
     override fun getChildAt(index: Int): View? {
-        return super.getChildAt(index)
+        // 此对象与CombinationLayout区别在于，实际运行时，此View不展示到界面
+        // 因此覆写getChildAt和getChildCount不影响系统绘制
+        if (isInEditMode) {
+            return super.getChildAt(index)
+        } else {
+            for (i in views.indices) {
+                // 列表第一个为emptyView
+                if (index + 1 == i) {
+                    return views[i]
+                }
+            }
+            return null
+        }
     }
 
-    @Deprecated("此对象无法获取实际View数量", ReplaceWith("请使用getChildren()"))
     override fun getChildCount(): Int {
-        return super.getChildCount()
+        return if (isInEditMode) {
+            super.getChildCount()
+        } else {
+            // 列表第一个为emptyView
+            views.size - 1
+        }
     }
 
     override fun indexOfChild(child: View?): Int {

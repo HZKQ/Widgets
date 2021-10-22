@@ -22,8 +22,8 @@ import kotlin.math.abs
 
 /**
  * 实现[RecyclerView]的效果，但是只需要在xml中配置布局就可以实现多类型Item，多[RecyclerView.Adapter]组合的功能。
- * 由于最终实现采用[RecyclerView],因此实际运行时，查找xml中对象，请使用[findViewById2]、[getChildAt2]、[getChildren]
- * 方法获取实际运行的View对象
+ * 由于最终实现采用[RecyclerView],因此实际运行时，[getChildAt]与[getChildCount]返回[RecyclerView]供系统调用，要
+ * 通过以上两个方法获取添加到当前对象的View，请使用[getChildAt2]与[getChildren]
  *
  * @author Created by wanggaowan on 2021/9/15 09:19
  */
@@ -93,34 +93,25 @@ abstract class CombinationLayout constructor(
     }
 
     /**
-     * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[findViewById]无法查找xml中对应的[View]
+     * 此方法在[ViewGroup]表示为hide api，但是覆盖此方法，是可以生效的且没有在高版本发生崩溃，测试版本最高为android11
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : View> findViewById2(@IdRes id: Int): T? {
+    protected fun <T : View> findViewTraversal(@IdRes id: Int): T? {
+        if (id == this.id) {
+            return this as T
+        }
+
         if (this::adapterProxy.isInitialized) {
             for (view in xmlChildren) {
-                if (view.id == id) {
-                    return view as T
-                }
-
-                if (view is CombinationLayout) {
-                    return view.findViewById2(id) ?: continue
-                }
-
-                if (view is GroupPlaceholder) {
-                    return view.findViewById2(id) ?: continue
-                }
-
-                if (view is ViewGroup) {
-                    return view.findViewById(id) ?: continue
-                }
+                return view.findViewById(id) ?: continue
             }
         }
+
         return null
     }
 
     /**
-     * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[getChildAt]无法查找xml中对应的[View]
+     * 查找[CombinationLayout]布局中的View，由于[CombinationLayout]对布局进行重新组合，因此使用[getChildAt]无法查找xml中对应的[View]。
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : View> getChildAt2(index: Int): T? {
@@ -132,10 +123,13 @@ abstract class CombinationLayout constructor(
 
     @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
     override fun getChildAt(index: Int): View? {
+        // 不能对getChildAt进行重写，系统通过getChildCount和getChildAt获取ViewGroup中子节点数量
+        // 实际运行时，此View只有一个子节点(RecyclerView),通过xml添加的获取addView添加的View，最终均由
+        // RecyclerView呈现
         return super.getChildAt(index)
     }
 
-    @Deprecated("此对象无法获取实际View数量", ReplaceWith("请使用getChildren()"))
+    @Deprecated("此对象无法获取实际View数量", ReplaceWith("请使用getChildren()获取子节点列表再获取数量"))
     override fun getChildCount(): Int {
         return super.getChildCount()
     }

@@ -56,15 +56,15 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState) {
         mTitleBar = findViewById(R.id.title_bar);
         mLazyColumn = findViewById(R.id.column);
-        mView1 = mLazyColumn.findViewById2(R.id.view1);
-        mView2 = mLazyColumn.findViewById2(R.id.view2);
-        mAdapterView = mLazyColumn.findViewById2(R.id.lazyColumn);
+        mView1 = findViewById(R.id.view1);
+        mView2 = findViewById(R.id.view2);
+        mAdapterView = findViewById(R.id.lazyColumn);
         mButton = findViewById(R.id.btn);
-        mView3 = mLazyColumn.findViewById2(R.id.view3);
-        mAdapterView2 = mLazyColumn.findViewById2(R.id.lazyColumn2);
-        mAdapterView3 = mLazyColumn.findViewById2(R.id.lazyColumn3);
-        mAdapterView4 = mLazyColumn.findViewById2(R.id.lazyColumn4);
-        mAdapterView5 = mLazyColumn.findViewById2(R.id.lazyColumn5);
+        mView3 = findViewById(R.id.view3);
+        mAdapterView2 = findViewById(R.id.lazyColumn2);
+        mAdapterView3 = findViewById(R.id.lazyColumn3);
+        mAdapterView4 = findViewById(R.id.lazyColumn4);
+        mAdapterView5 = findViewById(R.id.lazyColumn5);
     }
     
     @Override

@@ -50,14 +50,13 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
         mBtn = findViewById(R.id.btn);
         
         mColumn = findViewById(R.id.column);
-        mAdapterView = mColumn.findViewById2(R.id.lazyColumn);
-        mAdapterView2 = mColumn.findViewById2(R.id.lazyColumn2);
+        mAdapterView = findViewById(R.id.lazyColumn);
+        mAdapterView2 = findViewById(R.id.lazyColumn2);
         
-        mLazyRow = mColumn.findViewById2(R.id.row_layout);
-        assert mLazyRow != null;
-        mRowAdapterView = mLazyRow.findViewById2(R.id.row_lazy_view);
-        mColumnAdapterView = mLazyRow.findViewById2(R.id.adapter_view);
-        mColumn2 = mLazyRow.findViewById2(R.id.column2);
+        mLazyRow = findViewById(R.id.row_layout);
+        mRowAdapterView = findViewById(R.id.row_lazy_view);
+        mColumnAdapterView = findViewById(R.id.adapter_view);
+        mColumn2 = findViewById(R.id.column2);
     }
     
     @Override

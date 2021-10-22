@@ -46,8 +46,8 @@ public class TestActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState) {
         mTitleBar = findViewById(R.id.title_bar);
         mLazyColumn = findViewById(R.id.column);
-        mAdapterView = mLazyColumn.findViewById2(R.id.adapter_view);
-        mGroupRoot = mLazyColumn.findViewById2(R.id.group_root);
+        mAdapterView = findViewById(R.id.adapter_view);
+        mGroupRoot = findViewById(R.id.group_root);
         mButton = findViewById(R.id.btn);
     }
     
@@ -71,7 +71,7 @@ public class TestActivity extends BaseActivity {
         mButton.setVisibility(View.VISIBLE);
         mButton.setOnClickListener(v -> {
             GroupPlaceholder view = (GroupPlaceholder) LayoutInflater.from(mContext).inflate(R.layout.activity_test_group_item, mGroupRoot, false);
-            AdapterView adapterView = view.findViewById2(R.id.adapter_view);
+            AdapterView adapterView = view.findViewById(R.id.adapter_view);
             List<String> strings = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 strings.add("test str2:" + i);

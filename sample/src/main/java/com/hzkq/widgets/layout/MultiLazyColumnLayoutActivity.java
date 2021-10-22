@@ -44,10 +44,10 @@ public class MultiLazyColumnLayoutActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState) {
         mLazyColumn = findViewById(R.id.column);
-        mAdapterView = mLazyColumn.findViewById2(R.id.lazyColumn);
+        mAdapterView = findViewById(R.id.lazyColumn);
         mButton = findViewById(R.id.btn);
-        mAdapterView2 = mLazyColumn.findViewById2(R.id.lazyColumn2);
-        mAdapterView3 = mLazyColumn.findViewById2(R.id.lazyColumn3);
+        mAdapterView2 = findViewById(R.id.lazyColumn2);
+        mAdapterView3 = findViewById(R.id.lazyColumn3);
     }
     
     @Override

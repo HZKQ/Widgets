@@ -27,8 +27,6 @@ sealed class ViewData<T : View>(
     ): VH
 
     abstract fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int)
-
-    abstract fun <T : View> findViewById(id: Int): T?
 }
 
 class AdapterViewData(
@@ -95,15 +93,6 @@ class AdapterViewData(
         view.getAdapter<RecyclerView.Adapter<RecyclerView.ViewHolder>>()?.bindViewHolder(holder, position)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : View> findViewById(id: Int): T? {
-        return if (id == view.id) {
-            view as T
-        } else {
-            null
-        }
-    }
-
     fun registerAdapterDataObserver(observer: AdapterDataObserver) {
         mDataObserver = observer
         view.getAdapter<RecyclerView.Adapter<*>>()?.registerAdapterDataObserver(observer)
@@ -151,15 +140,6 @@ class NormalViewData(
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : View> findViewById(id: Int): T? {
-        if (view.id == id) {
-            return view as T
-        }
-
-        return if (view is ViewGroup) view.findViewById(id) else null
-    }
 }
 
 /**
@@ -195,15 +175,6 @@ class GroupPlaceholderViewData(
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : View> findViewById(id: Int): T? {
-        if (view.id == id) {
-            return view as T
-        }
-
-        return view.findViewById2(id)
-    }
 }
 
 class LazyColumnData(
@@ -237,15 +208,6 @@ class LazyColumnData(
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : View> findViewById(id: Int): T? {
-        if (id == view.id) {
-            return view as T
-        }
-
-        return view.findViewById2(id)
-    }
 }
 
 class LazyRowData(
@@ -279,13 +241,4 @@ class LazyRowData(
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : View> findViewById(id: Int): T? {
-        if (id == view.id) {
-            return view as T
-        }
-
-        return view.findViewById2(id)
-    }
 }
