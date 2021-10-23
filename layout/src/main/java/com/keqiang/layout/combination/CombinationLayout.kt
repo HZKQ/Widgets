@@ -37,6 +37,7 @@ abstract class CombinationLayout constructor(
     internal lateinit var recyclerView: RecyclerView
     private lateinit var onItemTouchListener: OnItemTouchListener
     private lateinit var adapterProxy: AdapterProxy
+    private val scrollListenerList: MutableList<OnScrollListener> = mutableListOf()
 
     private var viewType = 0
         get() {
@@ -335,6 +336,14 @@ abstract class CombinationLayout constructor(
         scrollTo(position, true, 0)
     }
 
+    fun addOnScrollListener(scrollListener: OnScrollListener) {
+        scrollListenerList.add(scrollListener)
+    }
+
+    fun removeOnScrollListener(scrollListener: OnScrollListener) {
+        scrollListenerList.remove(scrollListener)
+    }
+
     /**
      * 查找可见项目位置，是否要查找[isComplete]和[isFirst]状态的View
      */
@@ -484,6 +493,22 @@ abstract class CombinationLayout constructor(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                scrollListenerList.forEach {
+                    it.onScrollStateChanged(newState)
+                }
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                scrollListenerList.forEach {
+                    it.onScrolled(dx, dy)
+                }
+            }
+        })
 
         recyclerView.layoutParams = params
         recyclerView.layoutManager = LinearLayoutManager(context, orientation, false)
