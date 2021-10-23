@@ -138,6 +138,9 @@ implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
 >>    </com.keqiang.layout.combination.LazyColumn>
 >>···
 >>```
+>> ### ProGuard
+>> ```-keep class com.keqiang.layout.combination.** {*;}```
+>>
 ---
 
 
