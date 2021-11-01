@@ -6,9 +6,10 @@
         <!--仅用于预览时，展示的Item数量-->
         <attr name="itemCount" format="integer" />
         <attr name="android:background" />
-        <!--是否隔离视图，false表示多个相同type_flag的LazyColumn adapter item布局可以复用-->
+        <!--是否隔离视图，false表示多个相同type_flag的AdapterView adapter item布局可以复用。
+        需要注意的是，如果设置多个AdapterView此属性为false，那么设置不同类型Adapter时，确保所有itemType都能覆盖到-->
         <attr name="isolateViewTypes" format="boolean" />
-        <!--用来标识复用相同adapter item布局的多个LazyColumn-->
+        <!--用来标识复用相同adapter item布局的多个AdapterView-->
         <attr name="type_flag" format="string" />
     </declare-styleable>
 

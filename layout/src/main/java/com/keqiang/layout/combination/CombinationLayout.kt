@@ -763,6 +763,16 @@ abstract class CombinationLayout constructor(
             viewDataList.forEach {
                 itemCount2 += it.getViewCount()
                 if (isAdapterViewData(it)) {
+                    it.setAdapterChangeListener { _, adapter ->
+                        // adapter类型变更
+                        if (adapter != null
+                            // 隔离AdapterView,不与其它AdapterView共享视图
+                            && it.view.isolateViewTypes) {
+                            // 变更itemType，防止不同Adapter Item复用
+                            it.type = adapterViewType
+                        }
+                    }
+
                     it.registerAdapterDataObserver(AdapterViewAdapterDataObserver(it))
                 }
             }
@@ -788,6 +798,7 @@ abstract class CombinationLayout constructor(
         private fun removeViewData(viewData: ViewData<*>) {
             if (isAdapterViewData(viewData)) {
                 viewData.unRegisterAdapterDataObserver()
+                viewData.setAdapterChangeListener(null)
                 viewData.view.scrollListener = null
                 viewData.view.combinationLayout = null
             }

@@ -12,7 +12,7 @@ import com.keqiang.layout.R
 
 sealed class ViewData<T : View>(
     val context: Context,
-    val type: Int,
+    var type: Int,
     val view: T
 ) {
     abstract fun getViewCount(): Int
@@ -36,9 +36,11 @@ class AdapterViewData(
 ) : ViewData<AdapterView>(context, type, adapterView) {
 
     private var mDataObserver: AdapterDataObserver? = null
+    private var mAdapterChangeListener: AdapterChangeListener? = null
 
     init {
         view.registerAdapterChangeListener { oldAdapter, adapter ->
+            mAdapterChangeListener?.invoke(oldAdapter, adapter)
             mDataObserver?.apply {
                 oldAdapter?.unregisterAdapterDataObserver(this)
                 adapter?.registerAdapterDataObserver(this)
@@ -103,6 +105,10 @@ class AdapterViewData(
             view.getAdapter<RecyclerView.Adapter<*>>()?.unregisterAdapterDataObserver(this)
         }
         mDataObserver = null
+    }
+
+    fun setAdapterChangeListener(listener: AdapterChangeListener?) {
+        mAdapterChangeListener = listener
     }
 }
 
