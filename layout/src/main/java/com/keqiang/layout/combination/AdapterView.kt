@@ -72,6 +72,14 @@ class AdapterView @JvmOverloads constructor(
                 typedArray?.recycle()
             }
         }
+
+        if (isInEditMode) {
+            val adapter = PreviewAdapter()
+            recyclerView.adapter = adapter
+            recyclerView.visibility = VISIBLE
+            val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            addView(recyclerView, layoutParams)
+        }
     }
 
     override fun invalidate() {
@@ -207,7 +215,6 @@ class AdapterView @JvmOverloads constructor(
         }
     }
 
-
     @Suppress("UNCHECKED_CAST")
     fun <T : RecyclerView.Adapter<*>> getAdapter(): T? {
         return mAdapter as T?
@@ -239,41 +246,6 @@ class AdapterView @JvmOverloads constructor(
         ReplaceWith("scrollToPosition"))
     override fun scrollTo(x: Int, y: Int) {
 
-    }
-
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        createPreviewView()
-    }
-
-    /**
-     * 设置父类布局的布局方向，仅用于预览使用，实际运行，此View不展示
-     */
-    internal fun setParentOrientation(orientation: Int) {
-        if (orientation == this.orientation) {
-            return
-        }
-
-        setOrientation(orientation)
-        createPreviewView()
-    }
-
-    /**
-     * 创建用于预览的View
-     */
-    private fun createPreviewView() {
-        if (!isInEditMode) {
-            return
-        }
-
-        removeAllViews()
-        if (mItemCount < 1 || mLayoutResId == NO_ID) {
-            return
-        }
-
-        for (i in 0 until mItemCount) {
-            LayoutInflater.from(context).inflate(mLayoutResId, this, true)
-        }
     }
 
     internal fun backgroundClone(): Drawable? {
@@ -368,6 +340,23 @@ class AdapterView @JvmOverloads constructor(
      */
     fun findViewByPosition(position: Int): View? {
         return combinationLayout?.findViewByPosition(this, position)
+    }
+
+    /**
+     * 用于预览的Adapter
+     */
+    private inner class PreviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val view = LayoutInflater.from(context).inflate(mLayoutResId, parent, false)
+            return object : RecyclerView.ViewHolder(view) {}
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
+        }
+
+        override fun getItemCount(): Int = if (mLayoutResId == NO_ID) 0 else mItemCount
+
     }
 }
 

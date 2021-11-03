@@ -34,7 +34,7 @@ abstract class CombinationLayout constructor(
     internal val orientation: Int
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    internal lateinit var recyclerView: RecyclerView
+    internal lateinit var recyclerView: RecyclerViewInner
     private lateinit var onItemTouchListener: OnItemTouchListener
     private lateinit var adapterProxy: AdapterProxy
     private val scrollListenerList: MutableList<OnScrollListener> = mutableListOf()
@@ -345,6 +345,16 @@ abstract class CombinationLayout constructor(
     }
 
     /**
+     * 解决焦点冲突时，导致界面滑动。 如：布局中有EditText，当EditText获取焦点时，此布局可能滑动到获取焦点EditText位置，
+     * 此时如果不想滑动，可在EditText获取焦点时，调用该方法
+     */
+    fun requestNotScroll() {
+        if(this::recyclerView.isInitialized) {
+            recyclerView.requestNotScroll()
+        }
+    }
+
+    /**
      * 查找可见项目位置，是否要查找[isComplete]和[isFirst]状态的View
      */
     internal fun findVisibleItemPosition(view: View, isFirst: Boolean, isComplete: Boolean = false): Int {
@@ -465,7 +475,7 @@ abstract class CombinationLayout constructor(
             for (i in 0 until super.getChildCount()) {
                 val child = super.getChildAt(i)
                 if (child is AdapterView) {
-                    child.setParentOrientation(orientation)
+                    child.recyclerViewLayoutManager.orientation = orientation
                 } else if (child is GroupPlaceholder) {
                     child.setParentOrientation(orientation)
                 }
@@ -487,11 +497,13 @@ abstract class CombinationLayout constructor(
         }
 
         // 最终以RecyclerView展示内容
-        recyclerView = RecyclerView(context)
+        recyclerView = RecyclerViewInner(context)
+        recyclerView.setLinearLayoutManager(orientation)
         val params = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+        recyclerView.layoutParams = params
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -509,13 +521,8 @@ abstract class CombinationLayout constructor(
             }
         })
 
-        recyclerView.layoutParams = params
-        recyclerView.layoutManager = LinearLayoutManager(context, orientation, false)
-        removeAllViews()
-        addView(recyclerView)
-
-        recyclerView.itemAnimator = null
-        recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+        super.removeAllViews()
+        super.addView(recyclerView)
 
         adapterProxy = AdapterProxy(children)
         recyclerView.adapter = adapterProxy

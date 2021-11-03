@@ -1,5 +1,6 @@
 package com.keqiang.layout.combination
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
@@ -79,6 +80,7 @@ class GroupPlaceholder @JvmOverloads constructor(
     /**
      * 视图预览
      */
+    @SuppressLint("WrongConstant")
     private fun preview() {
         if (!isInEditMode) {
             return
@@ -87,7 +89,7 @@ class GroupPlaceholder @JvmOverloads constructor(
         for (i in 0 until super.getChildCount()) {
             when (val child = super.getChildAt(i)) {
                 is AdapterView -> {
-                    child.setParentOrientation(orientation)
+                    child.recyclerViewLayoutManager.orientation = orientation
                 }
 
                 is GroupPlaceholder -> {
