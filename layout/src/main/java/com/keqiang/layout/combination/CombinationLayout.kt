@@ -465,8 +465,7 @@ abstract class CombinationLayout constructor(
             for (i in 0 until super.getChildCount()) {
                 val child = super.getChildAt(i)
                 if (child is AdapterView) {
-                    removeView(child)
-                    addView(child.createPreviewView(orientation), i)
+                    child.setParentOrientation(orientation)
                 } else if (child is GroupPlaceholder) {
                     child.setParentOrientation(orientation)
                 }

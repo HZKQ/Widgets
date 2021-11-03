@@ -24,7 +24,7 @@ import com.keqiang.layout.R
  */
 class AdapterView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : LinearLayout(context, attrs, defStyleAttr) {
 
     private var mItemCount = 1
     private var mAdapterChangeListener: MutableList<AdapterChangeListener> = mutableListOf()
@@ -75,7 +75,6 @@ class AdapterView @JvmOverloads constructor(
     }
 
     override fun invalidate() {
-        ViewGroup.LayoutParams.WRAP_CONTENT
         super.invalidate()
         mLayoutChangeListener?.invoke()
     }
@@ -136,6 +135,79 @@ class AdapterView @JvmOverloads constructor(
         mAdapterChangeListener.forEach { it.invoke(oldAdapter, mAdapter) }
     }
 
+    override fun getChildAt(index: Int): View? {
+        return if (isInEditMode) {
+            super.getChildAt(index)
+        } else {
+            null
+        }
+    }
+
+    override fun getChildCount(): Int {
+        return if (isInEditMode) {
+            super.getChildCount()
+        } else {
+            0
+        }
+    }
+
+    override fun indexOfChild(child: View?): Int {
+        if (isInEditMode) {
+            return super.indexOfChild(child)
+        }
+
+        return -1
+    }
+
+    override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
+        if (isInEditMode) {
+            super.addView(child, index, params)
+        }
+    }
+
+    override fun removeAllViews() {
+        if (isInEditMode) {
+            super.removeAllViews()
+        }
+    }
+
+    override fun removeView(view: View?) {
+        if (isInEditMode) {
+            super.removeView(view)
+        }
+    }
+
+    override fun removeViewAt(index: Int) {
+        if (isInEditMode) {
+            super.removeViewAt(index)
+        }
+    }
+
+    override fun removeViews(start: Int, count: Int) {
+        if (isInEditMode) {
+            super.removeViews(start, count)
+        }
+    }
+
+    override fun removeAllViewsInLayout() {
+        if (isInEditMode) {
+            super.removeAllViewsInLayout()
+        }
+    }
+
+    override fun removeViewInLayout(view: View?) {
+        if (isInEditMode) {
+            super.removeViewInLayout(view)
+        }
+    }
+
+    override fun removeViewsInLayout(start: Int, count: Int) {
+        if (isInEditMode) {
+            super.removeViewsInLayout(start, count)
+        }
+    }
+
+
     @Suppress("UNCHECKED_CAST")
     fun <T : RecyclerView.Adapter<*>> getAdapter(): T? {
         return mAdapter as T?
@@ -169,33 +241,39 @@ class AdapterView @JvmOverloads constructor(
 
     }
 
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        createPreviewView()
+    }
+
+    /**
+     * 设置父类布局的布局方向，仅用于预览使用，实际运行，此View不展示
+     */
+    internal fun setParentOrientation(orientation: Int) {
+        if (orientation == this.orientation) {
+            return
+        }
+
+        setOrientation(orientation)
+        createPreviewView()
+    }
+
     /**
      * 创建用于预览的View
      */
-    internal fun createPreviewView(orientation: Int): View {
+    private fun createPreviewView() {
+        if (!isInEditMode) {
+            return
+        }
+
+        removeAllViews()
         if (mItemCount < 1 || mLayoutResId == NO_ID) {
-            return this
-        }
-
-        val layout = LinearLayout(context)
-        layout.orientation = orientation
-        layout.layoutParams = layoutParams
-        layout.setPaddingRelative(paddingStart, paddingTop, paddingEnd, paddingBottom)
-        layout.background = background
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            layout.backgroundTintMode = backgroundTintMode
-            layout.backgroundTintList = backgroundTintList
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            layout.backgroundTintBlendMode = backgroundTintBlendMode
+            return
         }
 
         for (i in 0 until mItemCount) {
-            LayoutInflater.from(context).inflate(mLayoutResId, layout, true)
+            LayoutInflater.from(context).inflate(mLayoutResId, this, true)
         }
-
-        return layout
     }
 
     internal fun backgroundClone(): Drawable? {
@@ -233,10 +311,16 @@ class AdapterView @JvmOverloads constructor(
         return drawable
     }
 
+    /**
+     * 参数[recyclerView]为[AdapterView]实际运行时用于展示界面的组件
+     */
     internal fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         mAdapter?.onAttachedToRecyclerView(this.recyclerView)
     }
 
+    /**
+     * 参数[recyclerView]为[AdapterView]实际运行时用于展示界面的组件
+     */
     internal fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         mAdapter?.onDetachedFromRecyclerView(this.recyclerView)
     }

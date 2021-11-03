@@ -85,25 +85,13 @@ class GroupPlaceholder @JvmOverloads constructor(
         }
 
         for (i in 0 until super.getChildCount()) {
-            val child = super.getChildAt(i)
-            when {
-                child is AdapterView -> {
-                    removeView(child)
-                    addView(child.createPreviewView(orientation).apply {
-                        this.tag = child
-                    }, i)
-                }
-
-                child is GroupPlaceholder -> {
+            when (val child = super.getChildAt(i)) {
+                is AdapterView -> {
                     child.setParentOrientation(orientation)
                 }
 
-                child.tag is AdapterView -> {
-                    val adapterView = child.tag as AdapterView
-                    removeView(child)
-                    addView(adapterView.createPreviewView(orientation).apply {
-                        this.tag = child
-                    })
+                is GroupPlaceholder -> {
+                    child.setParentOrientation(orientation)
                 }
             }
         }
