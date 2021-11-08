@@ -70,10 +70,16 @@ public class TestActivity extends BaseActivity {
     public void initEvent() {
         mButton.setVisibility(View.VISIBLE);
         mButton.setOnClickListener(v -> {
+            if (mGroupRoot.getChildCount() > 1) {
+                findViewById(R.id.tv_test).setVisibility(View.GONE);
+                // mGroupRoot.getChildAt(0).setVisibility(View.GONE);
+                return;
+            }
+            
             GroupPlaceholder view = (GroupPlaceholder) LayoutInflater.from(mContext).inflate(R.layout.activity_test_group_item, mGroupRoot, false);
             AdapterView adapterView = view.findViewById(R.id.adapter_view);
             List<String> strings = new ArrayList<>();
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 20; i++) {
                 strings.add("test str2:" + i);
             }
             CustomerAdapter adapter = new CustomerAdapter(strings);

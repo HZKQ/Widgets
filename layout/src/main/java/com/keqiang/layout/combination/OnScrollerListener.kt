@@ -1,5 +1,7 @@
 package com.keqiang.layout.combination
 
+import androidx.recyclerview.widget.RecyclerView
+
 /**
  * 滑动监听
  *
@@ -14,8 +16,8 @@ interface OnScrollListener {
     fun onScrolled(dx: Int, dy: Int)
 
     companion object {
-        const val SCROLL_STATE_IDLE = 0
-        const val SCROLL_STATE_DRAGGING = 1
-        const val SCROLL_STATE_SETTLING = 2
+        const val SCROLL_STATE_IDLE = RecyclerView.SCROLL_STATE_IDLE
+        const val SCROLL_STATE_DRAGGING = RecyclerView.SCROLL_STATE_DRAGGING
+        const val SCROLL_STATE_SETTLING = RecyclerView.SCROLL_STATE_SETTLING
     }
 }

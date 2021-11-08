@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--延迟加载列表布局改变标识符-->
-    <item name="lazy_column_layout_update_flag" type="id" />
-    <item name="lazy_column_wrapper_item_type" type="id" />
+    <item name="adapter_view_layout_update_flag" type="id" />
+    <item name="adapter_view_wrapper_item_type" type="id" />
 </resources>

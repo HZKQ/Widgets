@@ -1,6 +1,7 @@
 package com.hzkq.widgets.layout;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -94,9 +95,15 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
     public void initEvent() {
         // mBtn.setVisibility(View.VISIBLE);
         mBtn.setOnClickListener(v -> {
-            mColumn.scrollToPosition(4);
-            mLazyRow.scrollToPosition(4);
-            mColumn2.scrollToPosition(1);
+            // mColumn.scrollToPosition(4);
+            // mLazyRow.scrollToPosition(4);
+            // mColumn2.scrollToPosition(1);
+            
+            if (mLazyRow.getVisibility() == View.VISIBLE) {
+                mLazyRow.setVisibility(View.GONE);
+            } else  {
+                mLazyRow.setVisibility(View.VISIBLE);
+            }
         });
     }
     

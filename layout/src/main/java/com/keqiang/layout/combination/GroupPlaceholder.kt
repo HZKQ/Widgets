@@ -13,7 +13,7 @@ import com.keqiang.layout.R
 /**
  * 占位符，用于整体添加一组控件到[LazyColumnData]或[LazyRow]，实际运行时，该组件本身将移除不显示，其子节点向上提升。
  * 且该组件任何属性都将不作用于其子节点，比如宽高，背景色等属性。实际运行时排列方式根据添加到[LazyColumn]或[LazyRow]决定。
- * 预览时可通过[setOrientation]指定排列方式
+ * 预览时可通过[setOrientation]指定排列方式,不指定则根据父布局方向排版
  *
  * @author Created by wanggaowan on 2021/10/13 16:08
  */
@@ -364,6 +364,21 @@ class GroupPlaceholder @JvmOverloads constructor(
         }
     }
 
+    /**
+     * 设置分组下子节点的可见性
+     */
+    override fun setVisibility(visibility: Int) {
+        if (isInEditMode) {
+            super.setVisibility(visibility)
+        } else {
+            views.forEach {
+                if (it != emptyView) {
+                    it.visibility = visibility
+                }
+            }
+        }
+    }
+
     @Deprecated("GroupPlaceholder does not support scrolling to an absolute position.",
         ReplaceWith("scrollToPosition"))
     override fun scrollTo(x: Int, y: Int) {
@@ -374,6 +389,10 @@ class GroupPlaceholder @JvmOverloads constructor(
      * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示
      */
     fun scrollToPosition(position: Int) {
+        if (position < 0 || position >= childCount) {
+            return
+        }
+
         // 列表第一个为emptyView
         scrollListener?.invoke(position + 1, false, 0)
     }
@@ -383,6 +402,10 @@ class GroupPlaceholder @JvmOverloads constructor(
      * [offset]用于置顶距离顶部的距离
      */
     fun scrollToPositionWithOffset(position: Int, offset: Int) {
+        if (position < 0 || position >= childCount) {
+            return
+        }
+
         // 列表第一个为emptyView
         scrollListener?.invoke(position + 1, false, offset)
     }
@@ -391,6 +414,10 @@ class GroupPlaceholder @JvmOverloads constructor(
      * 顺滑的滑动到[position]对应View所在位置，view首次进入屏幕即停止，不置顶显示
      */
     fun smoothScrollToPosition(position: Int) {
+        if (position < 0 || position >= childCount) {
+            return
+        }
+
         // 列表第一个为emptyView
         scrollListener?.invoke(position + 1, true, 0)
     }

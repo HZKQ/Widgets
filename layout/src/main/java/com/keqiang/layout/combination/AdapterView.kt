@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
@@ -90,6 +91,14 @@ class AdapterView @JvmOverloads constructor(
     override fun requestLayout() {
         super.requestLayout()
         mLayoutChangeListener?.invoke()
+    }
+
+    override fun setVisibility(visibility: Int) {
+        if (visibility == INVISIBLE && this.visibility == VISIBLE) {
+            // 此时不会触发requestLayout
+            mLayoutChangeListener?.invoke()
+        }
+        super.setVisibility(visibility)
     }
 
     override fun setBackgroundColor(color: Int) {
@@ -224,7 +233,15 @@ class AdapterView @JvmOverloads constructor(
      * 滑动到[position]对应View所在位置，如果有足够空间，则View将置顶显示
      */
     fun scrollToPosition(position: Int) {
-        scrollListener?.invoke(position, false, 0)
+        if (isGone) {
+            return
+        }
+
+        if (position < 0 || position >= getViewCount() - 2) {
+            return
+        }
+
+        scrollListener?.invoke(position + 1, false, 0)
     }
 
     /**
@@ -232,14 +249,30 @@ class AdapterView @JvmOverloads constructor(
      * [offset]用于置顶距离顶部的距离
      */
     fun scrollToPositionWithOffset(position: Int, offset: Int) {
-        scrollListener?.invoke(position, false, offset)
+        if (isGone) {
+            return
+        }
+
+        if (position < 0 || position >= getViewCount() - 2) {
+            return
+        }
+
+        scrollListener?.invoke(position + 1, false, offset)
     }
 
     /**
      * 顺滑的滑动到[position]对应View所在位置，view首次进入屏幕即停止，不置顶显示
      */
     fun smoothScrollToPosition(position: Int) {
-        scrollListener?.invoke(position, true, 0)
+        if (isGone) {
+            return
+        }
+
+        if (position < 0 || position >= getViewCount() - 2) {
+            return
+        }
+
+        scrollListener?.invoke(position + 1, true, 0)
     }
 
     @Deprecated("AdapterView does not support scrolling to an absolute position.",
@@ -305,41 +338,120 @@ class AdapterView @JvmOverloads constructor(
         recyclerView.adapter = mAdapter
     }
 
+    internal fun getViewCount(): Int {
+        if (isGone) {
+            return 0
+        }
+
+        // +2 用于绘制view的padding、margin数据
+        return (getAdapter<RecyclerView.Adapter<*>>()?.itemCount ?: 0) + 2
+    }
+
     /**
      * 查找第一个可见Item位置
      */
     fun findFirstVisibleItemPosition(): Int {
-        return combinationLayout?.findVisibleItemPosition(this, isFirst = true) ?: -1
+        if (getViewCount() <= 2) {
+            // 说明未设置Adapter或Adapter数据为0
+            return RecyclerView.NO_POSITION
+        }
+
+        return findVisibleItemPosition(isFirst = true)
     }
 
     /**
      * 查找最后一个可见Item位置
      */
     fun findLastVisibleItemPosition(): Int {
-        return combinationLayout?.findVisibleItemPosition(this, isFirst = false) ?: -1
+        if (getViewCount() <= 2) {
+            // 说明未设置Adapter或Adapter数据为0
+            return RecyclerView.NO_POSITION
+        }
+
+        return findVisibleItemPosition(isFirst = false)
     }
 
     /**
      * 查找第一个完全展示Item位置，该Item完整展示在界面，无任何部分滑出界面边界
      */
     fun findFirstCompletelyVisibleItemPosition(): Int {
-        return combinationLayout?.findVisibleItemPosition(this, isFirst = true, isComplete = true)
-            ?: -1
+        if (getViewCount() <= 2) {
+            // 说明未设置Adapter或Adapter数据为0
+            return RecyclerView.NO_POSITION
+        }
+
+        return findVisibleItemPosition(isFirst = true, isComplete = true)
     }
 
     /**
      * 查找最后一个完全展示Item位置，该Item完整展示在界面，无任何部分滑出界面边界
      */
     fun findLastCompletelyVisibleItemPosition(): Int {
-        return combinationLayout?.findVisibleItemPosition(this, isFirst = false, isComplete = true)
-            ?: -1
+        if (getViewCount() <= 2) {
+            // 说明未设置Adapter或Adapter数据为0
+            return RecyclerView.NO_POSITION
+        }
+
+        return findVisibleItemPosition(isFirst = false, isComplete = true)
+    }
+
+    /**
+     * 查找可见项目位置，是否要查找[isComplete]和[isFirst]状态的View
+     */
+    private fun findVisibleItemPosition(isFirst: Boolean, isComplete: Boolean = false): Int {
+        val firstPos = combinationLayout?.findVisibleItemPosition(this, true, isComplete)
+            ?: RecyclerView.NO_POSITION
+
+        if (isFirst && firstPos == RecyclerView.NO_POSITION) {
+            return RecyclerView.NO_POSITION
+        }
+
+        val lastPos = combinationLayout?.findVisibleItemPosition(this, false, isComplete)
+            ?: RecyclerView.NO_POSITION
+
+        if (!isFirst && lastPos == RecyclerView.NO_POSITION) {
+            return RecyclerView.NO_POSITION
+        }
+
+        // 当AdapterView显示时，顶部和底部各有一个Item用于绘制AdapterView的padding、margin等数据
+        val startIndex = 1
+        val viewCount = getViewCount()
+        val endIndex = viewCount - 2
+        if (isFirst) {
+            if (startIndex in firstPos..lastPos) {
+                return 0
+            }
+
+            if (firstPos in startIndex..endIndex) {
+                return firstPos - 1
+            }
+        } else {
+            if (endIndex in firstPos..lastPos) {
+                return endIndex - 1
+            }
+
+            if (lastPos in startIndex until endIndex) {
+                return lastPos - startIndex
+            }
+        }
+
+        return RecyclerView.NO_POSITION
     }
 
     /**
      * 获取指定[position]位置的View，仅当前位置数据在界面展示时返回，否则返回null
      */
     fun findViewByPosition(position: Int): View? {
-        return combinationLayout?.findViewByPosition(this, position)
+        if (getViewCount() <= 2) {
+            // 说明未设置Adapter或Adapter数据为0
+            return null
+        }
+
+        if (position < 0 || position >= getViewCount() - 2) {
+            return null
+        }
+
+        return combinationLayout?.findViewByPosition(this, position + 1)
     }
 
     /**

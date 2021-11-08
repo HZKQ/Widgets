@@ -48,6 +48,7 @@
                     android:orientation="vertical">
 
                     <com.hzkq.widgets.layout.TV
+                        android:id="@+id/tv_test"
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:layout_marginTop="10dp"

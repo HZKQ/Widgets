@@ -36,7 +36,8 @@ public class CombinationLayoutActivity extends BaseActivity {
     
     @Override
     public void initData() {
-    
+        View view = findViewById(R.id.tv_test);
+        // view.setVisibility(View.VISIBLE);
     }
     
     @Override

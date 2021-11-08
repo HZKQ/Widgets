@@ -20,6 +20,7 @@
         app:ttb_titleText="自组合布局" />
 
     <TextView
+        android:id="@+id/tv_test"
         android:layout_width="match_parent"
         android:layout_height="@dimen/base_title_height"
         android:layout_marginStart="40px"
@@ -33,7 +34,8 @@
         android:text="测试界面"
         android:textColor="@color/colorWhite"
         android:textSize="40px"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <TextView
         android:layout_width="match_parent"
