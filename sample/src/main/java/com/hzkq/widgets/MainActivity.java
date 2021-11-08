@@ -6,6 +6,8 @@ import android.view.View;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.huawei.hms.ml.scan.HmsScan;
+import com.keqiang.huaweiscan.CodeUtils;
 import com.squareup.timessquare.CalendarPicker;
 
 import java.util.Calendar;
@@ -134,5 +136,27 @@ public class MainActivity extends BaseActivity {
     
     public void onLayoutClick(View view) {
         startActWithIntent(new Intent(this, LayoutActivity.class));
+    }
+    
+    public void onHuaWeiScanClick(View view) {
+        CodeUtils.createQrCode("xxx",200,200);
+        
+        CodeUtils.createBarCode("xxx",400,100);
+        
+        
+        CodeUtils.scan(this, scanResult -> {
+            if (scanResult.isCancel()) {
+                return;
+            }
+            
+            HmsScan data = scanResult.getData();
+            if (data == null || scanResult.getContents() == null) {
+                ToastUtil.showToast("未识别到内容");
+                return;
+            }
+            
+            String contents = scanResult.getContents();
+            ToastUtil.showToast(contents);
+        });
     }
 }

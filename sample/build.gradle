@@ -5,7 +5,7 @@ android {
     buildToolsVersion buildVersions.buildToolsVersion
     defaultConfig {
         applicationId "com.hzkq.widgets"
-        minSdkVersion buildVersions.minSdkVersion
+        minSdkVersion 19
         targetSdkVersion buildVersions.targetSdkVersion
         versionCode 1
         versionName "1.0"
@@ -41,5 +41,6 @@ dependencies {
     implementation project(path: ':progressbar')
     implementation project(path: ':brvah')
     implementation project(path: ':layout')
+    implementation project(path: ':huaweiscan')
     implementation deps.multidex
 }

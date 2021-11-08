@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="PxUsage">
+
+    <FrameLayout
+        android:id="@+id/rim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:id="@+id/anchor4"
+        android:layout_width="match_parent"
+        android:layout_height="120px"
+        android:background="@color/colorPrimary"
+        android:gravity="center_vertical">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/back_btn"
+            android:layout_width="120px"
+            android:layout_height="120px"
+            android:layout_alignParentStart="true"
+            android:gravity="center"
+            android:padding="40px"
+            android:src="@drawable/scan_back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="200px"
+            android:layout_marginEnd="200px"
+            android:gravity="center"
+            android:text="@string/scan_code_title_label"
+            android:textColor="@color/colorWhite"
+            android:textSize="40px" />
+
+        <TextView
+            android:id="@+id/album_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:maxWidth="160px"
+            android:paddingStart="30px"
+            android:paddingEnd="30px"
+            android:text="@string/album_label"
+            android:textColor="@color/colorWhite"
+            tools:ignore="RelativeOverlap" />
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/anchor4">
+
+        <View
+            android:id="@+id/anchor2"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:background="@color/colorBlack50"
+            app:layout_constraintBottom_toTopOf="@id/scan_area"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/scan_area"
+            android:layout_width="950px"
+            android:layout_height="950px"
+            app:layout_constraintBottom_toTopOf="@id/tv_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/anchor2" />
+
+        <!--扫描线，扫码时执行扫码动画-->
+        <View
+            android:id="@+id/v_scan_line"
+            android:layout_width="950px"
+            android:layout_height="5px"
+            android:background="@color/scan_line_color"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/scan_area"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_hint"
+            android:layout_width="0px"
+            android:layout_height="200px"
+            android:background="@color/colorBlack50"
+            android:gravity="center_horizontal"
+            android:paddingTop="30px"
+            android:paddingBottom="30px"
+            android:text="@string/scan_code_hint"
+            android:textColor="@color/colorWhite"
+            android:textSize="38px"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/anchor3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scan_area" />
+
+        <View
+            android:id="@+id/anchor3"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:background="@color/colorBlack50"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_hint" />
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:background="@color/colorBlack50"
+            app:layout_constraintBottom_toTopOf="@id/tv_hint"
+            app:layout_constraintEnd_toStartOf="@id/scan_area"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/anchor2" />
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:background="@color/colorBlack50"
+            app:layout_constraintBottom_toTopOf="@id/tv_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/scan_area"
+            app:layout_constraintTop_toBottomOf="@id/anchor2" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

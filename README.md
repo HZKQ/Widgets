@@ -15,18 +15,33 @@
 #### 10. [滑动条](seekbar)
 #### 11. [定制的简单Views](views)
 #### 12. [RV适配器](brvah)
+#### 13. [Layout库](layout)
+#### 14. [华为扫码](huaweiscan)
 
 
 ## 其它库
 #### 1. [图片预览](https://github.com/wanggaowan/PhotoPreview)
 #### 2. [表格](https://github.com/wanggaowan/TableLite)
 #### 3. [多图展示](https://github.com/zhouzhuo810/ZzImageBox)
+#### 4. [阴影库](https://github.com/lihangleo2/ShadowLayout)
 
 
 ---
 ## 集成
 
 [![](https://jitpack.io/v/HZKQ/Widgets.svg)](https://jitpack.io/#HZKQ/Widgets)
+
+项目级build.gradle文件添加
+ ```
+ allprojects {
+    repositories {
+       maven { url 'https://jitpack.io' }
+       ...
+       // 集成华为扫码还需配置HMS Core SDK的Maven仓地址
+       maven { url 'https://developer.huawei.com/repo/' }
+    }
+}
+ ```
 
 集成以上所有组件：
 ```groovy
@@ -73,6 +88,26 @@ implementation 'com.github.HZKQ.Widgets:brvah:latest.release.here'
 
 // 布局库
 implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
+
+// 华为统一扫码
+implementation 'com.github.HZKQ.Widgets:huaweiscan:latest.release.here'
+```
+
+## ProGuard
+```
+// 布局库
+-keep class com.keqiang.layout.combination.** {*;}
+
+// 华为统一扫码
+-ignorewarnings
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.huawei.hianalytics.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
 ```
 
 ## 使用说明
@@ -138,9 +173,47 @@ implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
 >>    </com.keqiang.layout.combination.LazyColumn>
 >>···
 >>```
->> ### ProGuard
->> ```-keep class com.keqiang.layout.combination.** {*;}```
->>
 ---
+>## 华为统一扫码
+>```java
+>// 扫码
+>CodeUtils.scan(context, scanResult -> {
+>        if (scanResult.isCancel()) {
+>            return;
+>        }
+>        
+>        HmsScan data = scanResult.getData();
+>        if (data == null || scanResult.getContents() == >null) {
+>            ToastUtil.showToast("未识别到内容");
+>            return;
+>        }
+>        
+>        String contents = scanResult.getContents();
+>        ToastUtil.showToast(contents);
+>    });
+>
+>// 生成二维码
+>CodeUtils.createQrCode("xxx",200,200);
+>
+>// 生成条码
+>CodeUtils.createBarCode("xxx",400,100);
+>```
+>
+>如果不改变扫码界面样式，仅改变部分默认文本或颜色，则覆盖对应属性即可
+>```xml
+>// 文本
+><string name="scan_code_title_label">扫码</string>
+>< name="scan_code_hint">请将方框对准二维码/条码开始扫描</>string>
+><string name="album_label">相册</string>
+>< name="image_scan_error_hint">未识别二维码/条形码</>string>
+>
+>// 颜色
+><color name="colorPrimary">#3A559B</color>
+><color name="scan_line_color">#5A3A559B</color>
+>```
+>
+>如果要修改界面样式，覆盖布局```activity_huawei_scan.xml```即可
+---
+
 
 

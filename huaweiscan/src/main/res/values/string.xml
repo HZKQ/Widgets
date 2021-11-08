@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_code_title_label">扫码</string>
+    <string name="scan_code_hint">请将方框对准二维码/条码开始扫描</string>
+    <string name="album_label">相册</string>
+    <string name="image_scan_error_hint">未识别二维码/条形码</string>
+</resources>
