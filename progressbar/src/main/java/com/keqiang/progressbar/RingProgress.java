@@ -643,29 +643,58 @@ public class RingProgress extends View {
     }
     
     /**
-     * 执行进度动画
+     * 执行进度动画,从0过渡到当前进度
      */
     public void animate(long duration, ProgressChangeListener listener) {
+        animate(0, getProgress(), duration, listener);
+    }
+    
+    /**
+     * 执行进度动画
+     *
+     * @param fromProgress 起始进度
+     * @param toProgress   结束进度
+     */
+    public void animate(float fromProgress, float toProgress, long duration, ProgressChangeListener listener) {
         if (mValueAnimator != null && mValueAnimator.isStarted()) {
             mValueAnimator.cancel();
         }
         
-        mValueAnimator = ValueAnimator.ofFloat(0, 1f);
+        if (fromProgress < 0) {
+            fromProgress = 0;
+        } else if (fromProgress > getMax()) {
+            fromProgress = getMax();
+        }
+        
+        if (toProgress < 0) {
+            toProgress = 0;
+        } else if (toProgress > getMax()) {
+            toProgress = getMax();
+        }
+        
+        if (fromProgress == toProgress) {
+            return;
+        }
+        
+        mValueAnimator = ValueAnimator.ofFloat(fromProgress, toProgress);
         mValueAnimator.setDuration(duration);
-        final float progress = getProgress();
         mValueAnimator.addUpdateListener(animation -> {
             float value = (float) animation.getAnimatedValue();
-            setProgress(value * progress);
+            setProgress(value);
             if (listener != null) {
-                listener.onChange(getProgress());
+                listener.onChange(value);
             }
         });
         mValueAnimator.start();
     }
     
     /**
-     * 当yValuePosition == PieDataSet.ValuePosition.OUTSIDE_SLICE时，用于标识文本所绘制的位置
+     * 执行进度动画,从当前进度过渡到指定进度
      */
+    public void animateTo(float toProgress, long duration, ProgressChangeListener listener) {
+        animate(getProgress(), toProgress, duration, listener);
+    }
+    
     @IntDef({Style.RECT, Style.ROUND})
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.SOURCE)
