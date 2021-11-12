@@ -98,6 +98,14 @@
         <activity android:name=".CombinationLayoutActivity" />
 
         <activity android:name=".layout.TestActivity" />
+
+        <activity android:name=".shadowlayout.ShapeActivity" />
+
+        <activity android:name=".shadowlayout.ShadowActivity" />
+
+        <activity android:name=".shadowlayout.ShadowLayoutActivity" />
+
+        <activity android:name=".shadowlayout.StarShowActivity" />
     </application>
 
 </manifest>

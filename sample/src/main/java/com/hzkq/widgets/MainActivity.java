@@ -7,6 +7,7 @@ import android.view.View;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.huawei.hms.ml.scan.HmsScan;
+import com.hzkq.widgets.shadowlayout.ShadowLayoutActivity;
 import com.keqiang.huaweiscan.CodeUtils;
 import com.squareup.timessquare.CalendarPicker;
 
@@ -139,9 +140,9 @@ public class MainActivity extends BaseActivity {
     }
     
     public void onHuaWeiScanClick(View view) {
-        CodeUtils.createQrCode("xxx",200,200);
+        CodeUtils.createQrCode("xxx", 200, 200);
         
-        CodeUtils.createBarCode("xxx",400,100);
+        CodeUtils.createBarCode("xxx", 400, 100);
         
         
         CodeUtils.scan(this, scanResult -> {
@@ -158,5 +159,9 @@ public class MainActivity extends BaseActivity {
             String contents = scanResult.getContents();
             ToastUtil.showToast(contents);
         });
+    }
+    
+    public void onShadowLayoutClick(View view) {
+        startActWithIntent(new Intent(this, ShadowLayoutActivity.class));
     }
 }

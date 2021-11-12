@@ -17,13 +17,13 @@
 #### 12. [RV适配器](brvah)
 #### 13. [Layout库](layout)
 #### 14. [华为扫码](huaweiscan)
+#### 15. [阴影库](shadowLibrary)
 
 
 ## 其它库
 #### 1. [图片预览](https://github.com/wanggaowan/PhotoPreview)
 #### 2. [表格](https://github.com/wanggaowan/TableLite)
 #### 3. [多图展示](https://github.com/zhouzhuo810/ZzImageBox)
-#### 4. [阴影库](https://github.com/lihangleo2/ShadowLayout)
 
 
 ---
@@ -91,6 +91,9 @@ implementation 'com.github.HZKQ.Widgets:layout:latest.release.here'
 
 // 华为统一扫码
 implementation 'com.github.HZKQ.Widgets:huaweiscan:latest.release.here'
+
+// 阴影库
+implementation 'com.github.HZKQ.Widgets:shadowLibrary:latest.release.here'
 ```
 
 ## ProGuard
@@ -215,5 +218,7 @@ implementation 'com.github.HZKQ.Widgets:huaweiscan:latest.release.here'
 >如果要修改界面样式，覆盖布局```activity_huawei_scan.xml```即可
 ---
 
+>## 阴影库
+>该库由 https://github.com/lihangleo2/ShadowLayout 结合基础库MagpieX加上屏幕自适应逻辑改进而来
 
 

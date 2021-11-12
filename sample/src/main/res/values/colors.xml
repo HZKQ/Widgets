@@ -9,4 +9,7 @@
     <color name="text_yellow">#fffb9a55</color>
 
     <color name="scan_line_color">#5A008577</color>
+
+    <color name="mine_color">#855a20</color>
+    <color name="title_color">#3E3EF9</color>
 </resources>
