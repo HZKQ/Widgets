@@ -39,7 +39,7 @@ public class SmartXAxis extends XAxis {
     }
     
     /**
-     * @param customCalculateXOffset 是否自己计算Y轴每个标签的间隔值<br>
+     * @param customCalculateXOffset 是否自己计算X轴每个标签的间隔值<br>
      *                               {@code true} 此时{@link ValueFormatter#getFormattedValue(float, AxisBase)}中第一个参数为每一个标签的index值(可控)，从0往上递增<br>
      *                               {@code false} 此时{@link ValueFormatter#getFormattedValue(float, AxisBase)}中第一个参数将是系统根据{@link #setLabelCount(int)}
      *                               和{@link #setAxisMaximum(float)} (int)} 以及 {@link #setAxisMinimum(float)} (float)}三者设置的值共同计算出来的间隔值(不可控)

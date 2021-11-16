@@ -1277,8 +1277,14 @@ abstract class CombinationLayout constructor(
 
                     val combinationLayout = getCombinationLayout(child)
                     if (combinationLayout != null) {
+                        if (!combinationLayout.isEnabled) {
+                            return false
+                        }
+
                         combinationLayout.apply {
-                            if (layoutParams == null || layoutParams.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+                            if (layoutParams == null
+                                || (orientation == HORIZONTAL && layoutParams.width == ViewGroup.LayoutParams.WRAP_CONTENT)
+                                || (orientation == VERTICAL && layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT)) {
                                 return false
                             }
 
@@ -1304,7 +1310,35 @@ abstract class CombinationLayout constructor(
                                 }
                             }
                         }
-                    } else if (abs(dx) > abs(dy)) {
+
+                        return false
+                    }
+
+                    val childRv = getRecyclerView(child)
+                    if (childRv != null) {
+                        childRv.apply {
+                            if (!this.isEnabled || !this.isNestedScrollingEnabled) {
+                                return false
+                            }
+
+                            if (abs(dx) > abs(dy)) {
+                                if (canScrollHorizontally(if (dx > 0) -1 else 1)) {
+                                    requestDisallowInterceptTouchEvent(true)
+                                } else {
+                                    requestDisallowInterceptTouchEvent(false)
+                                }
+                            } else if (abs(dx) < abs(dy)) {
+                                if (canScrollVertically(if (dy > 0) -1 else 1)) {
+                                    requestDisallowInterceptTouchEvent(true)
+                                } else {
+                                    requestDisallowInterceptTouchEvent(!dispatchTouchToParentOnNotScroll)
+                                }
+                            }
+                        }
+                        return false
+                    }
+
+                    if (abs(dx) > abs(dy)) {
                         if (orientation == HORIZONTAL) {
                             if (dispatchTouchToParentOnNotScroll &&
                                 !recyclerView.canScrollHorizontally(if (dx > 0) -1 else 1)) {
@@ -1333,6 +1367,21 @@ abstract class CombinationLayout constructor(
             if (view is DetectLayoutViewGroup) {
                 val child = view.getChildAt(0)
                 if (child is CombinationLayout) {
+                    return child
+                }
+            }
+
+            return null
+        }
+
+        private fun getRecyclerView(view: View?): RecyclerView? {
+            if (view is RecyclerView) {
+                return view
+            }
+
+            if (view is DetectLayoutViewGroup) {
+                val child = view.getChildAt(0)
+                if (child is RecyclerView) {
                     return child
                 }
             }

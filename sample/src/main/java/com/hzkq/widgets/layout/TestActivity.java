@@ -19,6 +19,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
 
@@ -64,6 +65,16 @@ public class TestActivity extends BaseActivity {
             String s = data.get(position);
         });
         
+        
+        strings = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            strings.add("test str4:" + i);
+        }
+        
+        CustomerAdapter2 adapter2 = new CustomerAdapter2(strings);
+        
+        RecyclerView recyclerView = findViewById(R.id.rv);
+        recyclerView.setAdapter(adapter2);
     }
     
     @Override
@@ -114,6 +125,34 @@ public class TestActivity extends BaseActivity {
         @Override
         public int[] getNestViewIds() {
             return new int[]{R.id.tv_test};
+        }
+    }
+    
+    private static class CustomerAdapter2 extends RvQuickAdapter<String, BaseViewHolder> {
+        
+        public CustomerAdapter2(@Nullable List<? extends String> data) {
+            super(R.layout.rv_item_layout2, data);
+        }
+        
+        @Override
+        protected void convert(@NonNull BaseViewHolder holder, String item) {
+            int position = holder.getBindingAdapterPosition();
+            TextView itemView = (TextView) holder.itemView;
+            itemView.setText(getData().get(position) + ";" + "当前位置：" + position);
+        }
+        
+        @Override
+        protected void convert(@NonNull BaseViewHolder holder, String item, @NonNull List<?> payloads) {
+            int position = holder.getBindingAdapterPosition();
+            TextView itemView = (TextView) holder.itemView;
+            itemView.setText(getData().get(position) + ";" + "当前位置：" + position);
+            
+        }
+        
+        @Nullable
+        @Override
+        public int[] getNestViewIds() {
+            return null;
         }
     }
 }
