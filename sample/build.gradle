@@ -43,5 +43,6 @@ dependencies {
     implementation project(path: ':layout')
     implementation project(path: ':huaweiscan')
     implementation project(path: ':shadowLibrary')
+    implementation project(path: ':chart')
     implementation deps.multidex
 }

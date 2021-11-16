@@ -69,6 +69,13 @@
 
             </com.keqiang.layout.combination.GroupPlaceholder>
 
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/rv_item_layout2" />
         </com.keqiang.layout.combination.LazyColumn>
 
         <Button

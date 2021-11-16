@@ -106,6 +106,8 @@
         <activity android:name=".shadowlayout.ShadowLayoutActivity" />
 
         <activity android:name=".shadowlayout.StarShowActivity" />
+
+        <activity android:name=".chart.simple.LineChartActivity" />
     </application>
 
 </manifest>

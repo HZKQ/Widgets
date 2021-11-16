@@ -65,4 +65,8 @@ public class MPChartActivity extends BaseActivity {
         i.setData(Uri.parse("https://github.com/PhilJay/MPAndroidChart"));
         startActivity(i);
     }
+    
+    public void onSimpleChartClick(View view) {
+        startActWithIntent(new Intent(this, com.hzkq.widgets.chart.simple.LineChartActivity.class));
+    }
 }
