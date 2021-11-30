@@ -115,8 +115,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimaryDark"
-                    app:itemCount="2"
-                    app:layout="@layout/rv_item_layout_horizontal" />
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    app:itemCount="5"
+                    app:layout="@layout/rv_item_grid_layout_h"
+                    app:spanCount="2" />
 
                 <TextView
                     android:layout_width="40dp"

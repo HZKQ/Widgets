@@ -11,6 +11,8 @@
         <attr name="isolateViewTypes" format="boolean" />
         <!--用来标识复用相同adapter item布局的多个AdapterView-->
         <attr name="type_flag" format="string" />
+        <!--通过设置此值实现网格布局和线性布局。1：线性布局，>1:网格布局-->
+        <attr name="spanCount" />
     </declare-styleable>
 
     <declare-styleable name="CombinationLayout">

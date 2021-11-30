@@ -88,6 +88,9 @@ public class PickerViewActivity extends BaseActivity {
     
     private void chooseStarTime() {
         if (mStartTimePicker == null) {
+            Calendar startDate = Calendar.getInstance();
+            Calendar endDate = Calendar.getInstance();
+            endDate.set(2100, 11, 31);
             //时间选择器 ，自定义布局
             mStartTimePicker = new TimePickerView.Builder(this, (p, date) -> {
                 // 选中事件回调
@@ -103,7 +106,7 @@ public class PickerViewActivity extends BaseActivity {
                 })
                 .setContentSize(SimpleUtil.getScaledValue(46, true))
                 .setOutSize(SimpleUtil.getScaledValue(36, true))
-                .setType(new boolean[]{true, true, true, false, false, false})
+                .setType(new boolean[]{true, true, true, true, true, true})
                 .setLabel(getString(R.string.pickerview_year),
                     getString(R.string.pickerview_month),
                     getString(R.string.pickerview_day),
@@ -111,6 +114,7 @@ public class PickerViewActivity extends BaseActivity {
                     getString(R.string.pickerview_minutes),
                     getString(R.string.pickerview_seconds))
                 .setLineSpacingMultiplier(1.8f)
+                .setRangDate(startDate, endDate)
                 .setTextXOffset(0, 0, 0, 0, 0, 0)
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setDividerColor(ContextCompat.getColor(this, R.color.colorLine))

@@ -1,15 +1,13 @@
 package com.keqiang.layout.combination
 
 import android.content.Context
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.core.view.*
+import androidx.core.view.isGone
 import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.BuildConfig
-import com.keqiang.layout.R
 
 // View数据
 // Created by wanggaowan on 2021/9/15 15:41
@@ -59,7 +57,7 @@ class AdapterViewData(
     private var mAdapterChangeListener: AdapterChangeListener? = null
 
     init {
-        view.recyclerViewLayoutManager.orientation = orientation
+        view.layoutManager.orientation = orientation
 
         view.registerAdapterChangeListener { oldAdapter, adapter ->
             mAdapterChangeListener?.invoke(oldAdapter, adapter)
@@ -68,15 +66,7 @@ class AdapterViewData(
             mAdapterDataObserver.onChanged()
         }
 
-        view.setTag(R.id.adapter_view_layout_update_flag, 1L)
-        view.registerLayoutChangeListener {
-            val flag: Long = view.getTag(R.id.adapter_view_layout_update_flag) as Long
-            view.setTag(
-                R.id.adapter_view_layout_update_flag,
-                if (flag == Long.MAX_VALUE) 1L else flag + 1
-            )
-            mAdapterDataObserver.onChanged()
-        }
+        view.registerLayoutChangeListener { mAdapterDataObserver.onChanged() }
     }
 
     override fun getViewCount(): Int {
@@ -118,26 +108,19 @@ class AdapterViewData(
         viewType: Int
     ): VH {
 
-        val frameLayout = FrameLayout(parent.context)
-        val layoutParams = view.layoutParams
-        val params = if (orientation == LinearLayout.VERTICAL) {
-            ViewGroup.MarginLayoutParams(layoutParams.width, LinearLayout.LayoutParams.WRAP_CONTENT)
-        } else {
-            ViewGroup.MarginLayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, layoutParams.height)
-        }
-        frameLayout.layoutParams = params
-
         if (viewType == BG_ITEM_TYPE) {
+            val frameLayout = FrameLayout(parent.context)
+            val params = if (orientation == LinearLayout.VERTICAL) {
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
+            } else {
+                ViewGroup.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+            frameLayout.layoutParams = params
             return ViewHolderWrapper(frameLayout) as VH
         }
 
         val viewHolder = view.getAdapter<RecyclerView.Adapter<VH>>()?.createViewHolder(parent, viewType - type)
-        return if (viewHolder != null) {
-            frameLayout.addView(viewHolder.itemView)
-            ViewHolderWrapper(frameLayout, viewHolder) as VH
-        } else {
-            ViewHolderWrapper(frameLayout) as VH
-        }
+        return ViewHolderWrapper(viewHolder!!.itemView, viewHolder) as VH
     }
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -147,7 +130,6 @@ class AdapterViewData(
 
         @Suppress("UNCHECKED_CAST")
         holder.viewData = this
-        applyAdapterViewLayoutParams(holder, position, this)
         holder.viewHolder?.let {
             setOwnerRecyclerView(it, view.recyclerView)
             // 清除BindingAdapter，调用viewData.bindViewHolder时会重新给position赋值
@@ -265,90 +247,6 @@ class AdapterViewData(
         payload.clear()
         if (!payloads.isNullOrEmpty()) {
             payload.addAll(payloads)
-        }
-    }
-
-    /**
-     * 给[AdapterView] adapter item应用[AdapterView]的布局数据
-     */
-    private fun applyAdapterViewLayoutParams(
-        holder: ViewHolderWrapper,
-        adapterIndex: Int,
-        viewData: AdapterViewData
-    ) {
-
-        // 0：顶部，1：中间，2：底部
-        val itemType = when (adapterIndex) {
-            0 -> 0
-            viewData.getViewCount() - 1 -> 2
-            else -> 1
-        }
-
-        val oldItemType = holder.itemView.getTag(R.id.adapter_view_wrapper_item_type) as Int?
-        val flag: Long? = holder.itemView.getTag(R.id.adapter_view_layout_update_flag) as Long?
-        val newFlag: Long =
-            viewData.view.getTag(R.id.adapter_view_layout_update_flag) as Long + viewData.view.hashCode()
-        if (flag != null && flag == newFlag && oldItemType != null && oldItemType == itemType) {
-            // 所在LazyColumn父对应布局参数未改变，且复用的item viewType一致
-            return
-        }
-
-        holder.itemView.visibility = viewData.view.visibility
-        holder.itemView.setTag(R.id.adapter_view_layout_update_flag, newFlag)
-        holder.itemView.setTag(R.id.adapter_view_wrapper_item_type, itemType)
-        val paddingStart = viewData.view.paddingStart
-        val paddingEnd = viewData.view.paddingEnd
-        var paddingTop = 0
-        var paddingBottom = 0
-
-        val marginStart = viewData.view.marginStart
-        val marginEnd = viewData.view.marginEnd
-        var marginTop = 0
-        var marginBottom = 0
-
-        if (itemType == 0 || itemType == 2) {
-            if (itemType == 0) {
-                marginTop = viewData.view.marginTop
-                paddingTop = viewData.view.paddingTop
-            } else {
-                marginBottom = viewData.view.marginBottom
-                paddingBottom = viewData.view.paddingBottom
-            }
-        }
-
-        holder.itemView.setPaddingRelative(
-            paddingStart,
-            paddingTop,
-            paddingEnd,
-            paddingBottom
-        )
-
-        val layoutParams = holder.itemView.layoutParams
-        if (orientation == LinearLayout.HORIZONTAL) {
-            layoutParams.width = LinearLayout.LayoutParams.WRAP_CONTENT
-            layoutParams.height = viewData.view.layoutParams.height
-        } else {
-            layoutParams.width = viewData.view.layoutParams.width
-            layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-        }
-
-        if (layoutParams is ViewGroup.MarginLayoutParams) {
-            layoutParams.marginStart = marginStart
-            layoutParams.marginEnd = marginEnd
-            layoutParams.topMargin = marginTop
-            layoutParams.bottomMargin = marginBottom
-            holder.itemView.layoutParams = layoutParams
-        }
-
-        holder.itemView.background = viewData.view.backgroundClone()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            holder.itemView.backgroundTintMode = viewData.view.backgroundTintMode
-            holder.itemView.backgroundTintList = viewData.view.backgroundTintList
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            holder.itemView.backgroundTintBlendMode =
-                viewData.view.backgroundTintBlendMode
         }
     }
 

@@ -75,7 +75,7 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
         }
         CustomerHorizontalAdapter horizontalAdapter = new CustomerHorizontalAdapter(strings);
         mRowAdapterView.setAdapter(horizontalAdapter);
-        
+    
         strings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             strings.add("横向嵌套纵向:" + i);
@@ -147,7 +147,7 @@ public class ComplexColumnRowLayoutActivity extends BaseActivity {
     private static class CustomerHorizontalAdapter extends RvQuickAdapter<String, BaseViewHolder> {
         
         public CustomerHorizontalAdapter(@Nullable List<? extends String> data) {
-            super(R.layout.rv_item_layout_horizontal, data);
+            super(R.layout.rv_item_grid_layout_h, data);
         }
         
         @Override

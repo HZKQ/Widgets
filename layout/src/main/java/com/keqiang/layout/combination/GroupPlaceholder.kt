@@ -89,7 +89,7 @@ class GroupPlaceholder @JvmOverloads constructor(
         for (i in 0 until super.getChildCount()) {
             when (val child = super.getChildAt(i)) {
                 is AdapterView -> {
-                    child.recyclerViewLayoutManager.orientation = orientation
+                    child.layoutManager.orientation = orientation
                 }
 
                 is GroupPlaceholder -> {

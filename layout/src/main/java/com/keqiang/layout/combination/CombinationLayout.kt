@@ -3,8 +3,12 @@ package com.keqiang.layout.combination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.Canvas
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +16,11 @@ import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.core.view.*
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
+import com.keqiang.layout.combination.heler.LinearSnapHelper
 import kotlin.collections.set
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -35,6 +41,7 @@ abstract class CombinationLayout constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     internal lateinit var recyclerView: RecyclerViewInner
+    private val linearSnapHelper: LinearSnapHelper = LinearSnapHelper()
     private lateinit var onItemTouchListener: OnItemTouchListener
     private lateinit var adapterProxy: AdapterProxy
     private val scrollListenerList: MutableList<OnScrollListener> = mutableListOf()
@@ -125,7 +132,7 @@ abstract class CombinationLayout constructor(
     @Deprecated("此对象无法获取实际位置对应的View数量", ReplaceWith("请使用getChildAt2(Int)"))
     override fun getChildAt(index: Int): View? {
         // 不能对getChildAt进行重写，系统通过getChildCount和getChildAt获取ViewGroup中子节点数量
-        // 实际运行时，此View只有一个子节点(RecyclerView),通过xml添加的获取addView添加的View，最终均由
+        // 实际运行时，此View只有一个子节点(RecyclerView),通过xml添加的或者addView添加的View，最终均由
         // RecyclerView呈现
         return super.getChildAt(index)
     }
@@ -517,7 +524,7 @@ abstract class CombinationLayout constructor(
             for (i in 0 until super.getChildCount()) {
                 val child = super.getChildAt(i)
                 if (child is AdapterView) {
-                    child.recyclerViewLayoutManager.orientation = orientation
+                    child.layoutManager.orientation = orientation
                 } else if (child is GroupPlaceholder) {
                     child.setParentOrientation(orientation)
                 }
@@ -540,12 +547,15 @@ abstract class CombinationLayout constructor(
 
         // 最终以RecyclerView展示内容
         recyclerView = RecyclerViewInner(context)
-        recyclerView.setLinearLayoutManager(orientation)
+        recyclerView.setOrientation(orientation)
         val params = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         recyclerView.layoutParams = params
+
+        recyclerView.addItemDecoration(ItemDecoration())
+        linearSnapHelper.attachToRecyclerView(recyclerView)
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -563,6 +573,9 @@ abstract class CombinationLayout constructor(
             }
         })
 
+        spanCountChange(children)
+        recyclerView.layoutManager.spanSizeLookup = generateSpanSizeLookup()
+
         super.removeAllViews()
         super.addView(recyclerView)
 
@@ -570,6 +583,54 @@ abstract class CombinationLayout constructor(
         recyclerView.adapter = adapterProxy
         onItemTouchListener = OnItemTouchListener()
         recyclerView.addOnItemTouchListener(onItemTouchListener)
+    }
+
+    private fun generateSpanSizeLookup(): GridLayoutManager.SpanSizeLookup {
+        return object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                val (viewDataIndex, index) = adapterProxy.adapterIndexToViewDataListIndex(position)
+                if (viewDataIndex == -1) {
+                    return recyclerView.layoutManager.spanCount
+                }
+
+                val viewData = adapterProxy.viewDataList[viewDataIndex]
+                if (isAdapterViewData(viewData)) {
+                    if (viewData.view.visibility == GONE
+                        || viewData.view.spanCount <= 1
+                        || index == 0
+                        || index == viewData.getViewCount() - 1) {
+                        return recyclerView.layoutManager.spanCount
+                    }
+
+                    var count = recyclerView.layoutManager.spanCount / viewData.view.spanCount
+                    if (viewData.view.spanSizeLookup != null) {
+                        val spanSize = viewData.view.getSpanSize(index - 1)
+                        count *= spanSize
+                    }
+
+                    return 1.coerceAtLeast(count)
+                }
+
+                return recyclerView.layoutManager.spanCount
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    internal fun spanCountChange(adapterView: AdapterView) {
+        spanCountChange()
+        adapterView.getAdapter<RecyclerView.Adapter<*>>()?.notifyDataSetChanged()
+    }
+
+    private fun spanCountChange(viewDataList: List<ViewData<*>>? = null) {
+        val data = viewDataList ?: adapterProxy.viewDataList
+        var count = 1
+        data.forEach {
+            if (isAdapterViewData(it)) {
+                count *= it.view.spanCount
+            }
+        }
+        recyclerView.layoutManager.spanCount = count
     }
 
     /**
@@ -817,8 +878,10 @@ abstract class CombinationLayout constructor(
         }
 
         private fun addViewData(viewData: List<ViewData<*>>, index: Int = -1) {
+            var hasAdapterView = false
             viewData.forEach {
                 if (isAdapterViewData(it)) {
+                    hasAdapterView = true
                     it.registerAdapterDataObserver(AdapterViewAdapterDataObserver(it))
                     if (mAttachedToRecyclerView && this@CombinationLayout::recyclerView.isInitialized) {
                         it.view.onAttachedToRecyclerView(recyclerView)
@@ -831,16 +894,25 @@ abstract class CombinationLayout constructor(
             } else {
                 viewDataList.addAll(index, viewData)
             }
+
+            if (hasAdapterView) {
+                spanCountChange()
+            }
         }
 
         private fun removeViewData(viewData: ViewData<*>) {
+            var hasAdapterView = false
             if (isAdapterViewData(viewData)) {
+                hasAdapterView = true
                 viewData.unRegisterAdapterDataObserver()
                 viewData.setAdapterChangeListener(null)
                 viewData.view.scrollListener = null
                 viewData.view.combinationLayout = null
             }
             viewDataList.remove(viewData)
+            if (hasAdapterView) {
+                spanCountChange()
+            }
         }
 
         override fun getItemViewType(position: Int): Int {
@@ -1001,6 +1073,7 @@ abstract class CombinationLayout constructor(
 
         @SuppressLint("NotifyDataSetChanged")
         fun removeAllViews(preventRequestLayout: Boolean) {
+            spanCountChange()
             viewDataList.clear()
             if (!preventRequestLayout) {
                 notifyDataSetChanged()
@@ -1255,11 +1328,286 @@ abstract class CombinationLayout constructor(
         }
     }
 
+    /**
+     * 用于应用[AdapterView]margin、padding值，绘制背景，实现网格布局的排版
+     */
+    private inner class ItemDecoration : RecyclerView.ItemDecoration() {
+
+        val tempRect = Rect()
+
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            // 用于绘制AdapterView背景色
+            val childCount = parent.childCount
+            var bg: Drawable? = null
+            tempRect.set(0, 0, 0, 0)
+            for (i in 0 until childCount) {
+                val view = parent.getChildAt(i)
+                val childViewHolder = parent.getChildViewHolder(view)
+                if (childViewHolder is AdapterViewData.ViewHolderWrapper) {
+                    childViewHolder.viewData?.let {
+                        if (bg == null) {
+                            bg = it.view.background
+                        }
+
+                        if (bg != null) {
+                            getAdapterViewPosition(tempRect, it.view, view)
+                        }
+                    }
+                } else if (bg != null && !tempRect.isEmpty) {
+                    bg!!.bounds = tempRect
+                    bg!!.draw(c)
+                    tempRect.set(0, 0, 0, 0)
+                    bg = null
+                }
+            }
+
+            if (bg != null && !tempRect.isEmpty) {
+                bg!!.bounds = tempRect
+                bg!!.draw(c)
+                bg = null
+            }
+        }
+
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            // 将AdapterView背景色绘制到前景色，实现裁剪效果
+            val childCount = parent.childCount
+            var adapterView: AdapterView? = null
+            tempRect.set(0, 0, 0, 0)
+            for (i in 0 until childCount) {
+                val view = parent.getChildAt(i)
+                val childViewHolder = parent.getChildViewHolder(view)
+                if (childViewHolder is AdapterViewData.ViewHolderWrapper) {
+                    childViewHolder.viewData?.let {
+                        if (!it.view.itemOverSize) {
+                            return
+                        }
+
+                        if (adapterView == null && adapterView?.background != null) {
+                            adapterView = it.view
+                        }
+
+                        if (adapterView != null) {
+                            getAdapterViewPosition(tempRect, adapterView!!, view)
+                        }
+                    }
+                } else if (!tempRect.isEmpty && adapterView != null) {
+                    drawOverFront(c, tempRect, adapterView!!)
+                    tempRect.set(0, 0, 0, 0)
+                    adapterView = null
+                }
+            }
+
+            if (!tempRect.isEmpty && adapterView != null) {
+                drawOverFront(c, tempRect, adapterView!!)
+                adapterView = null
+            }
+        }
+
+        private fun getAdapterViewPosition(rect: Rect, adapterView: AdapterView, itemView: View) {
+            when {
+                rect.isEmpty -> {
+                    // 起始一定都是对用户无感知的BG_ITEM_TYPE类型的Item
+                    if (orientation == HORIZONTAL) {
+                        rect.left = itemView.left - itemView.marginStart + itemView.translationX.toInt() - adapterView.paddingStart
+                        rect.right = itemView.right + itemView.marginEnd + adapterView.paddingEnd
+
+                        rect.top = recyclerView.paddingTop + adapterView.marginTop
+                        rect.bottom = recyclerView.height - recyclerView.paddingBottom - adapterView.marginBottom
+                    } else {
+                        rect.left = recyclerView.paddingStart + adapterView.marginStart
+                        rect.right = recyclerView.width - recyclerView.paddingEnd + adapterView.marginEnd
+
+                        rect.top = itemView.top - itemView.marginTop + itemView.translationY.toInt() - adapterView.paddingTop
+                        rect.bottom = itemView.bottom + itemView.marginBottom + adapterView.paddingBottom
+                    }
+                }
+
+                orientation == HORIZONTAL -> {
+                    rect.right = itemView.right + itemView.marginEnd + adapterView.paddingEnd
+                }
+
+                else -> {
+                    rect.bottom = itemView.bottom + itemView.marginBottom + adapterView.paddingBottom
+                }
+            }
+        }
+
+        private fun drawOverFront(canvas: Canvas, rect: Rect, adapterView: AdapterView) {
+            val bg: Drawable = adapterView.background
+            if (orientation == HORIZONTAL) {
+                bg.setBounds(rect.left, rect.top, rect.right, rect.top + adapterView.paddingTop)
+                bg.draw(canvas)
+
+                bg.setBounds(rect.left, rect.bottom - adapterView.paddingBottom, rect.right, rect.bottom)
+                bg.draw(canvas)
+            } else {
+                bg.setBounds(rect.left, rect.top, rect.left + adapterView.paddingStart, rect.bottom)
+                bg.draw(canvas)
+
+                bg.setBounds(rect.right - adapterView.paddingEnd, rect.top, rect.right, rect.bottom)
+                bg.draw(canvas)
+            }
+        }
+
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            // 该方法在LayoutManger layoutDecoratedWithMargins之后执行，measureChildWithMargins之前执行
+            val pos = parent.getChildAdapterPosition(view)
+            if (pos == RecyclerView.NO_POSITION) {
+                return
+            }
+
+            val (viewDataIndex, index) = adapterProxy.adapterIndexToViewDataListIndex(pos)
+            if (viewDataIndex == -1) {
+                return
+            }
+
+            val viewData = adapterProxy.viewDataList[viewDataIndex]
+            if (isAdapterViewData(viewData)) {
+                applyAdapterViewLayoutParams(outRect, view, index, viewData)
+            }
+        }
+
+        /**
+         * 给[AdapterView] adapter item应用[AdapterView]的padding和margin数据
+         */
+        private fun applyAdapterViewLayoutParams(
+            outRect: Rect,
+            view: View,
+            adapterIndex: Int,
+            viewData: AdapterViewData
+        ) {
+
+            // 0：顶部，1：中间，2：底部
+            val itemType = when (adapterIndex) {
+                0 -> 0
+                viewData.getViewCount() - 1 -> 2
+                else -> 1
+            }
+
+            if (itemType == 1 && viewData.view.spanCount > 1) {
+                applyGridAdapterViewLayoutParams(view, adapterIndex, viewData)
+                return
+            }
+
+            val isHorizontal = orientation == HORIZONTAL
+            var offsetStart = 0
+            var offsetEnd = 0
+            var offsetTop = 0
+            var offsetBottom = 0
+            if (isHorizontal) {
+                offsetTop = viewData.view.paddingTop + viewData.view.marginTop
+                offsetBottom = viewData.view.paddingBottom + viewData.view.marginBottom
+                if (itemType == 0 || itemType == 2) {
+                    if (itemType == 0) {
+                        offsetStart = viewData.view.paddingStart + viewData.view.marginStart
+                    } else {
+                        offsetEnd = viewData.view.paddingEnd + viewData.view.marginEnd
+                    }
+                }
+            } else {
+                offsetStart = viewData.view.paddingStart + viewData.view.marginStart
+                offsetEnd = viewData.view.paddingEnd + viewData.view.marginEnd
+
+                if (itemType == 0 || itemType == 2) {
+                    if (itemType == 0) {
+                        offsetTop = viewData.view.paddingTop + viewData.view.marginTop
+                    } else {
+                        offsetBottom = viewData.view.paddingBottom + viewData.view.marginBottom
+                    }
+                }
+            }
+
+            outRect.set(offsetStart + marginStart,
+                offsetTop + marginTop,
+                offsetEnd + marginEnd,
+                offsetBottom + marginBottom)
+        }
+
+        /**
+         * 给网格[AdapterView] adapter item应用[AdapterView]的padding和margin数据
+         */
+        private fun applyGridAdapterViewLayoutParams(
+            view: View,
+            adapterIndex: Int,
+            viewData: AdapterViewData
+        ) {
+
+            val itemSpanSize = viewData.view.getSpanSize(adapterIndex - 1)
+            val spanIndex = viewData.view.getSpanIndex(adapterIndex - 1)
+
+            val isHorizontal = orientation == HORIZONTAL
+            if (isHorizontal) {
+                val avg = (recyclerView.height
+                    - recyclerView.paddingTop
+                    - recyclerView.paddingBottom
+                    - viewData.view.paddingTop
+                    - viewData.view.paddingBottom
+                    - viewData.view.marginTop
+                    - viewData.view.marginBottom) / viewData.view.spanCount
+
+                val oAvg = (recyclerView.height
+                    - recyclerView.paddingTop
+                    - recyclerView.paddingBottom) / viewData.view.spanCount
+
+                // 重新计算View的高度，平分AdapterView除去margin、padding之外的控件
+                // CombinationLayout初次布局时，只引用了自身的margin、padding属性，
+                // 未根据不同AdapterView处理
+                if (view.layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT
+                    || view.layoutParams.height == ViewGroup.LayoutParams.MATCH_PARENT
+                    || view.getTag(R.id.glide_custom_view_target_tag) == true) {
+                    view.setTag(R.id.glide_custom_view_target_tag, true)
+                    view.layoutParams.height = avg * itemSpanSize - view.marginTop - view.marginBottom
+                }
+
+                // 网格布局一列的起始坐标
+                val offsetStart = viewData.view.paddingTop + viewData.view.marginTop
+
+                // 根据重新计算的高度以及起始坐标，计算item在一列中的起始高度
+                view.translationY = (offsetStart + avg * spanIndex - spanIndex * oAvg).toFloat()
+            } else {
+                val avg = (recyclerView.width
+                    - recyclerView.paddingStart
+                    - recyclerView.paddingEnd
+                    - viewData.view.paddingStart
+                    - viewData.view.paddingEnd
+                    - viewData.view.marginStart
+                    - viewData.view.marginEnd) / viewData.view.spanCount
+
+                val oAvg = (recyclerView.width
+                    - recyclerView.paddingStart
+                    - recyclerView.paddingEnd) / viewData.view.spanCount
+
+                if (view.layoutParams.width == ViewGroup.LayoutParams.WRAP_CONTENT
+                    || view.layoutParams.width == ViewGroup.LayoutParams.MATCH_PARENT
+                    || view.getTag(R.id.glide_custom_view_target_tag) == true) {
+                    view.setTag(R.id.glide_custom_view_target_tag, true)
+                    view.layoutParams.width = avg * itemSpanSize - view.marginStart - view.marginEnd
+                }
+
+                val offsetStart = viewData.view.paddingStart + viewData.view.marginStart
+
+                view.translationX = (offsetStart + avg * spanIndex - spanIndex * oAvg).toFloat()
+            }
+        }
+    }
+
     private inner class OnItemTouchListener : RecyclerView.OnItemTouchListener {
 
         var oldX = 0f
         var oldY = 0f
         var child: View? = null
+        var disallowIntercept = false
+
+        val gestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                recyclerView.scrollBy(distanceX.toInt(), distanceY.toInt())
+                return true
+            }
+
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+                return linearSnapHelper.onFling(velocityX.toInt(), -velocityY.toInt(), false)
+            }
+        })
 
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
             when (e.action) {
@@ -1267,6 +1615,8 @@ abstract class CombinationLayout constructor(
                     oldX = e.x
                     oldY = e.y
                     child = rv.findChildViewUnder(e.x, e.y)
+                    gestureDetector.onTouchEvent(e)
+                    disallowIntercept = false
                 }
 
                 MotionEvent.ACTION_MOVE -> {
@@ -1275,6 +1625,10 @@ abstract class CombinationLayout constructor(
                     oldX = e.x
                     oldY = e.y
 
+                    if (disallowIntercept) {
+                        return false
+                    }
+
                     val combinationLayout = getCombinationLayout(child)
                     if (combinationLayout != null) {
                         if (!combinationLayout.isEnabled) {
@@ -1282,9 +1636,7 @@ abstract class CombinationLayout constructor(
                         }
 
                         combinationLayout.apply {
-                            if (layoutParams == null
-                                || (orientation == HORIZONTAL && layoutParams.width == ViewGroup.LayoutParams.WRAP_CONTENT)
-                                || (orientation == VERTICAL && layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT)) {
+                            if (layoutParams == null || layoutParams.width == 0 || layoutParams.height == 0) {
                                 return false
                             }
 
@@ -1311,30 +1663,6 @@ abstract class CombinationLayout constructor(
                             }
                         }
 
-                        return false
-                    }
-
-                    val childRv = getRecyclerView(child)
-                    if (childRv != null) {
-                        childRv.apply {
-                            if (!this.isEnabled || !this.isNestedScrollingEnabled) {
-                                return false
-                            }
-
-                            if (abs(dx) > abs(dy)) {
-                                if (canScrollHorizontally(if (dx > 0) -1 else 1)) {
-                                    requestDisallowInterceptTouchEvent(true)
-                                } else {
-                                    requestDisallowInterceptTouchEvent(false)
-                                }
-                            } else if (abs(dx) < abs(dy)) {
-                                if (canScrollVertically(if (dy > 0) -1 else 1)) {
-                                    requestDisallowInterceptTouchEvent(true)
-                                } else {
-                                    requestDisallowInterceptTouchEvent(!dispatchTouchToParentOnNotScroll)
-                                }
-                            }
-                        }
                         return false
                     }
 
@@ -1374,27 +1702,12 @@ abstract class CombinationLayout constructor(
             return null
         }
 
-        private fun getRecyclerView(view: View?): RecyclerView? {
-            if (view is RecyclerView) {
-                return view
-            }
-
-            if (view is DetectLayoutViewGroup) {
-                val child = view.getChildAt(0)
-                if (child is RecyclerView) {
-                    return child
-                }
-            }
-
-            return null
-        }
-
         override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-
+            gestureDetector.onTouchEvent(e)
         }
 
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-
+            this.disallowIntercept = disallowIntercept
         }
     }
 }

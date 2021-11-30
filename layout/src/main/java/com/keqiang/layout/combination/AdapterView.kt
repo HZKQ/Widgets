@@ -4,15 +4,14 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
+import androidx.annotation.IntRange
 import androidx.core.view.isGone
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.keqiang.layout.R
 
@@ -32,7 +31,7 @@ class AdapterView @JvmOverloads constructor(
     private var mLayoutChangeListener: LayoutChangeListener? = null
     internal var scrollListener: ScrollListener? = null
     internal val recyclerView: RecyclerView = RecyclerView(context)
-    internal val recyclerViewLayoutManager = LinearLayoutManager(context)
+    internal val layoutManager = GridLayoutManager(context, 1)
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLayoutResId = NO_ID
     private var mBackgroundResId = NO_ID
@@ -53,8 +52,50 @@ class AdapterView @JvmOverloads constructor(
      */
     var typeFlag: String = ""
 
+    /**
+     * 通过设置此值实现网格布局和线性布局。1：线性布局，>1:网格布局
+     */
+    @setparam:IntRange(from = 1)
+    var spanCount: Int = 1
+        set(value) {
+            if (value == field) {
+                return
+            }
+
+            if (value < 1 && field == 1) {
+                return
+            }
+
+            field = value
+            if (field < 1) {
+                field = 1
+            }
+
+            combinationLayout?.spanCountChange(this)
+        }
+
+    /**
+     * 如果[spanCount] 大于1，此值用于实现Item 占用的跨距数
+     */
+    var spanSizeLookup: GridLayoutManager.SpanSizeLookup = GridLayoutManager.DefaultSpanSizeLookup()
+        set(value) {
+            if (field == value) {
+                return
+            }
+
+            field = value
+            field.isSpanIndexCacheEnabled = false
+            combinationLayout?.spanCountChange(this)
+        }
+
+    /**
+     * Adapter item是否会超出[AdapterView]尺寸值，一般只在指定Item宽高为固定值时，才会出现此情况。
+     * 如果此值设置设置为true，那么将对超出的Item进行裁剪
+     */
+    var itemOverSize: Boolean = false
+
     init {
-        recyclerView.layoutManager = recyclerViewLayoutManager
+        recyclerView.layoutManager = layoutManager
         recyclerView.visibility = GONE
 
         if (attrs != null) {
@@ -62,19 +103,21 @@ class AdapterView @JvmOverloads constructor(
             try {
                 typedArray =
                     context.obtainStyledAttributes(attrs, R.styleable.AdapterView, defStyleAttr, 0)
-                mItemCount = typedArray.getInt(R.styleable.AdapterView_itemCount, 1)
                 mLayoutResId = typedArray.getResourceId(R.styleable.AdapterView_layout, NO_ID)
                 mBackgroundResId =
                     typedArray.getResourceId(R.styleable.AdapterView_android_background, NO_ID)
                 isolateViewTypes =
                     typedArray.getBoolean(R.styleable.AdapterView_isolateViewTypes, true)
                 typeFlag = typedArray.getString(R.styleable.AdapterView_type_flag) ?: ""
+                spanCount = typedArray.getInt(R.styleable.AdapterView_spanCount, 1)
+                mItemCount = typedArray.getInt(R.styleable.AdapterView_itemCount, spanCount * 2)
             } finally {
                 typedArray?.recycle()
             }
         }
 
         if (isInEditMode) {
+            layoutManager.spanCount = spanCount
             val adapter = PreviewAdapter()
             recyclerView.adapter = adapter
             recyclerView.visibility = VISIBLE
@@ -138,7 +181,7 @@ class AdapterView @JvmOverloads constructor(
     /**
      * 注册[AdapterView]布局改变监听
      */
-    fun registerLayoutChangeListener(listener: LayoutChangeListener?) {
+    internal fun registerLayoutChangeListener(listener: LayoutChangeListener?) {
         mLayoutChangeListener = listener
     }
 
@@ -281,41 +324,6 @@ class AdapterView @JvmOverloads constructor(
 
     }
 
-    internal fun backgroundClone(): Drawable? {
-        return when {
-            mBackgroundResId != NO_ID -> ContextCompat.getDrawable(context, mBackgroundResId)
-
-            background is ColorDrawable -> colorDrawableCopy(background as ColorDrawable)
-
-            else -> null
-        }
-    }
-
-    private fun colorDrawableCopy(colorDrawable: ColorDrawable): ColorDrawable {
-        val drawable = ColorDrawable(colorDrawable.color)
-        drawable.state = colorDrawable.state
-        drawable.alpha = colorDrawable.alpha
-        drawable.callback = colorDrawable.callback
-        drawable.bounds = colorDrawable.bounds
-        drawable.changingConfigurations = drawable.changingConfigurations
-        drawable.level = colorDrawable.level
-        drawable.setVisible(colorDrawable.isVisible, true)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            drawable.isAutoMirrored = colorDrawable.isAutoMirrored
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            drawable.colorFilter = colorDrawable.colorFilter
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            drawable.isFilterBitmap = colorDrawable.isFilterBitmap
-            drawable.layoutDirection = colorDrawable.layoutDirection
-        }
-
-        return drawable
-    }
-
     /**
      * 参数[recyclerView]为[AdapterView]实际运行时用于展示界面的组件
      */
@@ -452,6 +460,24 @@ class AdapterView @JvmOverloads constructor(
         }
 
         return combinationLayout?.findViewByPosition(this, position + 1)
+    }
+
+    /**
+     * 获取指定position位置item所占一行/一列的跨度
+     */
+    fun getSpanSize(position: Int): Int {
+        val spanSize = spanSizeLookup.getSpanSize(position)
+        if (spanSize > spanCount) {
+            throw IllegalArgumentException("Item at position $position requires $spanSize spans but GridLayoutManager has only $spanCount spans.")
+        }
+        return spanSize
+    }
+
+    /**
+     * 如果[spanCount] > 1,获取指定position位置Item在一行/一列中的下标
+     */
+    fun getSpanIndex(position: Int): Int {
+        return spanSizeLookup.getSpanIndex(position, spanCount)
     }
 
     /**

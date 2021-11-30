@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--延迟加载列表布局改变标识符-->
-    <item name="adapter_view_layout_update_flag" type="id" />
-    <item name="adapter_view_wrapper_item_type" type="id" />
+    <!--是否修改了网格布局Item的宽高数据-->
+    <item name="grid_item_count_size" type="id" />
 </resources>

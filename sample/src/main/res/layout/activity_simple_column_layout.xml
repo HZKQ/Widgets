@@ -60,11 +60,14 @@
 
             <com.keqiang.layout.combination.AdapterView
                 android:id="@+id/lazyColumn"
+                android:background="@color/colorBlack"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorBlack"
-                app:itemCount="2"
-                app:layout="@layout/rv_item_layout" />
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                app:itemCount="5"
+                app:layout="@layout/rv_item_grid_layout"
+                app:spanCount="3" />
 
             <View
                 android:id="@+id/view3"

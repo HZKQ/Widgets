@@ -19,11 +19,10 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
+import me.zhouzhuo810.magpiex.utils.ToastUtil;
 
 /**
  * @author Created by wanggaowan on 2021/9/18 16:56
@@ -70,22 +69,31 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
     @Override
     public void initData() {
         List<String> strings = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             strings.add("test str:" + i);
         }
-        CustomerAdapter adapter = new CustomerAdapter(strings);
+        GrildAdapter adapter = new GrildAdapter(strings);
         mAdapterView.setAdapter(adapter);
+        mAdapterView.setSpanCount(4);
+        mAdapterView.setSpanSizeLookup(new SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == 2 ? 2 : 1;
+            }
+        });
+        
         adapter.setOnItemClickListener((adapter1, view, position) -> {
             // CustomerAdapter3 adapter2 = (CustomerAdapter3) mAdapterView2.getAdapter();
             // adapter2.getData().get(0).setName("change name");
             // adapter2.notifyItemChanged(0, "test change");
             // mLazyColumn.notifyItemChanged(8, "test");
-            List<Person> personList = new ArrayList<>();
-            for (int i = 0; i < 2; i++) {
-                personList.add(new Person("name" + i, i));
-            }
-            CustomerAdapter3 adapter2 = new CustomerAdapter3(personList);
-            mAdapterView2.setAdapter(adapter2);
+            // List<Person> personList = new ArrayList<>();
+            // for (int i = 0; i < 2; i++) {
+            //     personList.add(new Person("name" + i, i));
+            // }
+            // CustomerAdapter3 adapter2 = new CustomerAdapter3(personList);
+            // mAdapterView2.setAdapter(adapter2);
+            ToastUtil.showToast(position + "被点击");
         });
         
         strings = new ArrayList<>();
@@ -224,21 +232,6 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
         public int[] getNestViewIds() {
             return null;
         }
-        
-        @Override
-        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-        }
-        
-        @Override
-        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-            super.onDetachedFromRecyclerView(recyclerView);
-        }
-        
-        @Override
-        public int findRelativeAdapterPositionIn(@NonNull Adapter<? extends ViewHolder> adapter, @NonNull ViewHolder viewHolder, int localPosition) {
-            return super.findRelativeAdapterPositionIn(adapter, viewHolder, localPosition);
-        }
     }
     
     private static class CustomerAdapter2 extends RvQuickAdapter<String, BaseViewHolder> {
@@ -289,16 +282,6 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
             itemView.setText(getData().get(position).getName() + ";" + "当前位置：" + position);
         }
         
-        @Override
-        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-        }
-        
-        @Override
-        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-            super.onDetachedFromRecyclerView(recyclerView);
-        }
-        
         @Nullable
         @Override
         public int[] getNestViewIds() {
@@ -329,6 +312,24 @@ public class SimpleColumnLayoutActivity extends BaseActivity {
         
         public void setAge(int age) {
             this.age = age;
+        }
+    }
+    
+    private static class GrildAdapter extends RvQuickAdapter<String, BaseViewHolder> {
+        
+        public GrildAdapter(@Nullable List<? extends String> data) {
+            super(R.layout.rv_item_grid_layout, data);
+        }
+        
+        @Override
+        protected void convert(@NonNull BaseViewHolder holder, String item) {
+            ((TextView) holder.itemView).setText(item);
+        }
+        
+        @Nullable
+        @Override
+        public int[] getNestViewIds() {
+            return null;
         }
     }
 }
