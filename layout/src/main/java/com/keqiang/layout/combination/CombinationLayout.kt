@@ -33,7 +33,7 @@ import kotlin.math.abs
  *
  * @author Created by wanggaowan on 2021/9/15 09:19
  */
-abstract class CombinationLayout constructor(
+abstract class CombinationLayout(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,

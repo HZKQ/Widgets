@@ -1,5 +1,6 @@
 package com.keqiang.layout.combination
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import android.widget.LinearLayout
  *
  * @author Created by wanggaowan on 2021/11/8 09:06
  */
+@SuppressLint("ViewConstructor")
 internal class DetectLayoutViewGroup(context: Context, orientation: Int, child: View) : FrameLayout(context) {
 
     init {

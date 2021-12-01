@@ -14,7 +14,7 @@ import kotlin.math.abs
  *
  * @author Created by wanggaowan on 2021/11/3 11:16
  */
-class RecyclerViewInner(context: Context, attrs: AttributeSet? = null, defStyle: Int = R.attr.recyclerViewStyle)
+internal class RecyclerViewInner(context: Context, attrs: AttributeSet? = null, defStyle: Int = R.attr.recyclerViewStyle)
     : RecyclerView(context, attrs, defStyle) {
 
     /**
