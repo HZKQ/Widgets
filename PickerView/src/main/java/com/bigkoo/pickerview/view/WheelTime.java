@@ -214,7 +214,7 @@ public class WheelTime {
             } else {
                 wv_month.setCurrentItem(wv_month.getCurrentItem());
             }
-            
+    
             int maxItem = 29;
             if (ChinaDate.leapMonth(year_num) != 0 && wv_month.getCurrentItem() > ChinaDate.leapMonth(year_num) - 1) {
                 if (wv_month.getCurrentItem() == ChinaDate.leapMonth(year_num) + 1) {
@@ -228,7 +228,7 @@ public class WheelTime {
                 wv_day.setAdapter(new ArrayWheelAdapter<>(ChinaDate.getLunarDays(ChinaDate.monthDays(year_num, wv_month.getCurrentItem() + 1))));
                 maxItem = ChinaDate.monthDays(year_num, wv_month.getCurrentItem() + 1);
             }
-            
+    
             if (wv_day.getCurrentItem() > maxItem - 1) {
                 wv_day.setCurrentItem(maxItem - 1);
             }
@@ -258,6 +258,10 @@ public class WheelTime {
         };
         wv_year.setOnItemSelectedListener(wheelListener_year);
         wv_month.setOnItemSelectedListener(wheelListener_month);
+        wv_day.setOnItemSelectedListener(null);
+        wv_hours.setOnItemSelectedListener(null);
+        wv_mins.setOnItemSelectedListener(null);
+        wv_seconds.setOnItemSelectedListener(null);
         
         
         if (type.length != 6) {

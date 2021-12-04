@@ -24,7 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import me.zhouzhuo810.magpiex.ui.act.BaseActivity;
 import me.zhouzhuo810.magpiex.ui.widget.TitleBar;
+import me.zhouzhuo810.magpiex.utils.DateUtil;
 import me.zhouzhuo810.magpiex.utils.SimpleUtil;
+import me.zhouzhuo810.magpiex.utils.ToastUtil;
 
 /**
  * 联动选择器
@@ -94,6 +96,7 @@ public class PickerViewActivity extends BaseActivity {
             //时间选择器 ，自定义布局
             mStartTimePicker = new TimePickerView.Builder(this, (p, date) -> {
                 // 选中事件回调
+                ToastUtil.showToast(DateUtil.get_yMd(date));
             })
                 .setLayoutRes(R.layout.pickerview_custom_time, (p, v) -> {
                     final TextView tvSubmit = v.findViewById(R.id.tv_ok);
@@ -102,7 +105,8 @@ public class PickerViewActivity extends BaseActivity {
                         mStartTimePicker.returnData();
                         mStartTimePicker.dismiss();
                     });
-                    tvCancel.setOnClickListener(v1 -> mStartTimePicker.dismiss());
+                    tvCancel.setOnClickListener(v1 -> mStartTimePicker.setLunarCalendar(!mStartTimePicker.isLunarCalendar()));
+                    // tvCancel.setOnClickListener(v1 -> mStartTimePicker.dismiss());
                 })
                 .setContentSize(SimpleUtil.getScaledValue(46, true))
                 .setOutSize(SimpleUtil.getScaledValue(36, true))
