@@ -139,7 +139,7 @@ public class WheelTime {
     public void setPicker(int year, final int month, int day, int h, int m, int s) {
         if (isLunarCalendar) {
             int[] lunar = LunarCalendar.solarToLunar(year, month + 1, day);
-            setLunar(lunar[0], lunar[1], lunar[2], lunar[3] == 1, h, m, s);
+            setLunar(lunar[0], lunar[1] - 1, lunar[2], lunar[3] == 1, h, m, s);
         } else {
             setSolar(year, month, day, h, m, s);
         }
@@ -165,7 +165,13 @@ public class WheelTime {
         wv_month = view.findViewById(R.id.month);
         wv_month.setAdapter(new ArrayWheelAdapter<>(ChinaDate.getMonths(year)));
         wv_month.setLabel("");
-        wv_month.setCurrentItem(month);
+        int leapMonth = ChinaDate.leapMonth(year);
+        if (leapMonth != 0 && (month > leapMonth - 1 || isLeap)) { //选中月是闰月或大于闰月
+            wv_month.setCurrentItem(month + 1);
+        } else {
+            wv_month.setCurrentItem(month);
+        }
+        
         wv_month.setGravity(gravity);
         
         // 日
