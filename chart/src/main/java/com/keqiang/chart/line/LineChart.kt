@@ -1,19 +1,21 @@
 package com.keqiang.chart.line
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
-import androidx.annotation.IntRange
 import androidx.annotation.Px
+import com.keqiang.chart.R
+import com.keqiang.chart.utils.getCenterBaseline
+import com.keqiang.chart.utils.getTextHeight
 import me.zhouzhuo810.magpiex.utils.SimpleUtil
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * 折线图
@@ -33,7 +35,7 @@ class LineChart @JvmOverloads constructor(context: Context,
     /**
      * y轴
      */
-    var yAxis: Axis = Axis.copy()
+    var yAxis: YAxis = YAxis.copy()
         private set
 
     /**
@@ -46,31 +48,65 @@ class LineChart @JvmOverloads constructor(context: Context,
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val tempRectF = RectF()
+    private val tempPath = Path()
+    private val bgPath = Path()
 
     init {
         if (!isInEditMode) {
             xAxis.labelSize(SimpleUtil.getScaledValue(24f))
             yAxis.labelSize(SimpleUtil.getScaledValue(24f))
         } else {
-            xAxis.valueFormat { it.toString() }
-                .labelWidth(100)
-                .labelOffset(10)
+            xAxis.valueFormat { if (it == 0) "0" else "中abAB12国NO.1哈哈haha" }
+                .labelOffset(10f)
                 .drawGridLine(true)
-                .topOffset(30)
+                .topOffset(30f)
                 .gridUseTopOffset(true)
+                .labelAlign(Paint.Align.LEFT)
 
-
-            yAxis.labelOffset(10)
+            yAxis.labelOffset(10f)
                 .drawGridLine(true)
-                .topOffset(30)
+                .topOffset(30f)
                 .gridUseTopOffset(true)
+                .valueFormat {
+                    when (it) {
+                        0 -> "0"
+                        1 -> "11"
+                        2 -> "222"
+                        3 -> "3333"
+                        4 -> "44444"
+                        5 -> "555555"
+                        6 -> "6666666"
+                        else -> ""
+                    }
+                }
+                .labelAlign(Paint.Align.CENTER)
+
+            val entityList = mutableListOf<Entity>()
+            for (i in 0..xAxis.labelCount) {
+                val entity = Entity((Math.random() * 100).toInt().toFloat())
+                // entity.drawValue = true
+                // entity.drawValueIndicator = true
+                if (i == 3) {
+                    entity.lineStyle = Entity.DOTTED_LINE
+                }
+                entity.valueIndicatorDrawable = resources.getDrawable(R.drawable.ic_baseline_grade_24)
+                entity.valueIndicatorSize = 30
+                entityList.add(entity)
+            }
+
+            val lineData = LineData(entityList)
+            lineData.lineWidth = 10f
+            lineData.fillBg = true
+            lineData.fillBgColor = (0x335283C9).toInt()
+            lineData.lineStyle = LineData.HORIZONTAL_BEZIER
+
+            lineDataList = mutableListOf(lineData)
         }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (yAxis.max - yAxis.min <= 0
-            || xAxis.max - xAxis.min <= 0) {
+        if (yAxis.max - yAxis.min <= 0) {
             return
         }
 
@@ -84,19 +120,13 @@ class LineChart @JvmOverloads constructor(context: Context,
             10f
         }
 
-        val yTextWidthOffset = if (!isInEditMode) {
-            SimpleUtil.getScaledValue(5f)
-        } else {
-            5f
-        }
+        val yMaxTextWidth = getTextMaxWidth(yAxis)
 
-        val yMaxTextWidth = getTextMaxWidth(yAxis, true)
-        val xMaxTextWidth = getTextMaxWidth(xAxis)
-
-        val xStart = paddingStart + yMaxTextWidth + yTextWidthOffset
+        val xStart = paddingStart + yMaxTextWidth + getYLabelOffset()
         val xEnd = width - paddingEnd - paddingOffset
-        val xTextHeight = getTextHeight(xAxis.labelSize)
-        val xBottom = height - paddingBottom - xTextHeight - xAxis.labelOffset
+        val xBaseline = textPaint.getCenterBaseline(xAxis.labelSize)
+        val xTextHeight = textPaint.getTextHeight(xAxis.labelSize)
+        val xBottom = height - paddingBottom - getXLabelOffset() - xTextHeight
         val xTop = xBottom - xAxis.lineWidth
 
         val yTop = paddingTop + paddingOffset
@@ -106,57 +136,100 @@ class LineChart @JvmOverloads constructor(context: Context,
         val jumpZeroLabel = drawPublicZero && xZeroLabel == yZeroLabel && xAxis.labelSize == yAxis.labelSize
             && xAxis.labelColor == yAxis.labelColor && yMaxTextWidth > 0
 
-        drawXAxis(canvas, xAxis, xStart, xEnd, xTop, xBottom, xTextHeight, xMaxTextWidth.toFloat(), jumpZeroLabel, xTop - yTop)
-        drawYAxis(canvas, yAxis, xStart, (xStart + yAxis.lineWidth), yTop, xTop,
-            yMaxTextWidth.toFloat(), getTextHeight(yAxis.labelSize), yTextWidthOffset, jumpZeroLabel, xEnd - xStart)
+        drawXAxis(canvas, xStart, xEnd, xTop, xBottom, xBaseline, jumpZeroLabel, xTop - yTop)
+        drawYAxis(canvas, xStart, (xStart + yAxis.lineWidth), yTop, xTop, yMaxTextWidth, jumpZeroLabel, xEnd - xStart)
         if (jumpZeroLabel) {
-            drawPublicZeroLabel(canvas, xZeroLabel, xStart, xBottom, yMaxTextWidth, yTextWidthOffset, xTextHeight)
+            drawPublicZeroLabel(canvas, xZeroLabel, xStart, xBottom, xBaseline, yMaxTextWidth)
         }
+
+        drawValues(canvas, xStart + yAxis.lineWidth, xEnd - xAxis.topOffset, yTop + yAxis.topOffset, xTop)
+    }
+
+    private fun getXLabelOffset(): Float {
+        return xAxis.labelOffset
+            ?: if (isInEditMode) 10f else SimpleUtil.getScaledValue(10f)
+    }
+
+    private fun getYLabelOffset(): Float {
+        return yAxis.labelOffset
+            ?: if (isInEditMode) 10f else SimpleUtil.getScaledValue(10f)
+    }
+
+    private fun getXLabelAlign(): Paint.Align {
+        return xAxis.labelAlign ?: Paint.Align.CENTER
+    }
+
+    private fun getYLabelAlign(): Paint.Align {
+        return yAxis.labelAlign ?: Paint.Align.RIGHT
+    }
+
+    private fun setPaint(color: Int,
+                         strokeWidth: Float = 0f,
+                         style: Paint.Style = Paint.Style.STROKE,
+                         pathEffect: PathEffect? = null) {
+        paint.color = color
+        paint.strokeWidth = strokeWidth
+        paint.style = style
+        paint.pathEffect = pathEffect
     }
 
     /**
      * 如果X/Y轴0值一致，则绘制公共零轴值
      */
-    private fun drawPublicZeroLabel(canvas: Canvas, zeroLabel: String, xStart: Float, xBottom: Float, maxTextWidth: Int,
-                                    yTextWidthOffset: Float, textHeight: Float) {
+    private fun drawPublicZeroLabel(canvas: Canvas, zeroLabel: String, xStart: Float, xBottom: Float, xBaseline: Float,
+                                    yMaxTextWidth: Float) {
         textPaint.textSize = xAxis.labelSize
         textPaint.color = xAxis.labelColor
-        val width = textPaint.measureText(zeroLabel) + yAxis.labelOffset
-        if (width > maxTextWidth) {
-            canvas.save()
-            tempRectF.set(xStart - maxTextWidth - yTextWidthOffset, xBottom + xAxis.labelOffset,
-                xStart - yTextWidthOffset, xBottom + xAxis.labelOffset + textHeight)
-            canvas.clipRect(tempRectF)
-            canvas.drawText(zeroLabel, tempRectF.left, tempRectF.bottom, textPaint)
-            canvas.restore()
+        val labelAlign = getYLabelAlign()
+        textPaint.textAlign = labelAlign
+        val textStart = xStart - getYLabelOffset()
+        if (labelAlign == Paint.Align.RIGHT) {
+            canvas.drawText(zeroLabel, textStart, xBottom + getXLabelOffset() + xBaseline * 2, textPaint)
         } else {
-            canvas.drawText(zeroLabel, xStart - maxTextWidth - yTextWidthOffset, xBottom + xAxis.labelOffset + textHeight, textPaint)
+            canvas.save()
+            tempRectF.set(textStart - yMaxTextWidth, xBottom, xStart, xBottom + getXLabelOffset() + xBaseline * 2)
+            canvas.clipRect(tempRectF)
+            val startX = if (labelAlign == Paint.Align.LEFT) {
+                tempRectF.left
+            } else {
+                tempRectF.left + tempRectF.width() / 2f
+            }
+
+            canvas.drawText(zeroLabel, startX, tempRectF.bottom, textPaint)
+            canvas.restore()
         }
     }
 
-    private fun getTextHeight(size: Float): Float {
-        textPaint.textSize = size
-        val fontMetrics: Paint.FontMetrics = textPaint.fontMetrics
-        return fontMetrics.descent - fontMetrics.ascent
-    }
-
-    private fun drawXAxis(canvas: Canvas, axis: Axis,
+    /**
+     * 绘制x轴，[start]、[end]、[top]、[bottom]指定轴线绘制坐标，[maxTextWidth]为x轴最大文本的宽度，
+     * [jumpZeroLabel]表示是否跳过0值文本的绘制，[yRange]则为y轴线的长度
+     */
+    private fun drawXAxis(canvas: Canvas,
                           start: Float, end: Float,
                           top: Float, bottom: Float,
-                          textHeight: Float, maxTextWidth: Float,
+                          baseline: Float,
                           jumpZeroLabel: Boolean, yRange: Float) {
         // 绘制轴线
-        paint.color = axis.lineColor
+        setPaint(xAxis.lineColor, xAxis.lineWidth)
         canvas.drawLine(start, top, end, bottom, paint)
 
         var tempStart = start
-        val step = (end - start - axis.topOffset) / axis.labelCount
-        textPaint.textSize = axis.labelSize
-        textPaint.color = axis.labelColor
-        paint.color = axis.gridLineColor
+        val step = (end - start - xAxis.topOffset) / xAxis.labelCount
+        textPaint.textSize = xAxis.labelSize
+        textPaint.color = xAxis.labelColor
+        textPaint.textAlign = getXLabelAlign()
+        setPaint(xAxis.gridLineColor, xAxis.gridLineWidth)
 
-        axis.labelList?.let {
+        xAxis.labelList?.let {
+            val labelOffset = getXLabelOffset()
+            val textStep = step - if (isInEditMode) 20 else SimpleUtil.getScaledValue(20)
             for (index in it.indices) {
+                val maxTextWidth = when (index) {
+                    0 -> textStep / 2f + start - paddingStart
+                    it.size - 1 -> textStep / 2f + xAxis.topOffset
+                    else -> textStep
+                }
+
                 if (maxTextWidth > 0) {
                     // 绘制x轴文本
                     if (!jumpZeroLabel || index != 0) {
@@ -165,22 +238,75 @@ class LineChart @JvmOverloads constructor(context: Context,
                             val width = textPaint.measureText(text)
                             if (width > maxTextWidth) {
                                 canvas.save()
-                                tempRectF.set(tempStart - maxTextWidth / 2f, bottom + axis.labelOffset,
-                                    tempStart + maxTextWidth / 2f, bottom + textHeight + axis.labelOffset)
+
+                                when (index) {
+                                    // 起始点可以向左延伸
+                                    0 -> tempRectF.set(paddingStart.toFloat(), bottom,
+                                        tempStart + textStep / 2f, bottom + labelOffset + baseline * 2)
+
+                                    // 中间点可绘制宽度固定
+                                    it.size - 1 -> tempRectF.set(tempStart - textStep / 2f, bottom,
+                                        tempStart + xAxis.topOffset, bottom + labelOffset + baseline * 2)
+
+                                    // 结束点向右延伸
+                                    else -> tempRectF.set(tempStart - maxTextWidth / 2f, bottom,
+                                        tempStart + maxTextWidth / 2f, bottom + labelOffset + baseline * 2)
+                                }
+
                                 canvas.clipRect(tempRectF)
-                                canvas.drawText(text, tempRectF.left, tempRectF.bottom, textPaint)
+                                val startX = when (getXLabelAlign()) {
+                                    Paint.Align.CENTER -> tempStart
+                                    Paint.Align.LEFT -> tempRectF.left
+                                    else -> tempRectF.right
+                                }
+
+                                // bottom + labelOffset + baseline,此时文本绘制与bottom + labelOffset坐标水平垂直居中
+                                // 而文本要绘制到bottom + labelOffset之下，因此还需加一次baseline
+                                canvas.drawText(text, startX, bottom + labelOffset + baseline * 2, textPaint)
                                 canvas.restore()
                             } else {
-                                canvas.drawText(text, tempStart - width / 2f, bottom + textHeight + axis.labelOffset, textPaint)
+                                val startX = when (getXLabelAlign()) {
+                                    Paint.Align.CENTER -> tempStart
+
+                                    Paint.Align.LEFT -> {
+                                        when (index) {
+                                            0 -> {
+                                                if (width > textStep) {
+                                                    tempStart + textStep / 2f - width
+                                                } else {
+                                                    tempStart - width / 2f
+                                                }
+                                            }
+
+                                            else -> tempStart - width / 2f
+                                        }
+                                    }
+
+                                    else -> {
+                                        when (index) {
+                                            it.size - 1 -> {
+                                                if (width / 2 > xAxis.topOffset) {
+                                                    tempStart + xAxis.topOffset
+                                                } else {
+                                                    tempStart + width / 2f
+                                                }
+                                            }
+
+                                            else -> tempStart + width / 2f
+                                        }
+                                    }
+                                }
+
+                                canvas.drawText(text, startX, bottom + labelOffset + baseline * 2, textPaint)
                             }
                         }
                     }
                 }
 
-                if (index > 0 && axis.drawGridLine) {
-                    canvas.drawLine(tempStart - axis.gridLineWidth / 2f,
-                        if (axis.gridUseTopOffset) top - yRange + axis.topOffset else top - yRange,
-                        tempStart + axis.gridLineWidth / 2f, top, paint)
+                if (index > 0 && xAxis.drawGridLine) {
+                    canvas.drawLine(tempStart,
+                        if (xAxis.gridUseTopOffset) top - yRange + xAxis.topOffset else top - yRange,
+                        tempStart, top, paint)
                 }
 
                 tempStart += step
@@ -188,48 +314,73 @@ class LineChart @JvmOverloads constructor(context: Context,
         }
     }
 
-    private fun drawYAxis(canvas: Canvas, axis: Axis,
+    /**
+     * 绘制y轴，[start]、[end]、[top]、[bottom]指定轴线绘制坐标，
+     * [maxTextWidth]为y轴最大文本的宽度,[jumpZeroLabel]表示是否跳过0值文本的绘制，[xRange]则为x轴线的长度
+     */
+    private fun drawYAxis(canvas: Canvas,
                           start: Float, end: Float,
                           top: Float, bottom: Float,
-                          textHeight: Float, maxTextWidth: Float,
-                          textWidthOffset: Float, jumpZeroLabel: Boolean,
+                          maxTextWidth: Float,
+                          jumpZeroLabel: Boolean,
                           xRange: Float) {
 
         // 绘制轴线
-        paint.color = axis.lineColor
+        setPaint(yAxis.lineColor, yAxis.lineWidth)
         canvas.drawLine(start, top, end, bottom, paint)
 
         // 绘制y轴文本
         var tempBottom = bottom
-        val step = (bottom - top - axis.topOffset) / axis.labelCount
-        textPaint.textSize = axis.labelSize
-        textPaint.color = axis.labelColor
-        paint.color = axis.gridLineColor
+        val step = (bottom - top - yAxis.topOffset) / yAxis.labelCount.toFloat()
+        textPaint.textSize = yAxis.labelSize
+        textPaint.color = yAxis.labelColor
+        val labelAlign = getYLabelAlign()
+        textPaint.textAlign = labelAlign
+        setPaint(yAxis.gridLineColor, yAxis.gridLineWidth)
 
-        axis.labelList?.let {
+        yAxis.labelList?.let {
+            val baseLine = textPaint.getCenterBaseline(yAxis.labelSize)
+            val textStart = start - getYLabelOffset()
             for (index in it.indices) {
                 if (maxTextWidth > 0) {
                     if (!jumpZeroLabel || index != 0) {
                         val text = it[index]
-                        if (it.isNotEmpty()) {
-                            val width = textPaint.measureText(text) + axis.labelOffset
-                            if (width > maxTextWidth) {
-                                canvas.save()
-                                tempRectF.set(start - maxTextWidth - textWidthOffset, tempBottom - textHeight / 2f, start - textWidthOffset, tempBottom + textHeight / 2f)
-                                canvas.clipRect(tempRectF)
-                                canvas.drawText(text, tempRectF.left, tempRectF.bottom, textPaint)
-                                canvas.restore()
+                        if (text.isNotEmpty()) {
+                            if (labelAlign == Paint.Align.RIGHT) {
+                                if (index == 0) {
+                                    canvas.drawText(text, textStart, tempBottom, textPaint)
+                                } else {
+                                    canvas.drawText(text, textStart, tempBottom + baseLine, textPaint)
+                                }
                             } else {
-                                canvas.drawText(text, start - width - textWidthOffset, tempBottom + textHeight / 2f, textPaint)
+                                canvas.save()
+                                tempRectF.set(textStart - maxTextWidth, top, textStart, tempBottom + baseLine)
+                                canvas.clipRect(tempRectF)
+                                val startX = if (labelAlign == Paint.Align.LEFT) {
+                                    tempRectF.left
+                                } else {
+                                    tempRectF.left + tempRectF.width() / 2f
+                                }
+
+                                if (index == 0) {
+                                    canvas.drawText(text, startX, tempBottom, textPaint)
+                                } else {
+                                    canvas.drawText(text, startX, tempRectF.bottom, textPaint)
+                                }
+
+                                canvas.restore()
                             }
                         }
                     }
                 }
 
-                if (index > 0 && axis.drawGridLine) {
-                    canvas.drawLine(start, tempBottom - axis.gridLineWidth / 2f,
-                        if (axis.gridUseTopOffset) start + xRange - axis.topOffset else start + xRange,
-                        tempBottom + axis.gridLineWidth / 2f, paint)
+                if (index > 0 && yAxis.drawGridLine) {
+                    var stopX = if (yAxis.gridUseTopOffset) start + xRange - yAxis.topOffset else start + xRange
+                    if (xAxis.drawGridLine && index == it.size - 1) {
+                        stopX += xAxis.gridLineWidth / 2
+                    }
+
+                    canvas.drawLine(start, tempBottom, stopX, tempBottom, paint)
                 }
 
                 tempBottom -= step
@@ -247,23 +398,25 @@ class LineChart @JvmOverloads constructor(context: Context,
 
         val labelList = mutableListOf<String>()
         for (i in 0 until axis.labelCount + 1) {
-            val label = axis.valueFormat?.invoke(i) ?: Axis.DEFAULT_VALUE_FORMAT.invoke(i)
+            val label = axis.mAxisValueFormat?.invoke(i) ?: Axis.DEFAULT_VALUE_FORMAT.invoke(i)
             labelList.add(label)
         }
         axis.labelList = labelList
     }
 
     /**
-     * 获取轴上文本绘制的最大宽度,[useLabelOffset]指定计算宽度时，是否加上label绘制距离轴线的偏移值
+     * 获取轴上文本绘制的最大宽度
      */
-    private fun getTextMaxWidth(axis: Axis, useLabelOffset: Boolean = false): Int {
-        val max = axis.labelMinWidth.coerceAtLeast(axis.labelMaxWidth ?: 0)
+    private fun getTextMaxWidth(axis: YAxis): Float {
         if (axis.labelWidth != null) {
-            val aclWidth = if (useLabelOffset) axis.labelWidth!! + axis.labelOffset else axis.labelWidth!!
-            return if (aclWidth <= max || axis.labelMaxWidth == null) {
-                aclWidth
-            } else {
-                max
+            axis.labelWidth?.let {
+                return if (it < axis.labelMinWidth) {
+                    axis.labelMinWidth
+                } else if (axis.labelMaxWidth == null || it < axis.labelMaxWidth!!) {
+                    it
+                } else {
+                    axis.labelMaxWidth!!
+                }
             }
         }
 
@@ -275,40 +428,417 @@ class LineChart @JvmOverloads constructor(context: Context,
         }
 
         if (maxLengthText == null) {
-            return if (useLabelOffset) {
-                axis.labelOffset.coerceAtLeast(max)
-            } else {
-                max
-            }
+            return axis.labelMinWidth.coerceAtLeast(axis.labelMaxWidth ?: 0f)
         }
 
         textPaint.textSize = axis.labelSize
-        var width = textPaint.measureText(maxLengthText!!).toInt()
-        if (useLabelOffset) {
-            width += axis.labelOffset
+        val width = textPaint.measureText(maxLengthText!!)
+        return if (width < axis.labelMinWidth) {
+            axis.labelMinWidth
+        } else if (axis.labelMaxWidth == null || width < axis.labelMaxWidth!!) {
+            width
+        } else {
+            axis.labelMaxWidth!!
         }
-
-        return width.coerceAtLeast(max)
     }
 
-    private fun drawValues(canvas: Canvas) {
+    private fun drawValues(canvas: Canvas,
+                           start: Float, end: Float,
+                           top: Float, bottom: Float) {
 
+        lineDataList?.forEach {
+            if (it.values.size <= 1) {
+                if (it.values.size == 1) {
+                    getEntityPosition(0, it.values[0], start, end, top, bottom)
+                }
+            } else {
+                when (it.lineStyle) {
+                    LineData.CUBIC_BEZIER -> drawCubicBezier(canvas, it, start, end, top, bottom)
+
+                    LineData.HORIZONTAL_BEZIER -> drawHorizontalBezier(canvas, it, start, end, top, bottom)
+
+                    else -> drawLiner(canvas, it, start, end, top, bottom)
+                }
+            }
+
+            drawValueTextAndIndicator(canvas, it)
+        }
+    }
+
+    /**
+     * 计算[Entity]在坐标系中的坐标位置
+     */
+    private fun getEntityPosition(pos: Int, entity: Entity, start: Float, end: Float, top: Float, bottom: Float) {
+        val x = start + ((end - start) / xAxis.labelCount * pos)
+        val y = bottom - ((entity.value - yAxis.min) / (yAxis.max - yAxis.min) * (bottom - top))
+        entity.x = x
+        entity.y = y
+    }
+
+    /**
+     * 绘制线性的折线图
+     */
+    private fun drawLiner(canvas: Canvas, lineData: LineData, start: Float, end: Float, top: Float, bottom: Float) {
+        setPaint(lineData.lineColor, lineData.lineWidth)
+        tempPath.reset()
+        bgPath.reset()
+
+        var lineStyle: Int? = null
+
+        canvas.save()
+        canvas.clipRect(start, top, end, bottom)
+
+        for (index in lineData.values.indices) {
+            val entity = lineData.values[index]
+            getEntityPosition(index, entity, start, end, top, bottom)
+
+            if (entity.isDraw) {
+                if (tempPath.isEmpty) {
+                    tempPath.moveTo(entity.x, entity.y)
+                } else {
+                    tempPath.lineTo(entity.x, entity.y)
+                }
+
+                if (lineData.fillBg) {
+                    if (bgPath.isEmpty) {
+                        bgPath.moveTo(entity.x, bottom)
+                    }
+                    bgPath.lineTo(entity.x, entity.y)
+                }
+
+                if (lineStyle != null && lineStyle != entity.lineStyle) {
+                    if (!bgPath.isEmpty) {
+                        bgPath.lineTo(entity.x, bottom)
+                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                        bgPath.reset()
+                        bgPath.moveTo(entity.x, bottom)
+                        bgPath.lineTo(entity.x, entity.y)
+                    }
+
+                    if (!tempPath.isEmpty) {
+                        setPathEffect(lineStyle, paint)
+                        canvas.drawPath(tempPath, paint)
+                        tempPath.reset()
+                        tempPath.moveTo(entity.x, entity.y)
+                    }
+                }
+
+                lineStyle = entity.lineStyle
+            } else {
+                if (!bgPath.isEmpty) {
+                    if (index > 0) {
+                        val preEntity = lineData.values[index - 1]
+                        bgPath.lineTo(preEntity.x, bottom)
+                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                        bgPath.reset()
+                    }
+                }
+
+                if (!tempPath.isEmpty) {
+                    setPathEffect(lineStyle, paint)
+                    canvas.drawPath(tempPath, paint)
+                    tempPath.reset()
+                }
+            }
+
+            if (index == lineData.values.size - 1 && !bgPath.isEmpty) {
+                bgPath.lineTo(entity.x, bottom)
+            }
+        }
+
+        if (!bgPath.isEmpty) {
+            drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+        }
+
+        if (!tempPath.isEmpty) {
+            setPathEffect(lineStyle, paint)
+            canvas.drawPath(tempPath, paint)
+        }
+
+        canvas.restore()
+    }
+
+    /**
+     * 绘制三次贝塞尔曲线平滑折线图
+     */
+    private fun drawCubicBezier(canvas: Canvas, lineData: LineData, start: Float, end: Float, top: Float, bottom: Float) {
+        setPaint(lineData.lineColor, lineData.lineWidth)
+        tempPath.reset()
+        bgPath.reset()
+
+        var lineStyle: Int? = null
+        var prevDx: Float
+        var prevDy: Float
+        var curDx: Float
+        var curDy: Float
+
+        var prevPrev: Entity
+        var cur: Entity = lineData.values[0]
+        var prev: Entity = cur
+        var next: Entity
+        getEntityPosition(0, lineData.values[0], start, end, top, bottom)
+        if (cur.isDraw) {
+            tempPath.moveTo(cur.x, cur.y)
+            bgPath.moveTo(cur.x, bottom)
+            bgPath.lineTo(cur.x, cur.y)
+        }
+
+        canvas.save()
+        canvas.clipRect(start, top, end, bottom)
+
+        for (index in 1 until lineData.values.size) {
+            getEntityPosition(index, lineData.values[index], start, end, top, bottom)
+
+            prevPrev = prev
+            prev = cur
+            cur = lineData.values[index]
+            next = lineData.values[if (index + 1 < lineData.values.size) index + 1 else index]
+            if (!next.isDraw) {
+                // 下个节点不绘制，那当前节点即为结束点
+                next = cur
+            }
+
+            if (cur.isDraw) {
+                if (tempPath.isEmpty) {
+                    tempPath.moveTo(cur.x, cur.y)
+                    bgPath.moveTo(cur.x, bottom)
+                    bgPath.lineTo(cur.x, cur.y)
+                    // 重新已此点作为起始点
+                    prev = cur
+                } else {
+                    prevDx = (getDrawX(cur, start) - getDrawX(prevPrev, start)) * lineData.cubicIntensity
+                    prevDy = (getDrawY(cur, bottom) - getDrawY(prevPrev, bottom)) * lineData.cubicIntensity
+                    curDx = (getDrawX(next, start) - getDrawX(prev, start)) * lineData.cubicIntensity
+                    curDy = (getDrawY(next, bottom) - getDrawY(prev, bottom)) * lineData.cubicIntensity
+
+                    tempPath.cubicTo(getDrawX(prev, start) + prevDx, getDrawY(prev, start) + prevDy,
+                        cur.x - curDx, cur.y - curDy, cur.x, cur.y)
+
+                    bgPath.cubicTo(getDrawX(prev, start) + prevDx, getDrawY(prev, start) + prevDy,
+                        cur.x - curDx, cur.y - curDy, cur.x, cur.y)
+                }
+
+
+                if (lineStyle != null && lineStyle != cur.lineStyle) {
+                    if (!bgPath.isEmpty) {
+                        bgPath.lineTo(cur.x, bottom)
+                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                        bgPath.reset()
+                        bgPath.moveTo(cur.x, bottom)
+                        bgPath.lineTo(cur.x, cur.y)
+                    }
+
+                    if (!tempPath.isEmpty) {
+                        setPathEffect(lineStyle, paint)
+                        canvas.drawPath(tempPath, paint)
+                        tempPath.reset()
+                        tempPath.moveTo(cur.x, cur.y)
+                    }
+                }
+
+                lineStyle = cur.lineStyle
+            } else {
+                if (!bgPath.isEmpty) {
+                    if (index > 0) {
+                        val preEntity = lineData.values[index - 1]
+                        bgPath.lineTo(preEntity.x, bottom)
+                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                        bgPath.reset()
+                    }
+                }
+
+                if (!tempPath.isEmpty) {
+                    setPathEffect(lineStyle, paint)
+                    canvas.drawPath(tempPath, paint)
+                    tempPath.reset()
+                }
+            }
+
+            if (index == lineData.values.size - 1 && !bgPath.isEmpty) {
+                bgPath.lineTo(cur.x, bottom)
+            }
+        }
+
+        if (!bgPath.isEmpty) {
+            drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+        }
+
+        if (!tempPath.isEmpty) {
+            setPathEffect(lineStyle, paint)
+            canvas.drawPath(tempPath, paint)
+        }
+
+        canvas.restore()
+    }
+
+    private fun setPathEffect(lineStyle: Int?, paint: Paint) {
+        if (lineStyle == Entity.DOTTED_LINE) {
+            val dashPathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
+            paint.pathEffect = dashPathEffect
+        } else {
+            paint.pathEffect = null
+        }
+    }
+
+    private fun getDrawX(entity: Entity, def: Float): Float {
+        return entity.x
+    }
+
+    private fun getDrawY(entity: Entity, def: Float): Float {
+        if (entity.isDraw) {
+            return entity.y
+        }
+        return def
+    }
+
+    /**
+     * 绘制二次贝塞尔曲线平滑折线图
+     */
+    private fun drawHorizontalBezier(canvas: Canvas, lineData: LineData, start: Float, end: Float, top: Float, bottom: Float) {
+        setPaint(lineData.lineColor, lineData.lineWidth)
+        tempPath.reset()
+        bgPath.reset()
+
+        var lineStyle: Int? = null
+        var cur: Entity = lineData.values[0]
+        var prev: Entity
+        getEntityPosition(0, lineData.values[0], start, end, top, bottom)
+        if (cur.isDraw) {
+            tempPath.moveTo(cur.x, cur.y)
+            bgPath.moveTo(cur.x, bottom)
+            bgPath.lineTo(cur.x, cur.y)
+        }
+
+        canvas.save()
+        canvas.clipRect(start, top, end, bottom)
+
+        for (index in 1 until lineData.values.size) {
+            getEntityPosition(index, lineData.values[index], start, end, top, bottom)
+
+            prev = cur
+            cur = lineData.values[index]
+
+            if (cur.isDraw) {
+                if (tempPath.isEmpty) {
+                    tempPath.moveTo(cur.x, cur.y)
+                    bgPath.moveTo(cur.x, bottom)
+                    bgPath.lineTo(cur.x, cur.y)
+                } else {
+                    val preCpx = prev.x + (cur.x - prev.x) * lineData.cubicIntensity
+                    val curCpx = cur.x - (cur.x - prev.x) * lineData.cubicIntensity
+                    tempPath.cubicTo(preCpx, prev.y, curCpx, cur.y, cur.x, cur.y)
+                    bgPath.cubicTo(preCpx, prev.y, curCpx, cur.y, cur.x, cur.y)
+                }
+
+                if (lineStyle != null && lineStyle != cur.lineStyle) {
+                    if (!bgPath.isEmpty) {
+                        bgPath.lineTo(cur.x, bottom)
+                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                        bgPath.reset()
+                        bgPath.moveTo(cur.x, bottom)
+                        bgPath.lineTo(cur.x, cur.y)
+                    }
+
+                    if (!tempPath.isEmpty) {
+                        setPathEffect(lineStyle, paint)
+                        canvas.drawPath(tempPath, paint)
+                        tempPath.reset()
+                        tempPath.moveTo(cur.x, cur.y)
+                    }
+                }
+
+                lineStyle = cur.lineStyle
+            } else {
+                if (!bgPath.isEmpty) {
+                    val preEntity = lineData.values[index - 1]
+                    bgPath.lineTo(preEntity.x, bottom)
+                    drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+                    bgPath.reset()
+                }
+
+                if (!tempPath.isEmpty) {
+                    setPathEffect(lineStyle, paint)
+                    canvas.drawPath(tempPath, paint)
+                    tempPath.reset()
+                }
+            }
+
+            if (index == lineData.values.size - 1 && !bgPath.isEmpty) {
+                bgPath.lineTo(cur.x, bottom)
+            }
+        }
+
+        if (!bgPath.isEmpty) {
+            drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
+        }
+
+        if (!tempPath.isEmpty) {
+            setPathEffect(lineStyle, paint)
+            canvas.drawPath(tempPath, paint)
+        }
+
+        canvas.restore()
+    }
+
+    /**
+     * 绘制文本值和数值指示器
+     */
+    private fun drawValueTextAndIndicator(canvas: Canvas, lineData: LineData) {
+        textPaint.textAlign = Paint.Align.CENTER
+        for (index in lineData.values.indices) {
+            val entity = lineData.values[index]
+            if (entity.isDraw) {
+                var indicatorOffset = 0f
+                if (entity.drawValueIndicator && entity.valueIndicatorDrawable != null
+                    && entity.valueIndicatorSize > 0) {
+                    val half = entity.valueIndicatorSize / 2f
+                    entity.valueIndicatorDrawable?.setBounds((entity.x - half).toInt(), (entity.y - half).toInt(),
+                        (entity.x + half).toInt(), (entity.y + half).toInt())
+                    entity.valueIndicatorDrawable?.draw(canvas)
+                    indicatorOffset = half
+                }
+
+                if (entity.drawValue && entity.valueTextSize > 0) {
+                    val text = lineData.valueFormat?.invoke(entity) ?: entity.value.toString()
+                    textPaint.textSize = entity.valueTextSize
+                    textPaint.color = entity.valueTextColor
+                    canvas.drawText(text, entity.x, entity.y - indicatorOffset, textPaint)
+                }
+            }
+        }
+    }
+
+    /**
+     * 绘制折线背景填充色
+     */
+    private fun drawFillBg(canvas: Canvas, path: Path, lineData: LineData, start: Float, end: Float, top: Float, bottom: Float) {
+        if (lineData.fillBgDrawable != null) {
+            lineData.fillBgDrawable?.let {
+                it.setBounds(start.toInt(), top.toInt(), end.toInt(), bottom.toInt())
+
+                canvas.save()
+                canvas.clipPath(path)
+                it.draw(canvas)
+                canvas.restore()
+            }
+        } else if (lineData.fillBgColor != 0) {
+            canvas.save()
+            canvas.clipPath(path)
+            canvas.drawColor(lineData.fillBgColor)
+            canvas.restore()
+        }
     }
 }
 
 /**
  * 配置X、Y轴值内容
  */
-class Axis private constructor() {
+open class Axis internal constructor() {
     var lineColor: Int = Color.GRAY
         private set
-    var lineWidth: Int = 1
+    var lineWidth: Float = 1f
         private set
-    var topOffset: Int = 0
-        private set
-    var min: Float = 0f
-        private set
-    var max: Float = 100f
+    var topOffset: Float = 0f
         private set
 
     var labelCount: Int = 5
@@ -317,22 +847,18 @@ class Axis private constructor() {
         private set
     var labelColor: Int = Color.BLACK
         private set
-    var labelWidth: Int? = null
+    var labelOffset: Float? = null
         private set
-    var labelMinWidth: Int = 0
+    var mAxisValueFormat: AxisValueFormat? = DEFAULT_VALUE_FORMAT
         private set
-    var labelMaxWidth: Int? = null
-        private set
-    var labelOffset: Int = 0
-        private set
-    var valueFormat: ValueFormat? = DEFAULT_VALUE_FORMAT
+    var labelAlign: Paint.Align? = null
         private set
 
     var drawGridLine: Boolean = false
         private set
     var gridLineColor: Int = Color.GRAY
         private set
-    var gridLineWidth: Int = 1
+    var gridLineWidth: Float = 1f
         private set
     var gridUseTopOffset: Boolean = false
         private set
@@ -350,7 +876,7 @@ class Axis private constructor() {
     /**
      * X/Y轴的宽度
      */
-    fun lineWidth(@Px width: Int): Axis {
+    fun lineWidth(@Px width: Float): Axis {
         lineWidth = width
         return this
     }
@@ -358,24 +884,8 @@ class Axis private constructor() {
     /**
      * X/Y轴顶部绘制偏移值，比如控件高度100，设置offset为10，那么Y轴高度为100，折线图实际可用绘制高度90
      */
-    fun topOffset(@Px offset: Int): Axis {
+    fun topOffset(@Px offset: Float): Axis {
         topOffset = offset
-        return this
-    }
-
-    /**
-     * 绘制坐标起始值
-     */
-    fun min(min: Float): Axis {
-        this.min = min
-        return this
-    }
-
-    /**
-     * 绘制坐标结束值
-     */
-    fun max(max: Float): Axis {
-        this.max = max
         return this
     }
 
@@ -383,7 +893,7 @@ class Axis private constructor() {
      * 轴上标签数量，不包含0值坐标，比如设置X轴最小最大值为0、100，labelCount设置为5，
      * 则X轴标签值为0，20，40，60，80，100
      */
-    fun labelCount(@IntRange(from = 1) count: Int): Axis {
+    fun labelCount(@androidx.annotation.IntRange(from = 1) count: Int): Axis {
         if (count == labelCount) {
             return this
         }
@@ -414,45 +924,9 @@ class Axis private constructor() {
     }
 
     /**
-     * 标签绘制宽度，超出此宽度则裁剪标签.设置为null则根据文本宽度及[labelMaxWidth]自适应
-     */
-    fun labelWidth(@Px @IntRange(from = 0) width: Int?): Axis {
-        if (width != null && width < 0) {
-            return this
-        }
-
-        this.labelWidth = width
-        return this
-    }
-
-    /**
-     * 标签绘制最小宽度
-     */
-    fun labelMinWidth(@Px @IntRange(from = 0) min: Int): Axis {
-        if (min < 0) {
-            return this
-        }
-
-        this.labelMinWidth = min
-        return this
-    }
-
-    /**
-     * 标签绘制最大宽度，超出此值则裁剪标签，设置为null则无限制
-     */
-    fun labelMaxWidth(@Px @IntRange(from = 0) max: Int?): Axis {
-        if (max != null && max < 0) {
-            return this
-        }
-
-        this.labelMaxWidth = max
-        return this
-    }
-
-    /**
      * 标签绘制距离轴线偏移值
      */
-    fun labelOffset(@Px @IntRange(from = 0) offset: Int): Axis {
+    fun labelOffset(@Px @FloatRange(from = 0.0) offset: Float): Axis {
         if (offset < 0) {
             return this
         }
@@ -464,13 +938,25 @@ class Axis private constructor() {
     /**
      * 标签值格式化
      */
-    fun valueFormat(valueFormat: ValueFormat?): Axis {
-        if (this.valueFormat == valueFormat) {
+    fun valueFormat(axisValueFormat: AxisValueFormat?): Axis {
+        if (this.mAxisValueFormat == axisValueFormat) {
             return this
         }
 
-        this.valueFormat = valueFormat
+        this.mAxisValueFormat = axisValueFormat
         labelList = null
+        return this
+    }
+
+    /**
+     * 标签对齐方式
+     */
+    fun labelAlign(labelAlign: Paint.Align): Axis {
+        if (this.labelAlign == labelAlign) {
+            return this
+        }
+
+        this.labelAlign = labelAlign
         return this
     }
 
@@ -493,8 +979,8 @@ class Axis private constructor() {
     /**
      * 网格线宽度
      */
-    fun gridLineWidth(@Px @IntRange(from = 0) width: Int): Axis {
-        if (width < 1) {
+    fun gridLineWidth(@Px @FloatRange(from = 0.0) width: Float): Axis {
+        if (width < 1f) {
             return this
         }
 
@@ -513,21 +999,17 @@ class Axis private constructor() {
     /**
      * 应用其它轴配置数据
      */
-    fun apply(axis: Axis) {
+    open fun apply(axis: Axis) {
         this.lineColor = axis.lineColor
         this.lineWidth = axis.lineWidth
         this.topOffset = axis.topOffset
-        this.min = axis.min
-        this.max = axis.max
 
         this.labelCount = axis.labelCount
         this.labelSize = axis.labelSize
         this.labelColor = axis.labelColor
-        this.labelWidth = axis.labelWidth
-        this.labelMinWidth = axis.labelMinWidth
-        this.labelMaxWidth = axis.labelMaxWidth
         this.labelOffset = axis.labelOffset
-        this.valueFormat = axis.valueFormat
+        this.mAxisValueFormat = axis.mAxisValueFormat
+        this.labelAlign = axis.labelAlign
 
         this.drawGridLine = axis.drawGridLine
         this.gridLineColor = axis.gridLineColor
@@ -538,11 +1020,95 @@ class Axis private constructor() {
     companion object {
         fun copy(): Axis = Axis()
 
-        val DEFAULT_VALUE_FORMAT = object : ValueFormat {
+        val DEFAULT_VALUE_FORMAT = object : AxisValueFormat {
             override fun invoke(position: Int): String {
                 return position.toString()
             }
         }
+    }
+}
+
+/**
+ * 配置X、Y轴值内容
+ */
+class YAxis internal constructor() : Axis() {
+    var min: Float = 0f
+        private set
+    var max: Float = 100f
+        private set
+
+    var labelWidth: Float? = null
+        private set
+    var labelMinWidth: Float = 0f
+        private set
+    var labelMaxWidth: Float? = null
+        private set
+
+    /**
+     * 绘制坐标起始值
+     */
+    fun min(min: Float): Axis {
+        this.min = min
+        return this
+    }
+
+    /**
+     * 绘制坐标结束值
+     */
+    fun max(max: Float): Axis {
+        this.max = max
+        return this
+    }
+
+    /**
+     * 标签绘制宽度，超出此宽度则裁剪标签.设置为null则根据文本宽度及[labelMaxWidth]自适应
+     */
+    fun labelWidth(@Px @FloatRange(from = 0.0) width: Float?): Axis {
+        if (width != null && width < 0) {
+            return this
+        }
+
+        this.labelWidth = width
+        return this
+    }
+
+    /**
+     * 标签绘制最小宽度
+     */
+    fun labelMinWidth(@Px @FloatRange(from = 0.0) min: Float): Axis {
+        if (min < 0) {
+            return this
+        }
+
+        this.labelMinWidth = min
+        return this
+    }
+
+    /**
+     * 标签绘制最大宽度，超出此值则裁剪标签，设置为null则无限制
+     */
+    fun labelMaxWidth(@Px @FloatRange(from = 0.0) max: Float?): Axis {
+        if (max != null && max < 0) {
+            return this
+        }
+
+        this.labelMaxWidth = max
+        return this
+    }
+
+    override fun apply(axis: Axis) {
+        super.apply(axis)
+        if (axis is YAxis) {
+            this.min = axis.min
+            this.max = axis.max
+            this.labelWidth = axis.labelWidth
+            this.labelMinWidth = axis.labelMinWidth
+            this.labelMaxWidth = axis.labelMaxWidth
+        }
+    }
+
+    companion object {
+        fun copy(): YAxis = YAxis()
     }
 }
 
@@ -560,11 +1126,22 @@ class LineData(
     var lineStyle: Int = LINER
 
     /**
+     * 如果[lineStyle]不是[LINER],则此值指定贝塞尔曲线的平滑度
+     */
+    var cubicIntensity by DefValueDelegate {
+        when (lineStyle) {
+            CUBIC_BEZIER -> 0.1f
+            HORIZONTAL_BEZIER -> 0.5f
+            else -> 0f
+        }
+    }
+
+    /**
      * 绘制折线宽度
      */
     @setparam:Px
-    @setparam:IntRange(from = 1)
-    var lineWidth: Int = 1
+    @setparam:FloatRange(from = 1.0)
+    var lineWidth: Float = 1f
 
     /**
      * 绘制折线颜色
@@ -578,14 +1155,19 @@ class LineData(
     var fillBg: Boolean = false
 
     /**
-     * 填充的背景颜色，如果设置了此值也设置了[bgDrawable],则优先使用[bgDrawable]
+     * 填充的背景颜色，如果设置了此值也设置了[fillBgDrawable],则优先使用[fillBgDrawable]。
      */
-    var bgColor: Int = 0
+    var fillBgColor: Int = 0
 
     /**
      * 填充的背景图像
      */
-    var bgDrawable: Drawable? = null
+    var fillBgDrawable: Drawable? = null
+
+    /**
+     * [Entity] value值格式化文本
+     */
+    var valueFormat: ValueFormat? = null
 
     @IntDef(LINER, CUBIC_BEZIER, HORIZONTAL_BEZIER)
     @Target(AnnotationTarget.VALUE_PARAMETER)
@@ -647,6 +1229,16 @@ class Entity(var value: Float = 0f) {
      */
     var data: Any? = null
 
+    /**
+     * 绘制时的x坐标
+     */
+    var x: Float = 0f
+
+    /**
+     * 绘制时的y坐标
+     */
+    var y: Float = 0f
+
     @IntDef(DOTTED_LINE, SOLID_LINE)
     @Target(AnnotationTarget.VALUE_PARAMETER)
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
@@ -666,6 +1258,29 @@ class Entity(var value: Float = 0f) {
 }
 
 /**
+ * 对一个不为空的数值进行代理，指定一个默认值
+ */
+private class DefValueDelegate<T>(val def: () -> T) : ReadWriteProperty<Any?, T> {
+    private var value: T? = null
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        if (value == null) {
+            return def.invoke()
+        }
+        return value!!
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        this.value = value
+    }
+}
+
+/**
  * 文本格式化
  */
-typealias ValueFormat = (position: Int) -> String
+typealias AxisValueFormat = (position: Int) -> String
+
+/**
+ * 文本格式化
+ */
+typealias ValueFormat = (entity: Entity) -> String

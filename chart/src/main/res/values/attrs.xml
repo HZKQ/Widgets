@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LineChart">
+        <!--x轴轴线颜色-->
+        <attr name="xLineColor" format="color|reference" />
+        <!--x轴轴线宽度-->
+        <attr name="xLineWidth" format="dimension|reference" />
+        <!--x轴轴线结束位置与折线图x轴可绘制区域的偏移值，此值增大，折线图可绘制区域减小-->
+        <attr name="xTopOffset" format="dimension|reference" />
+
+        <!--x轴标签数量-->
+        <attr name="xLabelCount" format="integer" />
+        <!--x轴标签字体大小-->
+        <attr name="xLabelSize" format="dimension|reference" />
+        <!--x轴标签字体颜色-->
+        <attr name="xLabelColor" format="color|reference" />
+        <!--x轴标签与轴线之间的垂直偏移值-->
+        <attr name="xLabelOffset" format="dimension|reference" />
+        <!--x轴标签绘制对齐方式-->
+        <attr name="xLabelAlign" format="enum">
+            <enum name="left" value="0" />
+            <enum name="center" value="1" />
+            <enum name="right" value="2" />
+        </attr>
+
+        <!--是否绘制x轴网格线-->
+        <attr name="xDrawGridLine" format="boolean" />
+        <!--x轴网格线颜色-->
+        <attr name="xGridLineColor" format="color|reference" />
+        <!--x轴网格线宽度-->
+        <attr name="xGridLineWidth" format="dimension|reference" />
+        <!--x轴网格线绘制时是否应用xLabelOffset属性限制-->
+        <attr name="xGridUseTopOffset" format="boolean" />
+
+
+        <!--y轴轴线颜色-->
+        <attr name="yLineColor" format="color|reference" />
+        <!--y轴轴线宽度-->
+        <attr name="yLineWidth" format="dimension|reference" />
+        <!--y轴轴线顶部位置与折线图y轴顶部可绘制区域的偏移值，此值增大，折线图可绘制区域减小-->
+        <attr name="yTopOffset" format="dimension|reference" />
+        <!--y轴的最大值，绘制的结束点，如果数据值大于此值，则超出部分不绘制-->
+        <attr name="yMax" format="float" />
+        <!--y轴的最小值,绘制的起始点，如果数据值小于此值，则小于部分不绘制-->
+        <attr name="yMin" format="float" />
+
+        <!--y轴标签数量-->
+        <attr name="yLabelCount" format="integer" />
+        <!--y轴标签字体大小-->
+        <attr name="yLabelSize" format="dimension|reference" />
+        <!--y轴标签字体颜色-->
+        <attr name="yLabelColor" format="color|reference" />
+        <!--y轴标签与轴线之间的垂直偏移值-->
+        <attr name="yLabelOffset" format="dimension|reference" />
+        <!--y轴标签绘制对齐方式-->
+        <attr name="yLabelAlign" format="enum">
+            <enum name="left" value="0" />
+            <enum name="center" value="1" />
+            <enum name="right" value="2" />
+        </attr>
+
+        <!--是否绘制y轴网格线-->
+        <attr name="yDrawGridLine" format="boolean" />
+        <!--y轴网格线颜色-->
+        <attr name="yGridLineColor" format="color|reference" />
+        <!--y轴网格线宽度-->
+        <attr name="yGridLineWidth" format="dimension|reference" />
+        <!--y轴网格线绘制时是否应用xLabelOffset属性限制-->
+        <attr name="yGridUseTopOffset" format="boolean" />
+
+        <!--折线图是否绘制数值文本，仅预览模式有效-->
+        <attr name="drawValue" format="boolean" />
+        <!--折线图是否绘制数值指示器，仅预览模式有效-->
+        <attr name="drawValueIndicator" format="boolean" />
+        <!--折线图折线类型，仅预览模式有效-->
+        <attr name="lineStyle" format="enum">
+            <enum name="liner" value="0" />
+            <enum name="cubic_bezier" value="1" />
+            <enum name="horizontal_bezier" value="2" />
+        </attr>
+        <!--折线图是否填充背景，仅预览模式有效-->
+        <attr name="fillBg" format="boolean" />
+        <!--折线图绘制类型为贝塞尔曲线时，指定曲线平滑度，仅预览模式有效-->
+        <attr name="cubicIntensity" format="float" />
+    </declare-styleable>
+
+</resources>
