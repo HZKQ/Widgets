@@ -19,6 +19,9 @@ import com.bigkoo.pickerview.view.WheelTime;
 import java.util.Calendar;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * 时间选择器
  * Created by Sai on 15/11/22.
@@ -32,6 +35,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
     private WheelTime wheelTime;
     // 回调接口
     private final OnTimeSelectListener timeSelectListener;
+    private final OnTimeSelectListener2 timeSelectListener2;
     // 内容显示位置 默认居中
     private final int gravity;
     // 显示类型
@@ -110,6 +114,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
     public TimePickerView(Builder builder) {
         super(builder.context);
         this.timeSelectListener = builder.timeSelectListener;
+        this.timeSelectListener2 = builder.timeSelectListener2;
         this.gravity = builder.gravity;
         this.type = builder.type;
         this.mStrSubmit = builder.Str_Submit;
@@ -154,7 +159,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         this.isDialog = builder.isDialog;
         this.dividerType = builder.dividerType;
         this.backgroundId = builder.backgroundId;
-        this.decorView = builder.decorView;
+        this.setDecorView(builder.decorView);
         initView(builder.context);
     }
     
@@ -164,6 +169,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         private CustomLayoutCallback mCustomLayoutCallback;
         private final Context context;
         private final OnTimeSelectListener timeSelectListener;
+        private final OnTimeSelectListener2 timeSelectListener2;
         // 显示类型 默认全部显示
         private boolean[] type = new boolean[]{true, true, true, true, true, true};
         // 内容显示位置 默认居中
@@ -195,7 +201,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         
         private boolean isCenterLabel = true;// 是否只显示中间的label
         private boolean isLunarCalendar = false;// 是否显示农历
-        public ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
+        private ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
         
         private int textColorOut; // 分割线以外的文字颜色
         private int textColorCenter; // 分割线之间的文字颜色
@@ -214,6 +220,14 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         public Builder(Context context, OnTimeSelectListener listener) {
             this.context = context;
             this.timeSelectListener = listener;
+            this.timeSelectListener2 = null;
+        }
+        
+        // Required
+        public Builder(Context context, OnTimeSelectListener2 listener) {
+            this.context = context;
+            this.timeSelectListener2 = listener;
+            this.timeSelectListener = null;
         }
         
         // Option
@@ -436,7 +450,6 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         }
     }
     
-    
     private void initView(Context context) {
         setDialogOutSideCancelable(cancelable);
         initViews(backgroundId);
@@ -513,7 +526,6 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         wheelTime.isCenterLabel(isCenterLabel);
     }
     
-    
     /**
      * 设置默认时间
      */
@@ -583,7 +595,7 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
     public void onClick(View v) {
         String tag = (String) v.getTag();
         if (tag.equals(TAG_SUBMIT)) {
-            returnData();
+            returnData(v);
         }
         dismiss();
     }
@@ -596,6 +608,22 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
         Date date = wheelTime.getDate();
         if (date != null && timeSelectListener != null) {
             timeSelectListener.onTimeSelect(this, date);
+        }
+        
+        if (date != null && timeSelectListener2 != null) {
+            timeSelectListener2.onTimeSelect(this, null, date);
+        }
+    }
+    
+    @Override
+    public void returnData(View view) {
+        Date date = wheelTime.getDate();
+        if (date != null && timeSelectListener != null) {
+            timeSelectListener.onTimeSelect(this, date);
+        }
+        
+        if (date != null && timeSelectListener2 != null) {
+            timeSelectListener2.onTimeSelect(this, view, date);
         }
     }
     
@@ -633,6 +661,16 @@ public class TimePickerView extends BasePickerView implements View.OnClickListen
          *
          * @param date 选中的日期
          */
-        void onTimeSelect(TimePickerView pickerView, Date date);
+        void onTimeSelect(@NonNull TimePickerView pickerView, @Nullable Date date);
+    }
+    
+    public interface OnTimeSelectListener2 {
+        /**
+         * 日期被选中时调用，当选中日期为null时此方法不会被调用
+         *
+         * @param date 选中的日期
+         * @param view 用户使用{@link BasePickerView#returnData(View)}时传递的参数
+         */
+        void onTimeSelect(@Nullable TimePickerView pickerView, @Nullable View view, @Nullable Date date);
     }
 }

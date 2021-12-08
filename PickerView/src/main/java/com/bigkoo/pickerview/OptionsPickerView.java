@@ -19,6 +19,8 @@ import com.bigkoo.pickerview.view.WheelOptions;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 /**
  * 条件选择器
  * Created by Sai on 15/11/22.
@@ -34,6 +36,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
     private TextView tvTitle;
     
     private final OnOptionsSelectListener optionsSelectListener;
+    private final OnOptionsSelectListener2 optionsSelectListener2;
     // 确定按钮文字
     private final String mStrSubmit;
     // 取消按钮文字
@@ -95,6 +98,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
     public OptionsPickerView(Builder builder) {
         super(builder.context);
         this.optionsSelectListener = builder.optionsSelectListener;
+        this.optionsSelectListener2 = builder.optionsSelectListener2;
         this.mStrSubmit = builder.Str_Submit;
         this.mStrCancel = builder.Str_Cancel;
         this.mStrTitle = builder.Str_Title;
@@ -128,7 +132,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         this.isDialog = builder.isDialog;
         this.dividerType = builder.dividerType;
         this.backgroundId = builder.backgroundId;
-        this.decorView = builder.decorView;
+        this.setDecorView(builder.decorView);
         this.gravity = builder.gravity;
         initView(builder.context);
     }
@@ -139,6 +143,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         private CustomLayoutCallback mCustomLayoutCallback;
         private final Context context;
         private final OnOptionsSelectListener optionsSelectListener;
+        private final OnOptionsSelectListener2 optionsSelectListener2;
         
         private String Str_Submit;// 确定按钮文字
         private String Str_Cancel;// 取消按钮文字
@@ -163,7 +168,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         private int textColorCenter; // 分割线之间的文字颜色
         private int dividerColor; // 分割线的颜色
         private int backgroundId; // 显示时的外部背景色颜色,默认是灰色
-        public ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
+        private ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
         // 条目间距倍数 默认1.6
         private float lineSpacingMultiplier = 1.6F;
         private int itemsVisible = 7; // 可见条目数量
@@ -187,6 +192,13 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         public Builder(Context context, OnOptionsSelectListener listener) {
             this.context = context;
             this.optionsSelectListener = listener;
+            this.optionsSelectListener2 = null;
+        }
+        
+        public Builder(Context context, OnOptionsSelectListener2 listener) {
+            this.context = context;
+            this.optionsSelectListener = null;
+            this.optionsSelectListener2 = listener;
         }
         
         // Option
@@ -476,7 +488,7 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
     public void onClick(View v) {
         String tag = (String) v.getTag();
         if (tag.equals(TAG_SUBMIT)) {
-            returnData();
+            returnData(v);
         }
         dismiss();
     }
@@ -489,6 +501,24 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
         if (optionsSelectListener != null) {
             int[] optionsCurrentItems = wheelOptions.getCurrentItems();
             optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0]);
+        }
+        
+        if (optionsSelectListener2 != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener2.onOptionsSelect(this, null, optionsCurrentItems[0]);
+        }
+    }
+    
+    @Override
+    public void returnData(View view) {
+        if (optionsSelectListener != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0]);
+        }
+        
+        if (optionsSelectListener2 != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener2.onOptionsSelect(this, view, optionsCurrentItems[0]);
         }
     }
     
@@ -506,6 +536,17 @@ public class OptionsPickerView<T> extends BasePickerView implements View.OnClick
      */
     public interface OnOptionsSelectListener {
         @SuppressWarnings("rawtypes")
-        void onOptionsSelect(OptionsPickerView pickerView, int option);
+        void onOptionsSelect(@NonNull OptionsPickerView pickerView, int option);
+    }
+    
+    /**
+     * 选中监听
+     */
+    public interface OnOptionsSelectListener2 {
+        /**
+         * @param view 用户使用{@link BasePickerView#returnData(View)}时传递的参数
+         */
+        @SuppressWarnings("rawtypes")
+        void onOptionsSelect(@NonNull OptionsPickerView pickerView, View view, int option);
     }
 }

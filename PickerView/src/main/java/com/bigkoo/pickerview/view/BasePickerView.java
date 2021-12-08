@@ -17,6 +17,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
+import com.bigkoo.pickerview.LinkageOptionsPickerView.OnOptionsSelectListener2;
 import com.bigkoo.pickerview.R;
 import com.bigkoo.pickerview.listener.OnDismissListener;
 import com.bigkoo.pickerview.utils.PickerViewAnimateUtil;
@@ -35,7 +36,7 @@ public abstract class BasePickerView {
     private final Context context;
     protected ViewGroup contentContainer;
     // 显示PickerView的根View,默认是activity的根view
-    public ViewGroup decorView;
+    private ViewGroup decorView;
     // 附加View 的 根View
     private ViewGroup rootView;
     // 附加Dialog 的 根View
@@ -108,6 +109,10 @@ public abstract class BasePickerView {
     
     protected void initEvents() {
     
+    }
+    
+    public void setDecorView(ViewGroup view) {
+        this.decorView = view;
     }
     
     public Context getContext() {
@@ -288,6 +293,13 @@ public abstract class BasePickerView {
         return false;
     };
     
+    /**
+     * 获取弹窗内容布局
+     */
+    public View getContentView() {
+        return contentContainer;
+    }
+    
     public View findViewById(int id) {
         return contentContainer.findViewById(id);
     }
@@ -348,4 +360,11 @@ public abstract class BasePickerView {
      * 回调用户选中的数据
      */
     public abstract void returnData();
+    
+    /**
+     * 回调用户选中的数据
+     *
+     * @param view 用于{@link OnOptionsSelectListener2}回调
+     */
+    public abstract void returnData(View view);
 }

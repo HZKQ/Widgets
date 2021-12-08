@@ -19,6 +19,9 @@ import com.bigkoo.pickerview.view.WheelOptions;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * 联动数据条件选择器
  *
@@ -35,6 +38,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
     private TextView tvTitle;
     
     private final OnOptionsSelectListener optionsSelectListener;
+    private final OnOptionsSelectListener2 optionsSelectListener2;
     
     private final String Str_Submit;// 确定按钮文字
     private final String Str_Cancel;// 取消按钮文字
@@ -98,6 +102,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
     public LinkageOptionsPickerView(Builder builder) {
         super(builder.context);
         this.optionsSelectListener = builder.optionsSelectListener;
+        this.optionsSelectListener2 = builder.optionsSelectListener2;
         this.Str_Submit = builder.Str_Submit;
         this.Str_Cancel = builder.Str_Cancel;
         this.Str_Title = builder.Str_Title;
@@ -144,7 +149,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
         this.isDialog = builder.isDialog;
         this.dividerType = builder.dividerType;
         this.backgroundId = builder.backgroundId;
-        this.decorView = builder.decorView;
+        this.setDecorView(builder.decorView);
         this.gravity = builder.gravity;
         initView(builder.context);
     }
@@ -155,6 +160,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
         private CustomLayoutCallback mCustomLayoutCallback;
         private final Context context;
         private final OnOptionsSelectListener optionsSelectListener;
+        private final OnOptionsSelectListener2 optionsSelectListener2;
         
         private String Str_Submit;// 确定按钮文字
         private String Str_Cancel;// 取消按钮文字
@@ -180,7 +186,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
         private int textColorCenter; // 分割线之间的文字颜色
         private int dividerColor; // 分割线的颜色
         private int backgroundId; // 显示时的外部背景色颜色,默认是灰色
-        public ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
+        private ViewGroup decorView;// 显示pickerview的根View,默认是activity的根view
         // 条目间距倍数 默认1.6
         private float lineSpacingMultiplier = 1.6F;
         private int itemsVisible = 7; // 可见条目数量
@@ -212,6 +218,13 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
         public Builder(Context context, OnOptionsSelectListener listener) {
             this.context = context;
             this.optionsSelectListener = listener;
+            this.optionsSelectListener2 = null;
+        }
+        
+        public Builder(Context context, OnOptionsSelectListener2 listener) {
+            this.context = context;
+            this.optionsSelectListener2 = listener;
+            this.optionsSelectListener = null;
         }
         
         // Option
@@ -563,7 +576,7 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
     public void onClick(View v) {
         String tag = (String) v.getTag();
         if (tag.equals(TAG_SUBMIT)) {
-            returnData();
+            returnData(v);
         }
         dismiss();
     }
@@ -576,6 +589,27 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
         if (optionsSelectListener != null) {
             int[] optionsCurrentItems = wheelOptions.getCurrentItems();
             optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0], optionsCurrentItems[1], optionsCurrentItems[2]);
+        }
+        
+        if (optionsSelectListener2 != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener2.onOptionsSelect(this, null, optionsCurrentItems[0], optionsCurrentItems[1], optionsCurrentItems[2]);
+        }
+    }
+    
+    /**
+     * 用户选中数据后调用回调
+     */
+    @Override
+    public void returnData(View view) {
+        if (optionsSelectListener != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener.onOptionsSelect(this, optionsCurrentItems[0], optionsCurrentItems[1], optionsCurrentItems[2]);
+        }
+        
+        if (optionsSelectListener2 != null) {
+            int[] optionsCurrentItems = wheelOptions.getCurrentItems();
+            optionsSelectListener2.onOptionsSelect(this, view, optionsCurrentItems[0], optionsCurrentItems[1], optionsCurrentItems[2]);
         }
     }
     
@@ -598,6 +632,17 @@ public class LinkageOptionsPickerView<T1, T2, T3> extends BasePickerView impleme
      */
     public interface OnOptionsSelectListener {
         @SuppressWarnings("rawtypes")
-        void onOptionsSelect(LinkageOptionsPickerView pickerView, int options1, int options2, int options3);
+        void onOptionsSelect(@NonNull LinkageOptionsPickerView pickerView, int options1, int options2, int options3);
+    }
+    
+    /**
+     * 选中监听
+     */
+    public interface OnOptionsSelectListener2 {
+        /**
+         * @param view 用户使用{@link BasePickerView#returnData(View)}时传递的参数
+         */
+        @SuppressWarnings("rawtypes")
+        void onOptionsSelect(@NonNull LinkageOptionsPickerView pickerView, @Nullable View view, int options1, int options2, int options3);
     }
 }

@@ -105,8 +105,8 @@ public class PickerViewActivity extends BaseActivity {
                         mStartTimePicker.returnData();
                         mStartTimePicker.dismiss();
                     });
-                    tvCancel.setOnClickListener(v1 -> mStartTimePicker.setLunarCalendar(!mStartTimePicker.isLunarCalendar()));
-                    // tvCancel.setOnClickListener(v1 -> mStartTimePicker.dismiss());
+                    // tvCancel.setOnClickListener(v1 -> mStartTimePicker.setLunarCalendar(!mStartTimePicker.isLunarCalendar()));
+                    tvCancel.setOnClickListener(v1 -> mStartTimePicker.dismiss());
                 })
                 .setContentSize(SimpleUtil.getScaledValue(46, true))
                 .setOutSize(SimpleUtil.getScaledValue(36, true))
