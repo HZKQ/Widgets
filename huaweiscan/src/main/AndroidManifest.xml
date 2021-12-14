@@ -12,12 +12,14 @@
             android:name=".ScanCodeActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|layoutDirection|screenSize|screenLayout|uiMode|fontScale"
             android:screenOrientation="portrait"
+            android:theme="@style/HWScanTheme"
             android:windowSoftInputMode="adjustNothing|stateAlwaysHidden" />
 
         <activity
             android:name=".HuaWeiScanActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|layoutDirection|screenSize|screenLayout|uiMode|fontScale"
             android:screenOrientation="portrait"
+            android:theme="@style/HWScanTheme"
             android:windowSoftInputMode="adjustNothing|stateAlwaysHidden" />
     </application>
 </manifest>
