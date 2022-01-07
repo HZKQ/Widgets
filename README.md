@@ -1,5 +1,7 @@
 # Android组件库
 
+已迁移到国内仓库[gitee](https://gitee.com/HZKQ/Widgets),请前往查看
+
 [基础库MagpieX](https://github.com/zhouzhuo810/MagpieX),以下组件清单中组件均以px作为单位进行尺寸配置，因此屏幕适配依赖基础库进行适配
 
 ## 组件清单
