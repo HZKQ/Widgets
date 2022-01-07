@@ -22,9 +22,6 @@
     <com.keqiang.chart.line.LineChart
         android:id="@+id/line_chart"
         android:layout_width="match_parent"
-        android:layout_height="700px"
-        android:layout_marginTop="100px"
-        android:paddingStart="10px"
-        android:paddingBottom="10px"/>
+        android:layout_height="700px" />
 
 </LinearLayout>

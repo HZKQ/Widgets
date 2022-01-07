@@ -422,6 +422,42 @@ public class SpannableString extends android.text.SpannableString {
         public Span addSpan(String existStr) {
             return builder.addSpan(existStr);
         }
+        
+        @Override
+        public Span size(float size) {
+            super.size(size);
+            return this;
+        }
+        
+        @Override
+        public Span typeface(Typeface typeface) {
+            super.typeface(typeface);
+            return this;
+        }
+        
+        @Override
+        public Span color(int color) {
+            super.color(color);
+            return this;
+        }
+        
+        @Override
+        public Span couldClick(boolean cloudClick) {
+            super.couldClick(cloudClick);
+            return this;
+        }
+        
+        @Override
+        public Span underLine(boolean underLine) {
+            super.underLine(underLine);
+            return this;
+        }
+        
+        @Override
+        public Span clickListener(OnSpanClickListener listener) {
+            super.clickListener(listener);
+            return this;
+        }
     }
     
     /**

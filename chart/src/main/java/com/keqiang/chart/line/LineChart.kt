@@ -5,11 +5,13 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.Px
+import androidx.core.content.ContextCompat
 import com.keqiang.chart.R
 import com.keqiang.chart.utils.getCenterBaseline
 import com.keqiang.chart.utils.getTextHeight
@@ -22,9 +24,11 @@ import kotlin.reflect.KProperty
  *
  * @author Created by wanggaowan on 2021/11/12 15:03
  */
-class LineChart @JvmOverloads constructor(context: Context,
-                                          attrs: AttributeSet?,
-                                          defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
+open class LineChart @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet?,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     /**
      * x轴
@@ -43,7 +47,11 @@ class LineChart @JvmOverloads constructor(context: Context,
      */
     var drawPublicZero = true
 
-    private var lineDataList: List<LineData>? = null
+    var lineDataList: List<LineData>? = null
+        private set(value) {
+            field = value
+            invalidate()
+        }
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -51,21 +59,27 @@ class LineChart @JvmOverloads constructor(context: Context,
     private val tempPath = Path()
     private val bgPath = Path()
 
+    // 用于虚线的绘制
+    private lateinit var dashPathEffect: DashPathEffect
+
+    private inline val Int.px: Float get() = if (isInEditMode) this.toFloat() else SimpleUtil.getScaledValue(this.toFloat())
+    private inline val Float.px: Float get() = if (isInEditMode) this else SimpleUtil.getScaledValue(this)
+
     init {
-        if (!isInEditMode) {
-            xAxis.labelSize(SimpleUtil.getScaledValue(24f))
-            yAxis.labelSize(SimpleUtil.getScaledValue(24f))
-        } else {
-            xAxis.valueFormat { if (it == 0) "0" else "中abAB12国NO.1哈哈haha" }
-                .labelOffset(10f)
+        xAxis.labelSize(24f.px)
+        yAxis.labelSize(24f.px)
+
+        if (isInEditMode) {
+            xAxis.valueFormat { if (it == 0) "0" else "中PGpgAB12国NO.1哈哈haha" }
+                .labelOffset(10.px)
                 .drawGridLine(true)
-                .topOffset(30f)
+                .topOffset(30.px)
                 .gridUseTopOffset(true)
                 .labelAlign(Paint.Align.LEFT)
 
-            yAxis.labelOffset(10f)
+            yAxis.labelOffset(0.px)
                 .drawGridLine(true)
-                .topOffset(30f)
+                .topOffset(30.px)
                 .gridUseTopOffset(true)
                 .valueFormat {
                     when (it) {
@@ -89,17 +103,41 @@ class LineChart @JvmOverloads constructor(context: Context,
                 if (i == 3) {
                     entity.lineStyle = Entity.DOTTED_LINE
                 }
-                entity.valueIndicatorDrawable = resources.getDrawable(R.drawable.ic_baseline_grade_24)
-                entity.valueIndicatorSize = 30
+                entity.valueIndicatorDrawable =
+                    ContextCompat.getDrawable(context, R.drawable.ic_baseline_grade_24)
+                entity.valueIndicatorSize = 30.px
                 entityList.add(entity)
             }
 
             val lineData = LineData(entityList)
-            lineData.lineWidth = 10f
+            lineData.lineWidth = 2f.px
             lineData.fillBg = true
             lineData.fillBgColor = (0x335283C9).toInt()
-            lineData.lineStyle = LineData.HORIZONTAL_BEZIER
+            lineData.lineStyle = LineData.LINER
 
+            val addedLines = mutableListOf<AddedLine>()
+            val addedLine = AddedLine(80f)
+            addedLine.lineWidth = 1f.px
+            addedLine.labelTextSize = 50.px
+            addedLine.label = "ABCabcPGJpgj中国"
+            addedLine.labelGravity = Gravity.TOP or Gravity.RIGHT
+            addedLines.add(addedLine)
+
+            val addedLine2 = AddedLine(60f)
+            addedLine2.lineWidth = 1f.px
+            addedLine2.labelTextSize = 50.px
+            addedLine2.label = "ABCabcPGJpgj中国"
+            addedLine2.labelGravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            addedLines.add(addedLine2)
+
+            val addedLine3 = AddedLine(4f)
+            addedLine3.lineWidth = 1f.px
+            addedLine3.labelTextSize = 50.px
+            addedLine3.label = "ABCabcPGJpgj中国"
+            addedLine3.labelGravity = Gravity.BOTTOM or Gravity.START
+            addedLines.add(addedLine3)
+
+            lineData.addedLines = addedLines
             lineDataList = mutableListOf(lineData)
         }
     }
@@ -114,11 +152,7 @@ class LineChart @JvmOverloads constructor(context: Context,
         initAxisLabel(xAxis)
 
         // 默认顶部和右边加上10px的padding
-        val paddingOffset = if (!isInEditMode) {
-            SimpleUtil.getScaledValue(10f)
-        } else {
-            10f
-        }
+        val paddingOffset = 10.px
 
         val yMaxTextWidth = getTextMaxWidth(yAxis)
 
@@ -133,10 +167,11 @@ class LineChart @JvmOverloads constructor(context: Context,
 
         val xZeroLabel = if (xAxis.labelList.isNullOrEmpty()) "" else xAxis.labelList!![0]
         val yZeroLabel = if (yAxis.labelList.isNullOrEmpty()) "" else yAxis.labelList!![0]
-        val jumpZeroLabel = drawPublicZero && xZeroLabel == yZeroLabel && xAxis.labelSize == yAxis.labelSize
-            && xAxis.labelColor == yAxis.labelColor && yMaxTextWidth > 0
+        val jumpZeroLabel =
+            drawPublicZero && xZeroLabel == yZeroLabel && xAxis.labelSize == yAxis.labelSize
+                && xAxis.labelColor == yAxis.labelColor && yMaxTextWidth > 0
 
-        drawXAxis(canvas, xStart, xEnd, xTop, xBottom, xBaseline, jumpZeroLabel, xTop - yTop)
+        drawXAxis(canvas, xStart, xEnd, xTop, xBottom, xTextHeight, xBaseline, jumpZeroLabel, xTop - yTop)
         drawYAxis(canvas, xStart, (xStart + yAxis.lineWidth), yTop, xTop, yMaxTextWidth, jumpZeroLabel, xEnd - xStart)
         if (jumpZeroLabel) {
             drawPublicZeroLabel(canvas, xZeroLabel, xStart, xBottom, xBaseline, yMaxTextWidth)
@@ -146,13 +181,11 @@ class LineChart @JvmOverloads constructor(context: Context,
     }
 
     private fun getXLabelOffset(): Float {
-        return xAxis.labelOffset
-            ?: if (isInEditMode) 10f else SimpleUtil.getScaledValue(10f)
+        return xAxis.labelOffset ?: 10.px
     }
 
     private fun getYLabelOffset(): Float {
-        return yAxis.labelOffset
-            ?: if (isInEditMode) 10f else SimpleUtil.getScaledValue(10f)
+        return yAxis.labelOffset ?: 10.px
     }
 
     private fun getXLabelAlign(): Paint.Align {
@@ -201,17 +234,17 @@ class LineChart @JvmOverloads constructor(context: Context,
     }
 
     /**
-     * 绘制x轴，[start]、[end]、[top]、[bottom]指定轴线绘制坐标，[maxTextWidth]为x轴最大文本的宽度，
-     * [jumpZeroLabel]表示是否跳过0值文本的绘制，[yRange]则为y轴线的长度
+     * 绘制x轴，[start]、[end]、[top]、[bottom]指定轴线绘制坐标，[jumpZeroLabel]表示是否跳过0值文本的绘制，[yRange]则为y轴线的长度
      */
     private fun drawXAxis(canvas: Canvas,
                           start: Float, end: Float,
                           top: Float, bottom: Float,
-                          baseline: Float,
+                          textHeight: Float, baseline: Float,
                           jumpZeroLabel: Boolean, yRange: Float) {
         // 绘制轴线
         setPaint(xAxis.lineColor, xAxis.lineWidth)
-        canvas.drawLine(start, top, end, bottom, paint)
+        val y = top + (bottom - top) / 2f
+        canvas.drawLine(start, y, end, y, paint)
 
         var tempStart = start
         val step = (end - start - xAxis.topOffset) / xAxis.labelCount
@@ -222,7 +255,7 @@ class LineChart @JvmOverloads constructor(context: Context,
 
         xAxis.labelList?.let {
             val labelOffset = getXLabelOffset()
-            val textStep = step - if (isInEditMode) 20 else SimpleUtil.getScaledValue(20)
+            val textStep = step - 20.px
             for (index in it.indices) {
                 val maxTextWidth = when (index) {
                     0 -> textStep / 2f + start - paddingStart
@@ -242,15 +275,15 @@ class LineChart @JvmOverloads constructor(context: Context,
                                 when (index) {
                                     // 起始点可以向左延伸
                                     0 -> tempRectF.set(paddingStart.toFloat(), bottom,
-                                        tempStart + textStep / 2f, bottom + labelOffset + baseline * 2)
+                                                       tempStart + textStep / 2f, bottom + labelOffset + textHeight)
 
                                     // 中间点可绘制宽度固定
                                     it.size - 1 -> tempRectF.set(tempStart - textStep / 2f, bottom,
-                                        tempStart + xAxis.topOffset, bottom + labelOffset + baseline * 2)
+                                                                 tempStart + xAxis.topOffset, bottom + labelOffset + textHeight)
 
                                     // 结束点向右延伸
                                     else -> tempRectF.set(tempStart - maxTextWidth / 2f, bottom,
-                                        tempStart + maxTextWidth / 2f, bottom + labelOffset + baseline * 2)
+                                                          tempStart + maxTextWidth / 2f, bottom + labelOffset + textHeight)
                                 }
 
                                 canvas.clipRect(tempRectF)
@@ -305,8 +338,8 @@ class LineChart @JvmOverloads constructor(context: Context,
 
                 if (index > 0 && xAxis.drawGridLine) {
                     canvas.drawLine(tempStart,
-                        if (xAxis.gridUseTopOffset) top - yRange + xAxis.topOffset else top - yRange,
-                        tempStart, top, paint)
+                                    if (xAxis.gridUseTopOffset) top - yRange + xAxis.topOffset else top - yRange,
+                                    tempStart, top, paint)
                 }
 
                 tempStart += step
@@ -327,7 +360,8 @@ class LineChart @JvmOverloads constructor(context: Context,
 
         // 绘制轴线
         setPaint(yAxis.lineColor, yAxis.lineWidth)
-        canvas.drawLine(start, top, end, bottom, paint)
+        val x = start + (end - start) / 2f
+        canvas.drawLine(x, top, x, bottom, paint)
 
         // 绘制y轴文本
         var tempBottom = bottom
@@ -354,8 +388,9 @@ class LineChart @JvmOverloads constructor(context: Context,
                                 }
                             } else {
                                 canvas.save()
-                                tempRectF.set(textStart - maxTextWidth, top, textStart, tempBottom + baseLine)
+                                tempRectF.set(textStart - maxTextWidth, top, textStart, bottom)
                                 canvas.clipRect(tempRectF)
+
                                 val startX = if (labelAlign == Paint.Align.LEFT) {
                                     tempRectF.left
                                 } else {
@@ -365,7 +400,7 @@ class LineChart @JvmOverloads constructor(context: Context,
                                 if (index == 0) {
                                     canvas.drawText(text, startX, tempBottom, textPaint)
                                 } else {
-                                    canvas.drawText(text, startX, tempRectF.bottom, textPaint)
+                                    canvas.drawText(text, startX, tempBottom + baseLine, textPaint)
                                 }
 
                                 canvas.restore()
@@ -375,7 +410,8 @@ class LineChart @JvmOverloads constructor(context: Context,
                 }
 
                 if (index > 0 && yAxis.drawGridLine) {
-                    var stopX = if (yAxis.gridUseTopOffset) start + xRange - yAxis.topOffset else start + xRange
+                    var stopX =
+                        if (yAxis.gridUseTopOffset) start + xRange - yAxis.topOffset else start + xRange
                     if (xAxis.drawGridLine && index == it.size - 1) {
                         stopX += xAxis.gridLineWidth / 2
                     }
@@ -442,6 +478,11 @@ class LineChart @JvmOverloads constructor(context: Context,
         }
     }
 
+    /**
+     * [end]： 折线图X轴绘制区域结束点，不包括[Axis.topOffset]
+     *
+     * [top]： 折线图Y轴绘制区域起始点，不包括[Axis.topOffset]
+     */
     private fun drawValues(canvas: Canvas,
                            start: Float, end: Float,
                            top: Float, bottom: Float) {
@@ -455,20 +496,26 @@ class LineChart @JvmOverloads constructor(context: Context,
                 when (it.lineStyle) {
                     LineData.CUBIC_BEZIER -> drawCubicBezier(canvas, it, start, end, top, bottom)
 
-                    LineData.HORIZONTAL_BEZIER -> drawHorizontalBezier(canvas, it, start, end, top, bottom)
-
                     else -> drawLiner(canvas, it, start, end, top, bottom)
                 }
             }
 
             drawValueTextAndIndicator(canvas, it)
+            drawAddedLine(canvas, it, start, end, top, bottom)
         }
     }
 
     /**
      * 计算[Entity]在坐标系中的坐标位置
      */
-    private fun getEntityPosition(pos: Int, entity: Entity, start: Float, end: Float, top: Float, bottom: Float) {
+    private fun getEntityPosition(
+        pos: Int,
+        entity: Entity,
+        start: Float,
+        end: Float,
+        top: Float,
+        bottom: Float
+    ) {
         val x = start + ((end - start) / xAxis.labelCount * pos)
         val y = bottom - ((entity.value - yAxis.min) / (yAxis.max - yAxis.min) * (bottom - top))
         entity.x = x
@@ -606,16 +653,20 @@ class LineChart @JvmOverloads constructor(context: Context,
                     // 重新已此点作为起始点
                     prev = cur
                 } else {
-                    prevDx = (getDrawX(cur, start) - getDrawX(prevPrev, start)) * lineData.cubicIntensity
-                    prevDy = (getDrawY(cur, bottom) - getDrawY(prevPrev, bottom)) * lineData.cubicIntensity
-                    curDx = (getDrawX(next, start) - getDrawX(prev, start)) * lineData.cubicIntensity
-                    curDy = (getDrawY(next, bottom) - getDrawY(prev, bottom)) * lineData.cubicIntensity
+                    prevDx =
+                        (getDrawX(cur, start) - getDrawX(prevPrev, start)) * lineData.cubicIntensity
+                    prevDy =
+                        (getDrawY(cur, bottom) - getDrawY(prevPrev, bottom)) * lineData.cubicIntensity
+                    curDx =
+                        (getDrawX(next, start) - getDrawX(prev, start)) * lineData.cubicIntensity
+                    curDy =
+                        (getDrawY(next, bottom) - getDrawY(prev, bottom)) * lineData.cubicIntensity
 
                     tempPath.cubicTo(getDrawX(prev, start) + prevDx, getDrawY(prev, start) + prevDy,
-                        cur.x - curDx, cur.y - curDy, cur.x, cur.y)
+                                     cur.x - curDx, cur.y - curDy, cur.x, cur.y)
 
                     bgPath.cubicTo(getDrawX(prev, start) + prevDx, getDrawY(prev, start) + prevDy,
-                        cur.x - curDx, cur.y - curDy, cur.x, cur.y)
+                                   cur.x - curDx, cur.y - curDy, cur.x, cur.y)
                 }
 
 
@@ -673,7 +724,9 @@ class LineChart @JvmOverloads constructor(context: Context,
 
     private fun setPathEffect(lineStyle: Int?, paint: Paint) {
         if (lineStyle == Entity.DOTTED_LINE) {
-            val dashPathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
+            if (!this::dashPathEffect.isInitialized) {
+                dashPathEffect = DashPathEffect(floatArrayOf(10f.px, 10f.px), 0f)
+            }
             paint.pathEffect = dashPathEffect
         } else {
             paint.pathEffect = null
@@ -692,95 +745,6 @@ class LineChart @JvmOverloads constructor(context: Context,
     }
 
     /**
-     * 绘制二次贝塞尔曲线平滑折线图
-     */
-    private fun drawHorizontalBezier(canvas: Canvas, lineData: LineData, start: Float, end: Float, top: Float, bottom: Float) {
-        setPaint(lineData.lineColor, lineData.lineWidth)
-        tempPath.reset()
-        bgPath.reset()
-
-        var lineStyle: Int? = null
-        var cur: Entity = lineData.values[0]
-        var prev: Entity
-        getEntityPosition(0, lineData.values[0], start, end, top, bottom)
-        if (cur.isDraw) {
-            tempPath.moveTo(cur.x, cur.y)
-            bgPath.moveTo(cur.x, bottom)
-            bgPath.lineTo(cur.x, cur.y)
-        }
-
-        canvas.save()
-        canvas.clipRect(start, top, end, bottom)
-
-        for (index in 1 until lineData.values.size) {
-            getEntityPosition(index, lineData.values[index], start, end, top, bottom)
-
-            prev = cur
-            cur = lineData.values[index]
-
-            if (cur.isDraw) {
-                if (tempPath.isEmpty) {
-                    tempPath.moveTo(cur.x, cur.y)
-                    bgPath.moveTo(cur.x, bottom)
-                    bgPath.lineTo(cur.x, cur.y)
-                } else {
-                    val preCpx = prev.x + (cur.x - prev.x) * lineData.cubicIntensity
-                    val curCpx = cur.x - (cur.x - prev.x) * lineData.cubicIntensity
-                    tempPath.cubicTo(preCpx, prev.y, curCpx, cur.y, cur.x, cur.y)
-                    bgPath.cubicTo(preCpx, prev.y, curCpx, cur.y, cur.x, cur.y)
-                }
-
-                if (lineStyle != null && lineStyle != cur.lineStyle) {
-                    if (!bgPath.isEmpty) {
-                        bgPath.lineTo(cur.x, bottom)
-                        drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
-                        bgPath.reset()
-                        bgPath.moveTo(cur.x, bottom)
-                        bgPath.lineTo(cur.x, cur.y)
-                    }
-
-                    if (!tempPath.isEmpty) {
-                        setPathEffect(lineStyle, paint)
-                        canvas.drawPath(tempPath, paint)
-                        tempPath.reset()
-                        tempPath.moveTo(cur.x, cur.y)
-                    }
-                }
-
-                lineStyle = cur.lineStyle
-            } else {
-                if (!bgPath.isEmpty) {
-                    val preEntity = lineData.values[index - 1]
-                    bgPath.lineTo(preEntity.x, bottom)
-                    drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
-                    bgPath.reset()
-                }
-
-                if (!tempPath.isEmpty) {
-                    setPathEffect(lineStyle, paint)
-                    canvas.drawPath(tempPath, paint)
-                    tempPath.reset()
-                }
-            }
-
-            if (index == lineData.values.size - 1 && !bgPath.isEmpty) {
-                bgPath.lineTo(cur.x, bottom)
-            }
-        }
-
-        if (!bgPath.isEmpty) {
-            drawFillBg(canvas, bgPath, lineData, start, end, top, bottom)
-        }
-
-        if (!tempPath.isEmpty) {
-            setPathEffect(lineStyle, paint)
-            canvas.drawPath(tempPath, paint)
-        }
-
-        canvas.restore()
-    }
-
-    /**
      * 绘制文本值和数值指示器
      */
     private fun drawValueTextAndIndicator(canvas: Canvas, lineData: LineData) {
@@ -793,7 +757,7 @@ class LineChart @JvmOverloads constructor(context: Context,
                     && entity.valueIndicatorSize > 0) {
                     val half = entity.valueIndicatorSize / 2f
                     entity.valueIndicatorDrawable?.setBounds((entity.x - half).toInt(), (entity.y - half).toInt(),
-                        (entity.x + half).toInt(), (entity.y + half).toInt())
+                                                             (entity.x + half).toInt(), (entity.y + half).toInt())
                     entity.valueIndicatorDrawable?.draw(canvas)
                     indicatorOffset = half
                 }
@@ -827,6 +791,158 @@ class LineChart @JvmOverloads constructor(context: Context,
             canvas.drawColor(lineData.fillBgColor)
             canvas.restore()
         }
+    }
+
+    /**
+     * [end]： 折线图X轴绘制区域结束点，不包括[Axis.topOffset]
+     *
+     * [top]： 折线图Y轴绘制区域起始点，不包括[Axis.topOffset]
+     */
+    private fun drawAddedLine(
+        canvas: Canvas, lineData: LineData,
+        start: Float, end: Float, top: Float, bottom: Float
+    ) {
+        canvas.save()
+        tempRectF.set(start, top + yAxis.topOffset, end + xAxis.topOffset, bottom)
+        canvas.clipRect(tempRectF)
+
+        lineData.addedLines?.forEach {
+            val y = bottom - ((it.value - yAxis.min) / (yAxis.max - yAxis.min) * (bottom - top))
+            val stopX = if (it.useTopOffset) end else end + yAxis.topOffset
+            setPaint(it.lineColor, it.lineWidth)
+            canvas.drawLine(start, y, stopX, y, paint)
+
+            if (it.label.isNullOrEmpty() || it.labelTextSize <= 0) {
+                return
+            }
+
+            val isHorizontalCenter = it.labelGravity and Gravity.LEFT != Gravity.LEFT
+                && it.labelGravity and Gravity.RIGHT != Gravity.RIGHT
+                && it.labelGravity and Gravity.CENTER_HORIZONTAL == Gravity.CENTER_HORIZONTAL
+            val isEnd = !isHorizontalCenter && (it.labelGravity and Gravity.RIGHT) == Gravity.RIGHT
+            var isBottom = (it.labelGravity and Gravity.BOTTOM) == Gravity.BOTTOM
+
+            textPaint.color = it.labelTextColor
+            textPaint.textSize = it.labelTextSize
+            var textStartX: Float = it.labelXOffset
+            textPaint.textAlign = when {
+                isHorizontalCenter -> {
+                    textStartX += start + (stopX - start) / 2f
+                    Paint.Align.CENTER
+                }
+
+                isEnd -> {
+                    textStartX += stopX
+                    Paint.Align.RIGHT
+                }
+
+                else -> {
+                    textStartX += start
+                    Paint.Align.LEFT
+                }
+            }
+
+            val fm = textPaint.fontMetrics
+            val drawTop: Float
+            val drawBottom: Float
+            if (isBottom) {
+                drawTop = y + it.lineWidth / 2f
+                drawBottom = drawTop + fm.descent - fm.ascent
+            } else {
+                drawBottom = y
+                drawTop = drawBottom - (fm.descent - fm.ascent)
+            }
+
+            it.drawRectF.set(0f, drawTop, 0f, drawBottom)
+            if (it.autoVerticalGravity) {
+                checkAddLineDrawSpace(true, lineData, it, isBottom, y, drawTop, drawBottom, fm,
+                                      top, bottom)
+            }
+
+            isBottom = if (it.drawRectF.top != drawTop || it.drawRectF.bottom != drawBottom) {
+                !isBottom
+            } else {
+                isBottom
+            }
+
+            val textStartY = if (isBottom) {
+                it.drawRectF.top - fm.ascent + it.labelYOffset
+            } else {
+                it.drawRectF.bottom - fm.descent - it.labelYOffset
+            }
+
+            textPaint.textSize = it.labelTextSize
+            canvas.drawText(it.label!!, textStartX, textStartY, textPaint)
+        }
+
+        canvas.restore()
+    }
+
+    /**
+     * 检查AddLine绘制空间，执行垂直方向自动排版逻辑。
+     *
+     * [isBottom]表明原始用户配置附加线文本绘制方向
+     *
+     * [drawY]为附加线的绘制坐标
+     *
+     * [drawTop]为附加线文本绘制的顶点，[drawBottom]为附加线文本绘制的底点
+     *
+     * [lineYTop]为折线图绘制预期Y轴顶点，[lineYBottom]为折线图绘制预期Y轴底点
+     */
+    private fun checkAddLineDrawSpace(isFirst: Boolean,
+                                      lineData: LineData,
+                                      addedLine: AddedLine,
+                                      isBottom: Boolean,
+                                      drawY: Float,
+                                      drawTop: Float,
+                                      drawBottom: Float,
+                                      fm: Paint.FontMetrics,
+                                      lineYTop: Float,
+                                      lineYBottom: Float) {
+
+        if (lineData.addedLines.isNullOrEmpty()) {
+            return
+        }
+
+        for (line in lineData.addedLines!!) {
+            var posOverlap = false
+            if (drawTop < lineYTop || drawBottom > lineYBottom) {
+                if (!isFirst) {
+                    return
+                }
+                posOverlap = true
+            } else {
+                if (line == addedLine) {
+                    break
+                }
+
+                if (!(drawTop >= line.drawRectF.bottom || drawBottom <= line.drawRectF.top)) {
+                    if (!isFirst) {
+                        return
+                    }
+                    posOverlap = true
+                }
+            }
+
+            if (posOverlap) {
+                // 调转方向
+                val top: Float
+                val bottom: Float
+                if (!isBottom) {
+                    top = drawY + addedLine.lineWidth / 2f
+                    bottom = drawTop + fm.descent - fm.ascent
+                } else {
+                    bottom = drawY
+                    top = drawBottom - (fm.descent - fm.ascent)
+                }
+                checkAddLineDrawSpace(false, lineData, addedLine, isBottom, drawY, top, bottom, fm,
+                                      lineYTop, lineYBottom)
+
+                return
+            }
+        }
+
+        addedLine.drawRectF.set(0f, drawTop, 0f, drawBottom)
     }
 }
 
@@ -1031,7 +1147,7 @@ open class Axis internal constructor() {
 /**
  * 配置X、Y轴值内容
  */
-class YAxis internal constructor() : Axis() {
+open class YAxis internal constructor() : Axis() {
     var min: Float = 0f
         private set
     var max: Float = 100f
@@ -1112,7 +1228,7 @@ class YAxis internal constructor() : Axis() {
     }
 }
 
-class LineData(
+open class LineData(
     /**
      * 需要绘制的值
      */
@@ -1126,12 +1242,11 @@ class LineData(
     var lineStyle: Int = LINER
 
     /**
-     * 如果[lineStyle]不是[LINER],则此值指定贝塞尔曲线的平滑度
+     * 如果[lineStyle]是[CUBIC_BEZIER],则此值指定贝塞尔曲线的平滑度
      */
     var cubicIntensity by DefValueDelegate {
         when (lineStyle) {
             CUBIC_BEZIER -> 0.1f
-            HORIZONTAL_BEZIER -> 0.5f
             else -> 0f
         }
     }
@@ -1169,7 +1284,9 @@ class LineData(
      */
     var valueFormat: ValueFormat? = null
 
-    @IntDef(LINER, CUBIC_BEZIER, HORIZONTAL_BEZIER)
+    var addedLines: List<AddedLine>? = null
+
+    @IntDef(LINER, CUBIC_BEZIER)
     @Target(AnnotationTarget.VALUE_PARAMETER)
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     private annotation class LineStyle
@@ -1177,11 +1294,10 @@ class LineData(
     companion object {
         const val LINER = 1
         const val CUBIC_BEZIER = 2
-        const val HORIZONTAL_BEZIER = 3
     }
 }
 
-class Entity(var value: Float = 0f) {
+open class Entity(var value: Float = 0f) {
     /**
      * 是否绘制此数据
      */
@@ -1195,6 +1311,7 @@ class Entity(var value: Float = 0f) {
     /**
      * 文本值字体大小
      */
+    @Px
     var valueTextSize: Float = 24f
 
     /**
@@ -1215,14 +1332,14 @@ class Entity(var value: Float = 0f) {
     /**
      * 指示器大小
      */
-    var valueIndicatorSize: Int = 10
+    @Px
+    var valueIndicatorSize: Float = 10f
 
     /**
      * 绘制线条类型
      */
     @setparam:LineStyle
     var lineStyle: Int = SOLID_LINE
-
 
     /**
      * 附加信息
@@ -1232,12 +1349,16 @@ class Entity(var value: Float = 0f) {
     /**
      * 绘制时的x坐标
      */
+    @Px
     var x: Float = 0f
+        internal set
 
     /**
      * 绘制时的y坐标
      */
+    @Px
     var y: Float = 0f
+        internal set
 
     @IntDef(DOTTED_LINE, SOLID_LINE)
     @Target(AnnotationTarget.VALUE_PARAMETER)
@@ -1255,6 +1376,72 @@ class Entity(var value: Float = 0f) {
          */
         const val SOLID_LINE = 1
     }
+}
+
+/**
+ * 在折线图中显示在y轴上标记特定值的附加线
+ */
+open class AddedLine(var value: Float) {
+    /**
+     * 附加线颜色
+     */
+    @ColorInt
+    var lineColor: Int = Color.GREEN
+
+    /**
+     * 附加线宽度
+     */
+    @Px
+    var lineWidth: Float = 1f
+
+    /**
+     * 附加线文本
+     */
+    var label: String? = null
+
+    /**
+     * 附加线文本字体大小
+     */
+    @Px
+    var labelTextSize = 24f
+
+    /**
+     * 附加线文本字体颜色
+     */
+    @ColorInt
+    var labelTextColor: Int = Color.BLACK
+
+    /**
+     * 附加线文本绘制位置，以附加线作为基准.垂直方向只能基于附加线之上和之下，
+     * 如果设置为[Gravity.CENTER_VERTICAL],则当做[Gravity.TOP]处理
+     */
+    var labelGravity: Int = Gravity.TOP or Gravity.RIGHT
+
+    /**
+     * 垂直方向是否自动布局，如：设置绘制位置为Gravity.TOP，但是发现上方没有足够空间，
+     * 此时下方有足够可用控件，则以Gravity.bottom绘制
+     */
+    var autoVerticalGravity: Boolean = true
+
+    /**
+     * 标签X轴偏移值,>0:向右偏移，<0:向左偏移
+     */
+    var labelXOffset: Float = 0f
+
+    /**
+     * 标签Y轴偏移值，以附加线作为基准点，>0:远离基准线，<0:靠近基准线
+     */
+    var labelYOffset: Float = 0f
+
+    /**
+     * [Axis.topOffset]属性是否作用于附加线，如果此值为true,那么附加线绘制长度<=x轴轴线长度
+     */
+    var useTopOffset: Boolean = true
+
+    /**
+     * 增值线绘制的矩形区域
+     */
+    internal var drawRectF: RectF = RectF()
 }
 
 /**

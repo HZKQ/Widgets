@@ -35,11 +35,11 @@ fun Paint.getTextBounds(textSize: Float, text: String): Rect {
 }
 
 /**
- * 获取居中baseLine，如果需要将文本与y轴某一点（a）水平居中对齐，则只需将需要 a + 此值 = 绘制文本的y轴坐标
+ * 获取居中baseLine，如果需要将文本与y轴某一点（a）垂直居中对齐，则只需将需要 a + 此值 = 绘制文本的y轴坐标
  */
 fun Paint.getCenterBaseline(textSize: Float): Float {
     this.textSize = textSize
     val fm = this.fontMetrics
-    return (fm.bottom - fm.top) / 2 - fm.bottom
+    return (fm.descent - fm.ascent) / 2 - fm.descent
 }
 
